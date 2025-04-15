@@ -18,16 +18,11 @@ export async function GET(request: NextRequest) {
     // Retrieve the checkout session
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     
-    // Debug logging - log the entire session object
-    console.log('Retrieved Stripe session:', JSON.stringify(session, null, 2));
-
     // Get the customer ID
     const customerId = typeof session.customer === 'string' 
       ? session.customer 
       : session.customer?.id;
     
-    console.log('Extracted customerId:', customerId);
-    console.log('Session customer object:', session.customer);
     
     // If no customerId is found, create a customer for this user
     if (!customerId) {
@@ -40,7 +35,6 @@ export async function GET(request: NextRequest) {
         throw new Error("No user ID found in session's client_reference_id.");
       }
       
-      console.log('Using client_reference_id as userId:', userId);
       
       // Get the user
       const userResult = await db
@@ -55,7 +49,6 @@ export async function GET(request: NextRequest) {
       }
 
       const user = userResult[0];
-      console.log('Found user:', user);
       
       // Update user with subscription information from session data
       await db.update(users)
@@ -79,11 +72,9 @@ export async function GET(request: NextRequest) {
       throw new Error("No user ID found in session's client_reference_id.");
     }
 
-    console.log('Using client_reference_id as userId:', userId);
 
     // Get line items directly with expanded product
     const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
-    console.log('Retrieved line items:', lineItems.data);
     
     if (lineItems.data.length === 0) {
       console.log('No line items found in session');
@@ -99,19 +90,15 @@ export async function GET(request: NextRequest) {
     // Get the price and product details
     const priceId = typeof item.price === 'string' ? item.price : item.price.id;
     const price = await stripe.prices.retrieve(priceId, { expand: ['product'] });
-    console.log('Retrieved price details, product info available:', !!price.product);
     
     if (!price.product || typeof price.product === 'string') {
-      console.log('Product information not available or is just an ID');
       throw new Error("Could not retrieve product information.");
     }
     
     const product = price.product;
-    console.log('Product information:', product);
     
     // Check if it's an active product or deleted product
     if ('deleted' in product && product.deleted) {
-      console.log('Product is marked as deleted');
       throw new Error("Product has been deleted.");
     }
 
@@ -128,9 +115,8 @@ export async function GET(request: NextRequest) {
     }
 
     const user = userResult[0];
-    console.log('Found user:', user);
 
-    // Update user with subscription information
+    // Update user with subscription information from session data
     let remainingRuns = user.remainingRuns || 0;
 
     // Determine number of runs based on plan name
@@ -141,8 +127,6 @@ export async function GET(request: NextRequest) {
     } else if (product.name.toLowerCase().includes('recruit')) {
       remainingRuns = remainingRuns + 1;
     }
-
-    console.log(`Setting remaining runs to ${remainingRuns} for plan ${product.name}`);
 
     await db.update(users)
       .set({

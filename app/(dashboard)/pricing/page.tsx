@@ -1,5 +1,5 @@
 import { checkoutAction } from '@/lib/payments/actions';
-import { Check } from 'lucide-react';
+import { Check, Zap } from 'lucide-react';
 import { getStripePrices, getStripeProducts } from '@/lib/payments/stripe';
 import { SubmitButton } from './submit-button';
 import Link from 'next/link';
@@ -14,67 +14,94 @@ export default async function PricingPage() {
     getStripeProducts(),
   ]);
 
-  // Find the specific product IDs for Centurion and Imperator
-  const centurionPlan = products.find((product) => product.name === 'Centurion');
-  const imperatorPlan = products.find((product) => product.name === 'Imperator');
+  // Get product IDs by name
+  const centurionPlan = products.find((p) => p.name === 'Centurion');
+  const imperatorPlan = products.find((p) => p.name === 'Imperator');
+  const recruitPlan = products.find((p) => p.name === 'Recruit');
 
-  // Find the associated prices for each product
-  const centurionPrice = prices.find((price) => price.productId === centurionPlan?.id);
-  const imperatorPrice = prices.find((price) => price.productId === imperatorPlan?.id);
+  // Get prices for each product
+  const centurionPrice = prices.find(
+    (p) => p.productId === centurionPlan?.id
+  );
+  const imperatorPrice = prices.find(
+    (p) => p.productId === imperatorPlan?.id
+  );
+  const recruitPrice = prices.find(
+    (p) => p.productId === recruitPlan?.id
+  );
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-center mb-12">Choose Your Bundle</h1>
+      <div className="text-center mb-12">
+        <h1 className="text-3xl font-bold mb-3">Arena Run Bundles</h1>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Purchase premium run bundles to test your ideas. All premium plans include the same advanced features - 
+          choose based on how many ideas you want to test.
+        </p>
+      </div>
+      
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        <PricingCardFree
-          name="Recruit"
+        <PricingCardFree 
+          name="Free Trial"
+          description="Try the Arena with one free run"
           features={[
-            'One Arena run',
             'Basic scoring',
             'Results summary',
+            'Core feedback'
           ]}
+          runs="1"
         />
-        <PricingCardOneOff
+
+        <PricingCardPaid
           name="Centurion"
-          price={4900}
+          description="5 premium Arena runs with all advanced features"
+          price={centurionPrice?.unitAmount || 4900}
           features={[
-            '5 Arena runs',
             'Full in-depth insights',
             'Save and compare results',
             'Detailed agent feedback',
             'Idea validation report',
+            'Premium agent analysis'
           ]}
+          runs="5"
           priceId={centurionPrice?.id}
-          popular
+          popular={true}
         />
-        <PricingCardOneOff
+
+        <PricingCardPaid
           name="Imperator"
-          price={9900}
+          description="15 premium Arena runs with all advanced features"
+          price={imperatorPrice?.unitAmount || 9900}
           features={[
-            '15 Arena runs',
-            'Everything in Centurion',
-            'Custom niche agents',
-            'Industry-specific analysis',
-            'Profitability optimization',
-            'Priority support',
+            'Full in-depth insights',
+            'Save and compare results',
+            'Detailed agent feedback',
+            'Idea validation report',
+            'Premium agent analysis',
           ]}
+          runs="15"
           priceId={imperatorPrice?.id}
+          popular={false}
         />
       </div>
     </main>
   );
 }
 
-function PricingCardOneOff({
+function PricingCardPaid({
   name,
+  description,
   price,
   features,
+  runs,
   priceId,
   popular,
 }: {
   name: string;
-  price: number;
+  description: string;
+  price: number | null;
   features: string[];
+  runs: string;
   priceId?: string;
   popular?: boolean;
 }) {
@@ -87,9 +114,19 @@ function PricingCardOneOff({
       )}
       <h2 className="text-2xl font-medium text-gray-900 mb-2">{name}</h2>
       <p className="text-4xl font-bold text-gray-900 mb-2">
-        ${price / 100}
+        ${((price || 0) / 100).toFixed(2)}
       </p>
-      <p className="text-sm text-gray-600 mb-6">One-time payment</p>
+      <p className="text-sm text-gray-600 mb-2">One-time payment</p>
+      
+      <div className="flex items-center mb-4 mt-2">
+        <div className="bg-orange-100 rounded-full p-2 mr-3">
+          <Zap className="h-4 w-4 text-orange-500" />
+        </div>
+        <span className="text-lg font-semibold">{runs} Arena Runs</span>
+      </div>
+      
+      <p className="text-sm text-gray-600 mb-6">{description}</p>
+      
       <ul className="space-y-4 mb-8">
         {features.map((feature, index) => (
           <li key={index} className="flex items-start">
@@ -98,6 +135,7 @@ function PricingCardOneOff({
           </li>
         ))}
       </ul>
+      
       <form action={checkoutAction} className="mt-auto">
         <input type="hidden" name="priceId" value={priceId} />
         <SubmitButton variant={popular ? "default" : "outline"} />
@@ -108,10 +146,14 @@ function PricingCardOneOff({
 
 function PricingCardFree({
   name,
+  description,
   features,
+  runs
 }: {
   name: string;
+  description: string;
   features: string[];
+  runs: string;
 }) {
   return (
     <div className="rounded-lg border border-gray-200 p-6 flex flex-col h-full">
@@ -119,7 +161,17 @@ function PricingCardFree({
       <p className="text-4xl font-bold text-gray-900 mb-2">
         Free
       </p>
-      <p className="text-sm text-gray-600 mb-6">No credit card required</p>
+      <p className="text-sm text-gray-600 mb-2">No credit card required</p>
+      
+      <div className="flex items-center mb-4 mt-2">
+        <div className="bg-orange-100 rounded-full p-2 mr-3">
+          <Zap className="h-4 w-4 text-orange-500" />
+        </div>
+        <span className="text-lg font-semibold">{runs} Arena Run</span>
+      </div>
+      
+      <p className="text-sm text-gray-600 mb-6">{description}</p>
+      
       <ul className="space-y-4 mb-8">
         {features.map((feature, index) => (
           <li key={index} className="flex items-start">
@@ -128,6 +180,7 @@ function PricingCardFree({
           </li>
         ))}
       </ul>
+      
       <div className="mt-auto">
         <Button asChild variant="outline" className="w-full rounded-full">
           <Link href="/arena">Get Started</Link>
