@@ -60,7 +60,7 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Actionable Feedback
+                  Instant Actionable Feedback
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
                 Using state of the art Agentic Analysis, we do a deep dive into what is and isnt going to work with your idea.

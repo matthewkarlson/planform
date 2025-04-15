@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
-import { users, teams, teamMembers } from '@/lib/db/schema';
+import { users } from '@/lib/db/schema';
 import { setSession } from '@/lib/auth/session';
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/payments/stripe';
@@ -15,83 +15,151 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['customer', 'subscription'],
-    });
+    // Retrieve the checkout session
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    
+    // Debug logging - log the entire session object
+    console.log('Retrieved Stripe session:', JSON.stringify(session, null, 2));
 
-    if (!session.customer || typeof session.customer === 'string') {
-      throw new Error('Invalid customer data from Stripe.');
+    // Get the customer ID
+    const customerId = typeof session.customer === 'string' 
+      ? session.customer 
+      : session.customer?.id;
+    
+    console.log('Extracted customerId:', customerId);
+    console.log('Session customer object:', session.customer);
+    
+    // If no customerId is found, create a customer for this user
+    if (!customerId) {
+      console.log('No customer ID found, attempting to process without it');
+      // Get the user ID from the client reference
+      const userId = session.client_reference_id;
+      
+      if (!userId) {
+        console.log('No client_reference_id found in session');
+        throw new Error("No user ID found in session's client_reference_id.");
+      }
+      
+      console.log('Using client_reference_id as userId:', userId);
+      
+      // Get the user
+      const userResult = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, Number(userId)))
+        .limit(1);
+
+      if (userResult.length === 0) {
+        console.log('User not found with ID:', userId);
+        throw new Error('User not found in database.');
+      }
+
+      const user = userResult[0];
+      console.log('Found user:', user);
+      
+      // Update user with subscription information from session data
+      await db.update(users)
+        .set({
+          // We'll set stripeCustomerId later when available
+          subscriptionStatus: 'active'
+        })
+        .where(eq(users.id, Number(userId)));
+
+      // Set user session
+      await setSession(user);
+      
+      return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-
-    const customerId = session.customer.id;
-    const subscriptionId =
-      typeof session.subscription === 'string'
-        ? session.subscription
-        : session.subscription?.id;
-
-    if (!subscriptionId) {
-      throw new Error('No subscription found for this session.');
-    }
-
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ['items.data.price.product'],
-    });
-
-    const plan = subscription.items.data[0]?.price;
-
-    if (!plan) {
-      throw new Error('No plan found for this subscription.');
-    }
-
-    const productId = (plan.product as Stripe.Product).id;
-
-    if (!productId) {
-      throw new Error('No product ID found for this subscription.');
-    }
-
+    
+    // Get the user ID from the client reference
     const userId = session.client_reference_id;
     if (!userId) {
+      console.log('No client_reference_id found in session');
       throw new Error("No user ID found in session's client_reference_id.");
     }
 
-    const user = await db
+    console.log('Using client_reference_id as userId:', userId);
+
+    // Get line items directly with expanded product
+    const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
+    console.log('Retrieved line items:', lineItems.data);
+    
+    if (lineItems.data.length === 0) {
+      console.log('No line items found in session');
+      throw new Error("No line items found in the checkout session.");
+    }
+    
+    const item = lineItems.data[0];
+    if (!item.price) {
+      console.log('No price found in first line item');
+      throw new Error("No price found in line item.");
+    }
+    
+    // Get the price and product details
+    const priceId = typeof item.price === 'string' ? item.price : item.price.id;
+    const price = await stripe.prices.retrieve(priceId, { expand: ['product'] });
+    console.log('Retrieved price details, product info available:', !!price.product);
+    
+    if (!price.product || typeof price.product === 'string') {
+      console.log('Product information not available or is just an ID');
+      throw new Error("Could not retrieve product information.");
+    }
+    
+    const product = price.product;
+    console.log('Product information:', product);
+    
+    // Check if it's an active product or deleted product
+    if ('deleted' in product && product.deleted) {
+      console.log('Product is marked as deleted');
+      throw new Error("Product has been deleted.");
+    }
+
+    // Get the user
+    const userResult = await db
       .select()
       .from(users)
       .where(eq(users.id, Number(userId)))
       .limit(1);
 
-    if (user.length === 0) {
+    if (userResult.length === 0) {
+      console.log('User not found with ID:', userId);
       throw new Error('User not found in database.');
     }
 
-    const userTeam = await db
-      .select({
-        teamId: teamMembers.teamId,
-      })
-      .from(teamMembers)
-      .where(eq(teamMembers.userId, user[0].id))
-      .limit(1);
+    const user = userResult[0];
+    console.log('Found user:', user);
 
-    if (userTeam.length === 0) {
-      throw new Error('User is not associated with any team.');
+    // Update user with subscription information
+    let remainingRuns = 0;
+
+    // Determine number of runs based on plan name
+    if (product.name === 'Centurion') {
+      remainingRuns = 5;
+    } else if (product.name === 'Imperator') {
+      remainingRuns = 15;
+    } else if (product.name.toLowerCase().includes('recruit')) {
+      remainingRuns = 1;
     }
 
-    await db
-      .update(teams)
+    console.log(`Setting remaining runs to ${remainingRuns} for plan ${product.name}`);
+
+    await db.update(users)
       .set({
         stripeCustomerId: customerId,
-        stripeSubscriptionId: subscriptionId,
-        stripeProductId: productId,
-        planName: (plan.product as Stripe.Product).name,
-        subscriptionStatus: subscription.status,
-        updatedAt: new Date(),
+        stripeProductId: typeof product.id === 'string' ? product.id : undefined,
+        planName: product.name,
+        subscriptionStatus: 'active',
+        remainingRuns: remainingRuns
       })
-      .where(eq(teams.id, userTeam[0].teamId));
+      .where(eq(users.id, Number(userId)));
 
-    await setSession(user[0]);
+    // Set user session
+    await setSession(user);
+    
     return NextResponse.redirect(new URL('/dashboard', request.url));
   } catch (error) {
     console.error('Error handling successful checkout:', error);
+    console.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     return NextResponse.redirect(new URL('/error', request.url));
   }
 }
