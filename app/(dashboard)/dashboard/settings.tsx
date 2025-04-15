@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { customerPortalAction } from '@/lib/payments/actions';
 import { Zap } from 'lucide-react';
 import { useActionState } from 'react';
 import { User } from '@/lib/db/schema';
@@ -30,14 +29,15 @@ export function Settings({ userData }: SettingsProps) {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
               <div className="mb-4 sm:mb-0">
                 <p className="font-medium">
-                  Your Title: {userData.planName || 'Free'}
+                  User Tier: {userData.isPremium ? 'Premium' : 'Free'}
                 </p>
               </div>
-              <form action={customerPortalAction}>
+              <p className="text-sm text-muted-foreground">
+              Purchase runs to unlock premium tier insights and deeper analysis.
+              </p>
                 <Button variant="outline" onClick={() => window.location.href = '/pricing'}>
                   Purchase Runs
                 </Button>
-              </form>
             </div>
           </div>
         </CardContent>
@@ -58,7 +58,7 @@ export function Settings({ userData }: SettingsProps) {
                 <p className="text-2xl font-bold">{userData.remainingRuns || 0}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full">
+            <Button variant="outline" className="rounded-full" onClick={() => window.location.href = '/arena'}>
               Start New Run
             </Button>
           </div>

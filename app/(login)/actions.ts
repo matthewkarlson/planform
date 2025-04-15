@@ -114,7 +114,6 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
   const newUser: NewUser = {
     email,
     passwordHash,
-    role: 'owner',
   };
 
   const [createdUser] = await db.insert(users).values(newUser).returning();

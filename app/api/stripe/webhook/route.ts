@@ -63,9 +63,7 @@ export async function POST(request: NextRequest) {
                 await db
                   .update(users)
                   .set({
-                    stripeProductId: product.id,
-                    planName: product.name,
-                    subscriptionStatus: 'active',
+                    isPremium: true,
                     remainingRuns: remainingRuns,
                     updatedAt: new Date(),
                   })

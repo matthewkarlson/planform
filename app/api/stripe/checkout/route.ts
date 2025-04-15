@@ -61,7 +61,8 @@ export async function GET(request: NextRequest) {
       await db.update(users)
         .set({
           // We'll set stripeCustomerId later when available
-          subscriptionStatus: 'active'
+          isPremium: true,
+          remainingRuns: 1
         })
         .where(eq(users.id, Number(userId)));
 
@@ -130,15 +131,15 @@ export async function GET(request: NextRequest) {
     console.log('Found user:', user);
 
     // Update user with subscription information
-    let remainingRuns = 0;
+    let remainingRuns = user.remainingRuns || 0;
 
     // Determine number of runs based on plan name
     if (product.name === 'Centurion') {
-      remainingRuns = 5;
+      remainingRuns = remainingRuns + 5;
     } else if (product.name === 'Imperator') {
-      remainingRuns = 15;
+      remainingRuns = remainingRuns + 15;
     } else if (product.name.toLowerCase().includes('recruit')) {
-      remainingRuns = 1;
+      remainingRuns = remainingRuns + 1;
     }
 
     console.log(`Setting remaining runs to ${remainingRuns} for plan ${product.name}`);
@@ -146,9 +147,7 @@ export async function GET(request: NextRequest) {
     await db.update(users)
       .set({
         stripeCustomerId: customerId,
-        stripeProductId: typeof product.id === 'string' ? product.id : undefined,
-        planName: product.name,
-        subscriptionStatus: 'active',
+        isPremium: true,
         remainingRuns: remainingRuns
       })
       .where(eq(users.id, Number(userId)));

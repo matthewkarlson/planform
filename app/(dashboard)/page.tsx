@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { EyeOff, ArrowRight, Zap, CircleUserRound } from 'lucide-react';
-import { Terminal } from './terminal';
 import Image from 'next/image';
 
 export default function HomePage() {
@@ -20,8 +19,7 @@ export default function HomePage() {
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <a
-                  href="https://vercel.com/templates/next.js/next-js-saas-starter"
-                  target="_blank"
+                  href="/arena"
                 >
                   <Button
                     size="lg"
@@ -115,7 +113,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
-              <a href="https://github.com/nextjs/saas-starter" target="_blank">
+              <a href="/arena">
                 <Button
                   size="lg"
                   variant="outline"
