@@ -62,6 +62,22 @@ const BASIC_PERSONAS = [
   }
 ];
 
+// Define a smaller set of personas for free users
+const FREE_PERSONAS = [
+  { 
+    name: 'Venture Capitalist', 
+    prompt: 'You are a blunt, numbers-driven venture capitalist who has seen thousands of pitches. You focus on market size, scalability, and return potential. You have a sharp eye for flaws that founders often miss. Your time is valuable, so you prefer direct communication. You use your experience to judge ideas based on their business potential and unit economics.'
+  },
+  { 
+    name: 'Average Consumer', 
+    prompt: 'You are an everyday consumer with average income and tech literacy. You represent the general public\'s perspective. Your reactions are based on price sensitivity, convenience, and perceived value rather than business metrics. You think about whether you personally would use a product and why.'
+  },
+  { 
+    name: 'Product Manager', 
+    prompt: 'You are an empathetic but strategic product manager with experience shipping products at both startups and major tech companies. You care about product-market fit and user needs. You think about execution challenges and technical feasibility based on your practical experience building products that people love.'
+  }
+];
+
 // Define the schema for structured outputs according to OpenAI's requirements
 const feedbackSchema = {
   type: "object",
@@ -151,29 +167,31 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // For MVP, use a small set of personas
-    const personas = BASIC_PERSONAS;
+    // Use different sets of personas based on premium status
+    const personas = user.isPremium ? BASIC_PERSONAS : FREE_PERSONAS;
     
     // Keep a simple idea summary for backward compatibility
     const ideaSummary = `${ideaName}: ${ideaDescription.substring(0, 100)}${ideaDescription.length > 100 ? '...' : ''}${targetAudience ? ` Target: ${targetAudience}` : ''}`;
     
-    // Perform competitor analysis using web search
+    // Perform competitor analysis using web search - only for premium users
     let competitorAnalysis = null;
     let marketSaturationScore = 0;
     let competitorAnalysisAnnotations: any[] = [];
-    try {
-      const competitorSearchResponse = await openai.responses.create({
-        model: 'gpt-4o',
-        tools: [{ type: "web_search_preview" }],
-        input: [
-          { 
-            role: 'system', 
-            content: 'You are a market research expert who identifies and analyzes competing companies in the market. Provide thorough, factual information about competitors based on your search results. Format your response in clean, well-structured markdown with proper spacing between sections. Use ## for section headings, bullet points (not numbered lists) for key points, and ensure adequate whitespace between paragraphs. Keep your writing style consistent and professional.' 
-          },
-          { 
-            role: 'user', 
-            content: `Perform a competitor analysis for the following business idea:
-            
+    
+    if (user.isPremium) {
+      try {
+        const competitorSearchResponse = await openai.responses.create({
+          model: 'gpt-4o',
+          tools: [{ type: "web_search_preview" }],
+          input: [
+            { 
+              role: 'system', 
+              content: 'You are a market research expert who identifies and analyzes competing companies in the market. Provide thorough, factual information about competitors based on your search results. Format your response in clean, well-structured markdown with proper spacing between sections. Use ## for section headings, bullet points (not numbered lists) for key points, and ensure adequate whitespace between paragraphs. Keep your writing style consistent and professional.' 
+            },
+            { 
+              role: 'user', 
+              content: `Perform a competitor analysis for the following business idea:
+              
 Name: ${ideaName}
 Description: ${ideaDescription}
 Target Audience: ${targetAudience}
@@ -223,43 +241,48 @@ Assess the market saturation level on a scale of 1-100, where:
 Provide this as a numerical score (1-100) and explain your reasoning.
 
 Include hyperlinks to sources where relevant. Keep your writing style consistent, professional, and extremely well-formatted with proper markdown.`
-          }
-        ]
-      });
-      
-      // Extract the analysis text directly
-      competitorAnalysis = competitorSearchResponse.output_text;
-      
-      // Try to extract a market saturation score from the text
-      const saturationScoreMatch = competitorAnalysis.match(/saturation (?:score|level|rating).*?(\d+)/i) || 
-                                 competitorAnalysis.match(/(\d+).*?saturation/i);
-      
-      if (saturationScoreMatch && saturationScoreMatch[1]) {
-        marketSaturationScore = parseInt(saturationScoreMatch[1], 10);
-        // Ensure it's within 1-100 range
-        marketSaturationScore = Math.max(1, Math.min(100, marketSaturationScore));
-      } else {
-        // Estimate a default score based on keywords in the response
-        if (competitorAnalysis.toLowerCase().includes('high saturation') || 
-            competitorAnalysis.toLowerCase().includes('highly saturated') ||
-            competitorAnalysis.toLowerCase().includes('crowded market')) {
-          marketSaturationScore = 85;
-        } else if (competitorAnalysis.toLowerCase().includes('medium saturation') || 
-                  competitorAnalysis.toLowerCase().includes('moderate saturation') ||
-                  competitorAnalysis.toLowerCase().includes('moderately saturated')) {
-          marketSaturationScore = 50;
-        } else if (competitorAnalysis.toLowerCase().includes('low saturation') || 
-                  competitorAnalysis.toLowerCase().includes('lightly saturated') ||
-                  competitorAnalysis.toLowerCase().includes('few competitors')) {
-          marketSaturationScore = 25;
+            }
+          ]
+        });
+        
+        // Extract the analysis text directly
+        competitorAnalysis = competitorSearchResponse.output_text;
+        
+        // Try to extract a market saturation score from the text
+        const saturationScoreMatch = competitorAnalysis.match(/saturation (?:score|level|rating).*?(\d+)/i) || 
+                                   competitorAnalysis.match(/(\d+).*?saturation/i);
+        
+        if (saturationScoreMatch && saturationScoreMatch[1]) {
+          marketSaturationScore = parseInt(saturationScoreMatch[1], 10);
+          // Ensure it's within 1-100 range
+          marketSaturationScore = Math.max(1, Math.min(100, marketSaturationScore));
         } else {
-          marketSaturationScore = 50; // Default to medium if can't determine
+          // Estimate a default score based on keywords in the response
+          if (competitorAnalysis.toLowerCase().includes('high saturation') || 
+              competitorAnalysis.toLowerCase().includes('highly saturated') ||
+              competitorAnalysis.toLowerCase().includes('crowded market')) {
+            marketSaturationScore = 85;
+          } else if (competitorAnalysis.toLowerCase().includes('medium saturation') || 
+                    competitorAnalysis.toLowerCase().includes('moderate saturation') ||
+                    competitorAnalysis.toLowerCase().includes('moderately saturated')) {
+            marketSaturationScore = 50;
+          } else if (competitorAnalysis.toLowerCase().includes('low saturation') || 
+                    competitorAnalysis.toLowerCase().includes('lightly saturated') ||
+                    competitorAnalysis.toLowerCase().includes('few competitors')) {
+            marketSaturationScore = 25;
+          } else {
+            marketSaturationScore = 50; // Default to medium if can't determine
+          }
         }
+      } catch (error) {
+        console.error('Competitor analysis error:', error);
+        competitorAnalysis = "We couldn't perform competitor analysis at this time. Please try again later.";
+        marketSaturationScore = 50; // Default to medium
       }
-    } catch (error) {
-      console.error('Competitor analysis error:', error);
-      competitorAnalysis = "We couldn't perform competitor analysis at this time. Please try again later.";
-      marketSaturationScore = 50; // Default to medium
+    } else {
+      // For free users, we don't perform any competitor analysis to save API costs
+      competitorAnalysis = null;
+      marketSaturationScore = 0;
     }
     
     // Run analysis in parallel for each persona
@@ -365,17 +388,20 @@ Please share your honest personal reaction and feedback in a structured format:
     }
     
     // Generate a comprehensive executive summary based on all feedback
-    const executiveSummaryResponse = await openai.responses.create({
-      model: 'gpt-4o',
-      input: [
-        { 
-          role: 'system', 
-          content: 'You are a strategic business advisor who provides concise, actionable insights based on personal feedback from different user personas. Focus on what different personas like, dislike, and suggest rather than pure business metrics. Your primary goal is to help the user improve their idea with specific, actionable changes. Format your response in clean, well-structured markdown with proper spacing between sections. Use ## for section headings, bullet lists for key points, and ensure adequate whitespace between paragraphs.' 
-        },
-        { 
-          role: 'user', 
-          content: `Based on feedback from multiple personas about this business idea, provide a brief executive summary with actionable next steps.
-          
+    let executiveSummary: string;
+    
+    if (user.isPremium) {
+      const executiveSummaryResponse = await openai.responses.create({
+        model: 'gpt-4o',
+        input: [
+          { 
+            role: 'system', 
+            content: 'You are a strategic business advisor who provides concise, actionable insights based on personal feedback from different user personas. Focus on what different personas like, dislike, and suggest rather than pure business metrics. Your primary goal is to help the user improve their idea with specific, actionable changes. Format your response in clean, well-structured markdown with proper spacing between sections. Use ## for section headings, bullet lists for key points, and ensure adequate whitespace between paragraphs.' 
+          },
+          { 
+            role: 'user', 
+            content: `Based on feedback from multiple personas about this business idea, provide a brief executive summary with actionable next steps.
+            
 Business Idea:
 Name: ${ideaName}
 Description: ${ideaDescription}
@@ -454,11 +480,80 @@ Brief note on which target audiences responded most positively or would be most 
 * Fifth prioritized action item (if applicable)
 
 Keep your response under 300 words total. Do not include any preamble - start directly with the markdown headings and content.`
-        }
-      ]
-    });
-    
-    const executiveSummary = executiveSummaryResponse.output_text;
+          }
+        ]
+      });
+      
+      executiveSummary = executiveSummaryResponse.output_text;
+    } else {
+      // Simpler executive summary for free users
+      const basicSummaryResponse = await openai.responses.create({
+        model: 'gpt-4o',
+        input: [
+          { 
+            role: 'system', 
+            content: 'You are a business advisor who provides brief, actionable insights based on feedback. Keep your response concise and to the point. Format in clean markdown with brief sections.' 
+          },
+          { 
+            role: 'user', 
+            content: `Provide a brief summary for this business idea based on persona feedback.
+            
+Business Idea:
+Name: ${ideaName}
+Description: ${ideaDescription}
+Target Audience: ${targetAudience}
+${coreProblem ? `Core Problem Being Solved: ${coreProblem}` : ''}
+
+Overall Score: ${overallScore}/100
+
+Overall Ratings (average across personas, scale 1-10):
+- Market Potential: ${overallScores.marketPotential}
+- Feasibility: ${overallScores.feasibility}
+- Innovation: ${overallScores.innovation}
+- Competitiveness: ${overallScores.competitiveness}
+- Profit Potential: ${overallScores.profitPotential}
+
+Feedback From Personas:
+${JSON.stringify(validAnalyses.map(a => ({
+  persona: a.persona,
+  likes: a.feedback.likes,
+  dislikes: a.feedback.dislikes,
+  suggestions: a.feedback.suggestions
+})))}
+
+Format your response as clear markdown with double line breaks between sections and bullet points.
+
+Structure your summary with these sections:
+
+## Key Strengths
+
+* First strength point
+* Second strength point
+
+## Areas for Improvement
+
+* First weakness point
+* Second weakness point
+
+## Recommended Next Steps
+
+* First action item 
+* Second action item
+
+Keep your response under 200 words. Include a note at the end encouraging the user to upgrade to premium for full analysis with all 12 expert personas, detailed competitor analysis, and comprehensive recommendations.`
+          }
+        ]
+      });
+      
+      executiveSummary = basicSummaryResponse.output_text + `
+
+## Upgrade to Premium
+
+* Access all 12 expert personas instead of just 3
+* Get detailed competitor analysis with specific companies
+* Receive comprehensive positioning strategies
+* Unlock detailed audience insights and targeted recommendations`;
+    }
     
     // Decrease remaining runs
     await db
@@ -479,6 +574,7 @@ Keep your response under 300 words total. Do not include any preamble - start di
       overallScores,
       overallScore,
       remainingRuns: user.remainingRuns - 1,
+      isPremium: user.isPremium,
       additionalDetails: {
         coreProblem,
         uniqueValue,

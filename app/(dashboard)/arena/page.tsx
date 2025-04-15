@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from 'react';
 import React from 'react';
 import { Button } from '../../../components/ui/button';
-import { AlertCircle, Loader2, Zap, Star, Gauge, Download, RefreshCw } from 'lucide-react';
+import { AlertCircle, Loader2, Zap, Star, Gauge, Download, RefreshCw, Lock, CheckCircle } from 'lucide-react';
 import { useUser } from '../../../lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
@@ -47,6 +47,7 @@ type AnalysisResult = {
   overallScores: Ratings;
   overallScore: number;
   remainingRuns: number;
+  isPremium: boolean;
   refusal?: {
     text: string;
   };
@@ -526,6 +527,35 @@ export default function ArenaPage() {
         </div>
       ) : (
         <div className="space-y-8">
+          {!results.isPremium && (
+            <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 rounded-lg">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 pt-0.5">
+                  <Lock className="h-5 w-5 text-orange-500" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-orange-800">Free Tier Analysis</h3>
+                  <div className="mt-1 text-sm text-orange-700">
+                    <p>You're viewing our basic analysis with 3 personas. Upgrade to premium for the full experience:</p>
+                    <ul className="list-disc pl-5 mt-1 space-y-1">
+                      <li>All 12 expert personas instead of just 3</li>
+                      <li>Detailed competitor analysis with specific companies</li>
+                      <li>Comprehensive positioning strategies</li>
+                      <li>More actionable recommendations</li>
+                    </ul>
+                    <div className="mt-3">
+                      <a href="/pricing">
+                        <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                          Upgrade to Premium
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Executive/Idea Summary Card */}
           <Card className="shadow-md bg-white">
             <CardHeader className="pb-4 border-b bg-gradient-to-r from-orange-50 to-white">
@@ -702,8 +732,8 @@ export default function ArenaPage() {
             </CardContent>
           </Card>
           
-          {/* Competitor Analysis Card */}
-          {results.competitorAnalysis && (
+          {/* Competitor Analysis Card - Only shown for premium users */}
+          {results.isPremium && results.competitorAnalysis && (
             <Card className="shadow-md bg-white mt-8">
               <CardHeader className="pb-4 border-b bg-gradient-to-r from-blue-50 to-white">
                 <CardTitle className="text-2xl font-bold text-gray-900 flex items-center justify-between">
@@ -796,8 +826,69 @@ export default function ArenaPage() {
             </Card>
           )}
           
+          {/* Locked Competitor Analysis Card - Only shown for non-premium users */}
+          {!results.isPremium && (
+            <Card className="shadow-md bg-white mt-8 overflow-hidden">
+              <CardHeader className="pb-4 border-b bg-gradient-to-r from-blue-50 to-white">
+                <CardTitle className="text-2xl font-bold text-gray-900">
+                  <span className="flex items-center">
+                    <Lock className="mr-2 h-5 w-5 text-blue-500" />
+                    Competitor Analysis
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6 px-6 relative">
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="bg-blue-100 rounded-full p-4 mb-4">
+                    <Lock className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Premium Feature</h3>
+                  <p className="text-gray-600 max-w-md mb-6">
+                    Upgrade to premium to discover your competitors, analyze market saturation, 
+                    and get specific positioning recommendations to help your idea stand out.
+                  </p>
+                  <div className="space-y-4 w-full max-w-md">
+                    <div className="flex items-center text-left">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-gray-700">Identify 3-5 major competitors in your space</span>
+                    </div>
+                    <div className="flex items-center text-left">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-gray-700">Analyze market saturation and competitive landscape</span>
+                    </div>
+                    <div className="flex items-center text-left">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-gray-700">Get specific positioning strategies for differentiation</span>
+                    </div>
+                    <div className="flex items-center text-left">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                      <span className="text-gray-700">Understand how competitors target your audience</span>
+                    </div>
+                  </div>
+                  <div className="mt-8">
+                    <a href="/pricing">
+                      <Button 
+                        size="lg" 
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        Unlock Competitor Analysis
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           {/* Expert Feedback */}
-          <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">Feedback from Arena Experts</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4 flex items-center">
+            Feedback from {results.isPremium ? 'Arena Experts' : 'Selected Personas'}
+            {!results.isPremium && (
+              <span className="ml-2 text-sm font-normal text-gray-500 flex items-center">
+                <Lock className="h-4 w-4 mr-1" /> 9 more with premium
+              </span>
+            )}
+          </h2>
           
           <div className="grid gap-6 md:grid-cols-2">
             {results.analyses.map((analysis, index) => (
@@ -877,6 +968,27 @@ export default function ArenaPage() {
                 </CardContent>
               </Card>
             ))}
+            
+            {!results.isPremium && (
+              <Card className="shadow-sm bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center">
+                <div className="text-center p-6">
+                  <Lock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <h3 className="text-lg font-medium text-gray-600 mb-1">Unlock More Perspectives</h3>
+                  <p className="text-sm text-gray-500 mb-4 max-w-xs mx-auto">
+                    Get insights from 9 additional expert personas including Industry Expert, Technical Co-founder, 
+                    Gen Z Consumer, and more.
+                  </p>
+                  <a href="/pricing">
+                    <Button 
+                      variant="outline" 
+                      className="bg-white hover:bg-gray-50"
+                    >
+                      Upgrade to Premium
+                    </Button>
+                  </a>
+                </div>
+              </Card>
+            )}
           </div>
           
           <div className="flex justify-center mt-8">
