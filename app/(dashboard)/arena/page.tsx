@@ -1,9 +1,9 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useState, useEffect } from 'react';
 import React from 'react';
 import { Button } from '../../../components/ui/button';
-import { AlertCircle, Loader2, Zap, Star, Gauge, Download } from 'lucide-react';
+import { AlertCircle, Loader2, Zap, Star, Gauge, Download, RefreshCw } from 'lucide-react';
 import { useUser } from '../../../lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
@@ -71,8 +71,60 @@ export default function ArenaPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [results, setResults] = useState<AnalysisResult | null>(null);
+  const [isRefining, setIsRefining] = useState(false);
+  const [improvementSuggestions, setImprovementSuggestions] = useState<string[]>([]);
   
   const hasRemainingRuns = user && user.remainingRuns && user.remainingRuns > 0;
+
+  // Handle refining the idea
+  const handleRefinement = () => {
+    setIsRefining(true);
+  };
+
+  // Extract improvement suggestions from the results
+  useEffect(() => {
+    if (results?.executiveSummary) {
+      // Extract improvement points from the executive summary
+      const extractSuggestions = () => {
+        const summary = results.executiveSummary || '';
+        
+        // Look for improvement sections
+        const improvementSection = summary.match(/## What Needs Improvement\s+([\s\S]*?)(?=\s+##|$)/i);
+        const recommendedChanges = summary.match(/## Recommended Changes\s+([\s\S]*?)(?=\s+##|$)/i);
+        const nextSteps = summary.match(/## Next Steps[\s\S]*?Increase Your Score\s+([\s\S]*?)(?=\s+##|$)/i);
+        
+        const suggestions: string[] = [];
+        
+        // Extract bullet points from these sections
+        const extractBulletPoints = (text?: string) => {
+          if (!text) return [];
+          return text.split('\n')
+            .filter(line => line.trim().startsWith('*') || line.trim().startsWith('-'))
+            .map(line => line.trim().replace(/^[*-]\s+/, ''))
+            .filter(Boolean);
+        };
+        
+        suggestions.push(...extractBulletPoints(improvementSection?.[1]));
+        suggestions.push(...extractBulletPoints(recommendedChanges?.[1]));
+        suggestions.push(...extractBulletPoints(nextSteps?.[1]));
+        
+        return suggestions.slice(0, 5); // Limit to 5 suggestions
+      };
+      
+      setImprovementSuggestions(extractSuggestions());
+    }
+  }, [results]);
+
+  // Reset the refinement mode but keep the idea data
+  const cancelRefinement = () => {
+    setIsRefining(false);
+  };
+
+  // Handle returning to form to refine idea
+  const refineIdea = () => {
+    setIsRefining(true);
+    setResults(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -273,15 +325,38 @@ export default function ArenaPage() {
         <Card className="shadow-md bg-white">
           <CardHeader className="pb-4 border-b">
             <CardTitle className="text-3xl font-bold text-center text-gray-900">
-              Idea Arena
+              {isRefining ? 'Refine Your Idea' : 'Idea Arena'}
               <div className="text-base font-normal text-muted-foreground mt-1">
-                Test your ideas against real AI agents
+                {isRefining 
+                  ? 'Implement the insights from your analysis to improve your idea' 
+                  : 'Get instant feedback so you can iterate faster'}
               </div>
             </CardTitle>
           </CardHeader>
           
           <CardContent className="pt-6">
             <div className="grid gap-8">
+              {isRefining && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+                  <h3 className="font-medium text-blue-800 mb-2">Refinement Suggestions</h3>
+                  {improvementSuggestions.length > 0 ? (
+                    <ul className="list-disc pl-5 text-sm text-blue-700 space-y-1">
+                      {improvementSuggestions.map((suggestion, index) => (
+                        <li key={index}>{suggestion}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <ul className="list-disc pl-5 text-sm text-blue-700 space-y-1">
+                      <li>Focus on addressing the "What Needs Improvement" points from your analysis</li>
+                      <li>Consider the competitor strategies and how to differentiate your idea</li>
+                      <li>Strengthen your unique value proposition based on feedback</li>
+                      <li>Clarify your revenue model if it received lower ratings</li>
+                      <li>Be more specific about your target audience and the problem you're solving</li>
+                    </ul>
+                  )}
+                </div>
+              )}
+              
               {hasRemainingRuns ? (
                 <form className="space-y-6" onSubmit={handleSubmit}>
                   <div className="grid gap-6 md:grid-cols-2">
@@ -375,23 +450,40 @@ export default function ArenaPage() {
                       </div>
                     </div>
                   
-                    <Button 
-                      type="submit"
-                      size="lg" 
-                      className="bg-orange-500 hover:bg-orange-600 text-white px-6"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Analyzing...
-                        </>
-                      ) : (
-                        <>
-                          Test My Idea <Zap className="ml-2 h-5 w-5" />
-                        </>
+                    <div className="flex gap-2">
+                      {isRefining && (
+                        <Button 
+                          type="button"
+                          variant="outline" 
+                          size="lg" 
+                          onClick={cancelRefinement}
+                        >
+                          Cancel
+                        </Button>
                       )}
-                    </Button>
+                      
+                      <Button 
+                        type="submit"
+                        size="lg" 
+                        className="bg-orange-500 hover:bg-orange-600 text-white px-6"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : isRefining ? (
+                          <>
+                            Retest Refined Idea <RefreshCw className="ml-2 h-5 w-5" />
+                          </>
+                        ) : (
+                          <>
+                            Test My Idea <Zap className="ml-2 h-5 w-5" />
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </form>
               ) : (
@@ -428,7 +520,7 @@ export default function ArenaPage() {
               onClick={() => setResults(null)}
               className="bg-orange-500 hover:bg-orange-600 text-white"
             >
-              Try Another Idea
+              Revise Your Idea
             </Button>
           </Card>
         </div>
@@ -599,11 +691,11 @@ export default function ArenaPage() {
                   </Button>
                 
                   <Button 
-                    onClick={() => setResults(null)}
+                    onClick={refineIdea}
                     variant="outline"
                     size="sm" 
                   >
-                    Try Another Idea
+                    Refine & Resubmit
                   </Button>
                 </div>
               </div>
@@ -803,10 +895,10 @@ export default function ArenaPage() {
               Save as Markdown
             </Button>
             <Button
-              onClick={() => setResults(null)}
+              onClick={refineIdea}
               className="bg-orange-500 hover:bg-orange-600 text-white"
             >
-              Test Another Idea
+              Refine & Retest Idea
             </Button>
           </div>
         </div>
