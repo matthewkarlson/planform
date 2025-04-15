@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Parse the request body
-    const { ideaName, ideaDescription, targetAudience } = await request.json();
+    const { ideaName, ideaDescription, targetAudience, coreProblem, revenueStrategy, uniqueValue } = await request.json();
     
     if (!ideaName || !ideaDescription) {
       return NextResponse.json(
@@ -177,35 +177,52 @@ export async function POST(request: NextRequest) {
 Name: ${ideaName}
 Description: ${ideaDescription}
 Target Audience: ${targetAudience}
+${coreProblem ? `Core Problem Being Solved: ${coreProblem}` : ''}
+${uniqueValue ? `Unique Value Proposition: ${uniqueValue}` : ''}
+${revenueStrategy ? `Revenue Strategy: ${revenueStrategy}` : ''}
 
-Search for 3-5 existing companies or products that are similar to this idea and provide a detailed analysis in a structured format with the following sections:
+Search for 3-5 existing companies or products that are similar to this idea and provide a detailed analysis in a structured format.
+
+Format your entire response with extremely clean markdown following these exact formatting rules:
+1. Use double line breaks between sections
+2. Use "## Section Title" format for headings with a line break after each heading
+3. Use single bullet points (* not numbered lists) with a space after the asterisk
+4. Keep paragraphs short and focused
+5. Use proper spacing throughout
+
+Structure your analysis with these exact sections:
 
 ## Key Competitors
-* List 3-5 main competitors with a brief description of each
+
+* Competitor 1 with brief description
+* Competitor 2 with brief description
+* And so on...
 
 ## Comparison to Your Idea
-* How these competitors compare to the business idea described above
+
+* How these competitors compare to the business idea
 * What features or approaches are similar or different
 
 ## Market Differentiation
-* What makes each competitor unique in the market
+
+* What makes each competitor unique
 * How they position themselves against each other
 
 ## Target Audience Analysis
+
 * The main customer segments these competitors serve
 * How your target audience overlaps with theirs
 
 ## Market Saturation Assessment
+
 Assess the market saturation level on a scale of 1-100, where:
-- 1-30: Low saturation (few competitors, unique idea, lots of opportunity)
-- 31-70: Medium saturation (some established competitors but room for innovation)
-- 71-100: High saturation (crowded market, difficult to differentiate)
+* 1-30: Low saturation (few competitors, unique idea, lots of opportunity)
+* 31-70: Medium saturation (some established competitors but room for innovation)
+* 71-100: High saturation (crowded market, difficult to differentiate)
 
 Provide this as a numerical score (1-100) and explain your reasoning.
 
-Make sure your response is in well-structured markdown format. Use ## for section headings, bullet points (*) for lists, and leave empty lines between paragraphs and sections for clarity.
-
-Include hyperlinks to sources where relevant. Format your response as clean markdown with proper section headings, bullet points, and spacing.`
+Include hyperlinks to sources where relevant. Keep your writing style consistent, professional, and extremely well-formatted with proper markdown.`
           }
         ]
       });
@@ -259,6 +276,9 @@ Include hyperlinks to sources where relevant. Format your response as clean mark
 Name: ${ideaName}
 Description: ${ideaDescription}
 Target Audience: ${targetAudience}
+${coreProblem ? `Core Problem Being Solved: ${coreProblem}` : ''}
+${uniqueValue ? `Unique Value Proposition: ${uniqueValue}` : ''}
+${revenueStrategy ? `Revenue Strategy: ${revenueStrategy}` : ''}
 
 Please share your honest personal reaction and feedback in a structured format:
 
@@ -360,6 +380,9 @@ Business Idea:
 Name: ${ideaName}
 Description: ${ideaDescription}
 Target Audience: ${targetAudience}
+${coreProblem ? `Core Problem Being Solved: ${coreProblem}` : ''}
+${uniqueValue ? `Unique Value Proposition: ${uniqueValue}` : ''}
+${revenueStrategy ? `Revenue Strategy: ${revenueStrategy}` : ''}
 
 Overall Score: ${overallScore}/100
 
@@ -384,30 +407,53 @@ ${JSON.stringify(validAnalyses.map(a => ({
   summary: a.feedback.overallSummary
 })))}
 
-Create a concise executive summary with the following sections using proper markdown formatting:
+Format your entire response with extremely clean markdown following these exact formatting rules:
+1. Use double line breaks between sections
+2. Use "## Section Title" format for headings with a line break after each heading
+3. Use single bullet points (* not numbered lists) with a space after the asterisk
+4. Keep paragraphs short and focused
+5. Use proper spacing throughout
+
+Structure your executive summary with these exact sections:
 
 ## What Works Well
-* List the 2-3 most commonly mentioned likes across personas as bullet points
+
+* First strength point
+* Second strength point
+* Third strength point (if applicable)
 
 ## What Needs Improvement
-* List the 2-3 most significant dislikes identified as bullet points
+
+* First weakness point
+* Second weakness point
+* Third weakness point (if applicable)
 
 ## Competitive Landscape
-* Briefly summarize the 2-3 key findings from the competitor analysis that are most relevant for this business idea
-* Mention what makes this idea unique or how it could be positioned against existing competitors
+
+* Key finding about competitors
+* How this idea compares to the market
+* Potential positioning strategy
 
 ## Recommended Changes
-* List 3-4 specific, actionable changes the user should make to improve their idea based on both the persona feedback and competitor analysis
+
+* First specific, actionable change
+* Second specific, actionable change
+* Third specific, actionable change
+* Fourth specific, actionable change (if applicable)
 
 ## Audience Considerations
+
 Brief note on which target audiences responded most positively or would be most receptive to this idea
 
 ## Next Steps to Increase Your Score
-Provide 3-5 concrete, prioritized action items the user should take to address key weaknesses and improve their overall score. Be specific about what to add, remove, or modify in their idea. Focus on the changes that will have the biggest impact on their score.
 
-Make sure your response is in well-structured markdown format. Use ## for section headings, bullet points (*) for lists, and leave empty lines between paragraphs and sections for clarity.
+* First prioritized action item
+* Second prioritized action item
+* Third prioritized action item
+* Fourth prioritized action item (if applicable)
+* Fifth prioritized action item (if applicable)
 
-Keep your response under 300 words total. Use proper markdown with clean spacing between sections. Do not include any preamble - start directly with the markdown headings and content.`
+Keep your response under 300 words total. Do not include any preamble - start directly with the markdown headings and content.`
         }
       ]
     });
@@ -432,7 +478,12 @@ Keep your response under 300 words total. Use proper markdown with clean spacing
       analyses,
       overallScores,
       overallScore,
-      remainingRuns: user.remainingRuns - 1
+      remainingRuns: user.remainingRuns - 1,
+      additionalDetails: {
+        coreProblem,
+        uniqueValue,
+        revenueStrategy
+      }
     });
   } catch (error) {
     console.error('Arena analysis error:', error);

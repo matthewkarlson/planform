@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { EyeOff, ArrowRight, Zap, CircleUserRound } from 'lucide-react';
+import { Download, ArrowRight, BarChart2, Target, Users } from 'lucide-react';
 import Image from 'next/image';
 
 export default function HomePage() {
@@ -14,8 +14,9 @@ export default function HomePage() {
                 <span className="block text-orange-500">Faster Than Ever</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-              Test your ideas against real AI agents in a matter of seconds. Iterate faster with feedback
-              from a wide range of perspectives. All summarized in a single dashboard.
+                Get comprehensive feedback on your business ideas from diverse AI personas. 
+                Analyze market opportunities, identify competitors, and receive actionable 
+                recommendations to refine your concept.
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <a
@@ -26,7 +27,7 @@ export default function HomePage() {
                     variant="outline"
                     className="text-lg rounded-full"
                   >
-                  Start Iterating
+                    Test Your Idea
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </a>
@@ -52,46 +53,48 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-3 lg:gap-8">
             <div>
               <div className="flex items-center justify-center h-12 w-12 rounded-md bg-orange-500 text-white">
-              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-orange-500 text-white">
-                <Zap className="h-6 w-6" />
-              </div>
+                <Users className="h-6 w-6" />
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Instant Actionable Feedback
+                  Multi-Persona Analysis
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                Using state of the art Agentic Analysis, we do a deep dive into what is and isnt going to work with your idea.
-                So you can avoid costly mistakes and focus on what works.
+                  Receive feedback from diverse viewpoints including venture capitalists, 
+                  product managers, marketing directors, consumers, and industry experts. 
+                  Each provides ratings and actionable suggestions.
                 </p>
               </div>
             </div>
 
             <div className="mt-10 lg:mt-0">
               <div className="flex items-center justify-center h-12 w-12 rounded-md bg-orange-500 text-white">
-                <CircleUserRound className="h-6 w-6" />
+                <Target className="h-6 w-6" />
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                100+ Perspectives
+                  Competitor Analysis
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                We check against 100+ perspectives to ensure your idea lands with the people who matter.
-                From potential customers to industry experts, we've got you covered.
+                  Identify your top competitors, understand market saturation, 
+                  and discover opportunities for differentiation. Get concrete insights
+                  on positioning your idea in the current market landscape.
                 </p>
               </div>
             </div>
 
             <div className="mt-10 lg:mt-0">
               <div className="flex items-center justify-center h-12 w-12 rounded-md bg-orange-500 text-white">
-                <EyeOff className="h-6 w-6" />
+                <Download className="h-6 w-6" />
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                Never Stored
+                  Exportable Results
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                Your ideas are yours alone. We never store your ideas, the arena forgets them as soon as they leave.
+                  Save your analysis as a well-structured markdown document. 
+                  No need to create an account or store data - simply download
+                  your comprehensive report with all insights and recommendations.
                 </p>
               </div>
             </div>
@@ -104,23 +107,23 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-              Ready to enter the Arena?
+                Detailed Idea Assessment
               </h2>
               <p className="mt-3 max-w-3xl text-lg text-gray-500">
-              The beta for Idea Arena is now open. Sign up and submit your idea.
-              Stop watching from the sidelines, your ideas are the start of something great.
-              See you in the Arena.
+                Share your business concept with key details like revenue strategy, 
+                core problem, and value proposition. Get an executive summary with 
+                strengths, weaknesses, competitive landscape, and specific recommendations
+                to improve your idea.
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
               <a href="/arena">
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="text-lg rounded-full"
+                  className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white"
                 >
-                Enter the Arena
-                  <ArrowRight className="ml-3 h-6 w-6" />
+                  Start Your Analysis
+                  <BarChart2 className="ml-3 h-6 w-6" />
                 </Button>
               </a>
             </div>

@@ -3,7 +3,7 @@
 import { use, useState } from 'react';
 import React from 'react';
 import { Button } from '../../../components/ui/button';
-import { AlertCircle, Loader2, Zap, Star, Gauge } from 'lucide-react';
+import { AlertCircle, Loader2, Zap, Star, Gauge, Download } from 'lucide-react';
 import { useUser } from '../../../lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
@@ -50,6 +50,11 @@ type AnalysisResult = {
   refusal?: {
     text: string;
   };
+  additionalDetails?: {
+    coreProblem?: string;
+    uniqueValue?: string;
+    revenueStrategy?: string;
+  };
 }
 
 export default function ArenaPage() {
@@ -60,6 +65,9 @@ export default function ArenaPage() {
   const [ideaName, setIdeaName] = useState('');
   const [ideaDescription, setIdeaDescription] = useState('');
   const [targetAudience, setTargetAudience] = useState('');
+  const [coreProblem, setCoreProblem] = useState('');
+  const [revenueStrategy, setRevenueStrategy] = useState('');
+  const [uniqueValue, setUniqueValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [results, setResults] = useState<AnalysisResult | null>(null);
@@ -87,6 +95,9 @@ export default function ArenaPage() {
           ideaName,
           ideaDescription,
           targetAudience,
+          coreProblem,
+          revenueStrategy,
+          uniqueValue,
         }),
       });
       
@@ -126,6 +137,98 @@ export default function ArenaPage() {
         <span className="ml-2 text-sm font-medium">{rating}/10</span>
       </div>
     );
+  };
+
+  // Function to export analysis as markdown
+  const exportAsMarkdown = () => {
+    if (!results) return;
+    
+    const fileName = `${ideaName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_analysis.md`;
+    
+    let markdownContent = `# ${ideaName} - Idea Analysis\n\n`;
+    markdownContent += `_Target Audience: ${targetAudience || 'Not specified'}_\n\n`;
+    
+    // Add core details section
+    markdownContent += `## Idea Details\n\n`;
+    if (coreProblem) markdownContent += `**Core Problem:** ${coreProblem}\n\n`;
+    if (uniqueValue) markdownContent += `**Unique Value:** ${uniqueValue}\n\n`;
+    if (revenueStrategy) markdownContent += `**Revenue Strategy:** ${revenueStrategy}\n\n`;
+    
+    markdownContent += `**Overall Score: ${results.overallScore}/100**\n\n`;
+    
+    // Add executive summary
+    if (results.executiveSummary) {
+      markdownContent += results.executiveSummary + '\n\n';
+    } else if (results.ideaSummary) {
+      markdownContent += `## Idea Summary\n\n${results.ideaSummary}\n\n`;
+    }
+    
+    // Add overall ratings
+    markdownContent += `## Overall Ratings\n\n`;
+    markdownContent += `- Market Potential: ${results.overallScores.marketPotential}/10\n`;
+    markdownContent += `- Feasibility: ${results.overallScores.feasibility}/10\n`;
+    markdownContent += `- Innovation: ${results.overallScores.innovation}/10\n`;
+    markdownContent += `- Competitiveness: ${results.overallScores.competitiveness}/10\n`;
+    markdownContent += `- Profit Potential: ${results.overallScores.profitPotential}/10\n\n`;
+    
+    // Add competitor analysis
+    if (results.competitorAnalysis) {
+      markdownContent += `# Competitor Analysis\n\n`;
+      markdownContent += `_Market Saturation Score: ${results.marketSaturationScore || 50}/100_\n\n`;
+      markdownContent += results.competitorAnalysis + '\n\n';
+    }
+    
+    // Add expert feedback
+    markdownContent += `# Expert Feedback\n\n`;
+    
+    results.analyses.forEach(analysis => {
+      if (analysis.error || !analysis.feedback) return;
+      
+      markdownContent += `## ${analysis.persona}\n\n`;
+      markdownContent += `"${analysis.feedback.overallSummary}"\n\n`;
+      
+      markdownContent += `### Personal Reaction\n\n`;
+      markdownContent += `${analysis.feedback.personalOpinion}\n\n`;
+      
+      markdownContent += `### Ratings\n\n`;
+      markdownContent += `- Market Potential: ${analysis.feedback.ratings.marketPotential}/10\n`;
+      markdownContent += `- Feasibility: ${analysis.feedback.ratings.feasibility}/10\n`;
+      markdownContent += `- Innovation: ${analysis.feedback.ratings.innovation}/10\n`;
+      markdownContent += `- Competitiveness: ${analysis.feedback.ratings.competitiveness}/10\n`;
+      markdownContent += `- Profit Potential: ${analysis.feedback.ratings.profitPotential}/10\n\n`;
+      
+      markdownContent += `### What I Like\n\n`;
+      analysis.feedback.likes.forEach(like => {
+        markdownContent += `- ${like}\n`;
+      });
+      markdownContent += '\n';
+      
+      markdownContent += `### What I Dislike\n\n`;
+      analysis.feedback.dislikes.forEach(dislike => {
+        markdownContent += `- ${dislike}\n`;
+      });
+      markdownContent += '\n';
+      
+      markdownContent += `### My Suggestions\n\n`;
+      analysis.feedback.suggestions.forEach(suggestion => {
+        markdownContent += `- ${suggestion}\n`;
+      });
+      markdownContent += '\n';
+    });
+    
+    // Append date
+    markdownContent += `_Generated on ${new Date().toLocaleDateString()}_`;
+    
+    // Create and download the file
+    const blob = new Blob([markdownContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Check if there was a model refusal
@@ -212,13 +315,52 @@ export default function ArenaPage() {
                     <Label htmlFor="idea-description" className="text-base">Describe Your Idea</Label>
                     <textarea
                       id="idea-description"
-                      rows={6}
+                      rows={4}
                       placeholder="What problem does it solve? Who is it for? How does it work?"
                       className="flex w-full rounded-md border bg-white px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-offset-2"
                       value={ideaDescription}
                       onChange={(e) => setIdeaDescription(e.target.value)}
                       disabled={isSubmitting}
                       required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="core-problem" className="text-base">Core Problem</Label>
+                    <textarea
+                      id="core-problem"
+                      rows={2}
+                      placeholder="What specific problem or pain point does your idea solve?"
+                      className="flex w-full rounded-md border bg-white px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-offset-2"
+                      value={coreProblem}
+                      onChange={(e) => setCoreProblem(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="unique-value" className="text-base">Unique Value Proposition</Label>
+                    <textarea
+                      id="unique-value"
+                      rows={2}
+                      placeholder="What makes your solution unique? Why would users choose it over alternatives?"
+                      className="flex w-full rounded-md border bg-white px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-offset-2"
+                      value={uniqueValue}
+                      onChange={(e) => setUniqueValue(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="revenue-strategy" className="text-base">Revenue Strategy</Label>
+                    <textarea
+                      id="revenue-strategy"
+                      rows={2}
+                      placeholder="How will this idea generate revenue? (e.g., subscription, one-time payment, freemium, ads)"
+                      className="flex w-full rounded-md border bg-white px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-offset-2"
+                      value={revenueStrategy}
+                      onChange={(e) => setRevenueStrategy(e.target.value)}
+                      disabled={isSubmitting}
                     />
                   </div>
                   
@@ -379,6 +521,35 @@ export default function ArenaPage() {
                 )}
               </div>
               
+              {/* Additional Details Section (if provided) */}
+              {results.additionalDetails && (
+                Object.values(results.additionalDetails).some(val => val) && (
+                  <div className="mt-6 pt-6 border-t">
+                    <h3 className="text-lg font-medium mb-4">Idea Details</h3>
+                    <div className="grid grid-cols-1 gap-4">
+                      {results.additionalDetails.coreProblem && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-600 mb-1">Core Problem</p>
+                          <p className="text-base text-gray-800">{results.additionalDetails.coreProblem}</p>
+                        </div>
+                      )}
+                      {results.additionalDetails.uniqueValue && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-600 mb-1">Unique Value Proposition</p>
+                          <p className="text-base text-gray-800">{results.additionalDetails.uniqueValue}</p>
+                        </div>
+                      )}
+                      {results.additionalDetails.revenueStrategy && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-600 mb-1">Revenue Strategy</p>
+                          <p className="text-base text-gray-800">{results.additionalDetails.revenueStrategy}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              )}
+              
               <div className="mt-6 pt-6 border-t">
                 <h3 className="text-lg font-medium mb-4">Overall Ratings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -416,13 +587,25 @@ export default function ArenaPage() {
                   </div>
                 </div>
               
-                <Button 
-                  onClick={() => setResults(null)}
-                  variant="outline"
-                  size="sm" 
-                >
-                  Try Another Idea
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={exportAsMarkdown}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-1"
+                  >
+                    <Download className="h-4 w-4" />
+                    Export as Markdown
+                  </Button>
+                
+                  <Button 
+                    onClick={() => setResults(null)}
+                    variant="outline"
+                    size="sm" 
+                  >
+                    Try Another Idea
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -611,6 +794,13 @@ export default function ArenaPage() {
               variant="outline"
             >
               Go to Dashboard
+            </Button>
+            <Button
+              onClick={exportAsMarkdown}
+              className="mr-4 bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Save as Markdown
             </Button>
             <Button
               onClick={() => setResults(null)}
