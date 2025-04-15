@@ -40,6 +40,7 @@ async function createStripeProducts() {
 }
 
 async function seed() {
+  // Regular user with default 1 run
   const email = 'test@test.com';
   const password = 'admin123';
   const passwordHash = await hashPassword(password);
@@ -54,9 +55,58 @@ async function seed() {
     ])
     .returning();
 
-  console.log('Initial user created.');
+  console.log('Initial user created with default 1 run.');
 
-  await createStripeProducts();
+  // Free user with 0 runs
+  const freeUserEmail = 'free@test.com';
+  const freeUserPassword = 'password123';
+  const freeUserPasswordHash = await hashPassword(freeUserPassword);
+
+  await db
+    .insert(users)
+    .values([
+      {
+        email: freeUserEmail,
+        passwordHash: freeUserPasswordHash,
+        remainingRuns: 0,
+      },
+    ]);
+
+  console.log('Free user created with 0 runs.');
+
+  // Premium user with 0 runs
+  const premiumUserEmail = 'premium@test.com';
+  const premiumUserPassword = 'password123';
+  const premiumUserPasswordHash = await hashPassword(premiumUserPassword);
+
+  // Create a real Stripe customer
+  const stripeCustomer = await stripe.customers.create({
+    email: premiumUserEmail,
+    name: 'Premium Test User',
+    metadata: {
+      isTestUser: 'true'
+    }
+  });
+
+  console.log(`Created Stripe customer with ID: ${stripeCustomer.id}`);
+
+  await db
+    .insert(users)
+    .values([
+      {
+        email: premiumUserEmail,
+        name: 'Premium User',
+        passwordHash: premiumUserPasswordHash,
+        isPremium: true,
+        remainingRuns: 0,
+        stripeCustomerId: stripeCustomer.id,
+      },
+    ]);
+
+  console.log('Premium user created with 0 runs.');
+
+  // Create Stripe products and prices
+  // await createStripeProducts();
 }
 
 seed()

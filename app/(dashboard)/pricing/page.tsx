@@ -24,7 +24,7 @@ export default async function PricingPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-center mb-12">Choose Your Plan</h1>
+      <h1 className="text-3xl font-bold text-center mb-12">Choose Your Bundle</h1>
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         <PricingCardFree
           name="Recruit"
@@ -130,7 +130,7 @@ function PricingCardFree({
       </ul>
       <div className="mt-auto">
         <Button asChild variant="outline" className="w-full rounded-full">
-          <Link href="/sign-up">Get Started</Link>
+          <Link href="/arena">Get Started</Link>
         </Button>
       </div>
     </div>
