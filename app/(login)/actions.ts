@@ -7,6 +7,7 @@ import {
   User,
   users,
   activityLogs,
+  passwordResetTokens,
   type NewUser,
   type NewActivityLog,
   ActivityType,
@@ -20,7 +21,7 @@ import {
   validatedAction,
   validatedActionWithUser,
 } from '@/lib/auth/middleware';
-import { sendVerificationEmail } from '@/lib/email/service';
+import { sendVerificationEmail, sendPasswordResetEmail, verifyPasswordResetToken } from '@/lib/email/service';
 
 async function logActivity(
   userId: number,
@@ -241,4 +242,76 @@ export const updateAccount = validatedActionWithUser(
 
     return { success: 'Account updated successfully.' };
   },
+);
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+
+export const forgotPassword = validatedAction(
+  forgotPasswordSchema,
+  async (data) => {
+    const { email } = data;
+
+    const userRecord = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (userRecord.length === 0) {
+      // Don't reveal that the email doesn't exist, return success anyway
+      return { success: 'If your email is registered, you will receive a password reset link.' };
+    }
+
+    const user = userRecord[0];
+
+    await sendPasswordResetEmail(user.id, user.email);
+
+    return { success: 'If your email is registered, you will receive a password reset link.' };
+  }
+);
+
+const resetPasswordSchema = z
+  .object({
+    token: z.string(),
+    password: z.string().min(8).max(100),
+    confirmPassword: z.string().min(8).max(100),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
+export const resetPassword = validatedAction(
+  resetPasswordSchema,
+  async (data) => {
+    const { token, password } = data;
+
+    const tokenVerification = await verifyPasswordResetToken(token);
+    
+    if (!tokenVerification.success) {
+      return { error: tokenVerification.message };
+    }
+
+    // Ensure userId is defined
+    if (!tokenVerification.userId) {
+      return { error: "Invalid token" };
+    }
+
+    const newPasswordHash = await hashPassword(password);
+
+    await Promise.all([
+      db
+        .update(users)
+        .set({ passwordHash: newPasswordHash })
+        .where(eq(users.id, tokenVerification.userId)),
+      db
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.id, tokenVerification.tokenId)),
+      logActivity(tokenVerification.userId, ActivityType.RESET_PASSWORD),
+    ]);
+
+    return { success: 'Password has been reset successfully. You can now sign in with your new password.' };
+  }
 );

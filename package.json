@@ -31,7 +31,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
-    "drizzle-kit": "^0.30.6",
     "drizzle-orm": "^0.41.0",
     "jose": "^6.0.10",
     "lucide-react": "^0.487.0",
@@ -55,6 +54,9 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.16"
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/pg": "^8.11.13",
+    "drizzle-kit": "^0.30.6",
+    "tsx": "^4.19.3"
   }
 }

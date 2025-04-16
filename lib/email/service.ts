@@ -3,7 +3,7 @@ import sgMail from '@sendgrid/mail';
 import { eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { db } from '@/lib/db/drizzle';
-import { verificationTokens, users } from '@/lib/db/schema';
+import { verificationTokens, passwordResetTokens, users } from '@/lib/db/schema';
 
 // In production, use SendGrid API
 // For development, we can use a test account from Ethereal
@@ -161,4 +161,114 @@ export async function verifyEmail(token: string) {
   await db.delete(verificationTokens).where(eq(verificationTokens.id, tokenRecord.id));
   
   return { success: true, message: "Email verified successfully" };
+}
+
+export async function createPasswordResetToken(userId: number) {
+  // Delete any existing tokens for this user
+  await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, userId));
+  
+  // Create a new token
+  const token = randomBytes(32).toString('hex');
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + 1); // Token expires in 1 hour
+  
+  // Store the token in the database
+  const [createdToken] = await db.insert(passwordResetTokens)
+    .values({
+      userId,
+      token,
+      expiresAt,
+    })
+    .returning();
+    
+  return createdToken;
+}
+
+export async function sendPasswordResetEmail(userId: number, email: string) {
+  // Create a password reset token
+  const resetToken = await createPasswordResetToken(userId);
+  
+  // Generate reset URL
+  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const resetUrl = `${baseUrl}/reset-password?token=${resetToken.token}`;
+  
+  // Email content
+  const fromEmail = process.env.EMAIL_FROM || '"SaaS Starter" <noreply@saas-starter.com>';
+  const subject = "Reset your password";
+  const text = `You requested to reset your password. Please click on the following link to reset your password: ${resetUrl}. This link will expire in 1 hour.`;
+  const html = `
+    <div>
+      <h1>Password Reset</h1>
+      <p>You requested to reset your password. Please click on the button below to set a new password:</p>
+      <a href="${resetUrl}" style="
+        display: inline-block;
+        background-color: #f97316;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 20px 0;
+      ">
+        Reset Password
+      </a>
+      <p>Or copy and paste the following link in your browser:</p>
+      <p>${resetUrl}</p>
+      <p>This link will expire in 1 hour.</p>
+      <p>If you did not request a password reset, you can safely ignore this email.</p>
+    </div>
+  `;
+  
+  // If SendGrid API key is available and we're in production, use SendGrid API
+  if (process.env.SENDGRID_API_KEY) {
+    const msg = {
+      to: email,
+      from: fromEmail,
+      subject,
+      text,
+      html,
+    };
+    
+    await sgMail.send(msg);
+    console.log(`Password reset email sent to ${email} using SendGrid API`);
+    return { sent: true };
+  } 
+  // Otherwise use SMTP
+  else {
+    // Send the email
+    const transporter = await getEmailTransporter();
+    
+    const info = await transporter.sendMail({
+      from: fromEmail,
+      to: email,
+      subject,
+      text,
+      html,
+    });
+    
+    // For testing, log the URL where the email can be viewed
+    if (testAccount) {
+      console.log("Password reset email sent: %s", nodemailer.getTestMessageUrl(info));
+    }
+    
+    return info;
+  }
+}
+
+export async function verifyPasswordResetToken(token: string) {
+  // Find the token in the database
+  const tokenRecord = await db.query.passwordResetTokens.findFirst({
+    where: eq(passwordResetTokens.token, token),
+  });
+  
+  if (!tokenRecord) {
+    return { success: false, message: "Invalid password reset token" };
+  }
+  
+  // Check if the token has expired
+  if (new Date() > tokenRecord.expiresAt) {
+    await db.delete(passwordResetTokens).where(eq(passwordResetTokens.id, tokenRecord.id));
+    return { success: false, message: "Password reset token has expired" };
+  }
+  
+  return { success: true, userId: tokenRecord.userId, tokenId: tokenRecord.id };
 } 

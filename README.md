@@ -1,20 +1,15 @@
-# Next.js SaaS Starter
+# Idea Arena
 
-This is a starter template for building a SaaS application using **Next.js** with support for authentication, Stripe integration for payments, and a dashboard for logged-in users.
-
-**Demo: [https://next-saas-start.vercel.app/](https://next-saas-start.vercel.app/)**
+Idea Arena is a powerful business idea validation platform that helps entrepreneurs test, analyze, and refine their business concepts through AI-powered feedback.
 
 ## Features
 
-- Marketing landing page (`/`) with animated Terminal element
-- Pricing page (`/pricing`) which connects to Stripe Checkout
-- Dashboard pages with CRUD operations on users/teams
-- Basic RBAC with Owner and Member roles
-- Subscription management with Stripe Customer Portal
-- Email/password authentication with JWTs stored to cookies
-- Global middleware to protect logged-in routes
-- Local middleware to protect Server Actions or validate Zod schemas
-- Activity logging system for any user events
+- **Multi-Persona Analysis**: Get comprehensive feedback from diverse AI personas including venture capitalists, product managers, marketing directors, consumers, and industry experts
+- **Detailed Idea Assessment**: Submit your business concept with key details like revenue strategy, core problem, and value proposition
+- **Competitor Analysis**: Identify top competitors, understand market saturation, and discover opportunities for differentiation
+- **Executive Summary**: Receive a comprehensive report with strengths, weaknesses, competitive landscape, and specific recommendations
+- **Iterative Refinement**: Apply suggestions to refine your idea and test again to track improvement
+- **Exportable Results**: Download your analysis as a well-structured markdown document
 
 ## Tech Stack
 
@@ -23,12 +18,13 @@ This is a starter template for building a SaaS application using **Next.js** wit
 - **ORM**: [Drizzle](https://orm.drizzle.team/)
 - **Payments**: [Stripe](https://stripe.com/)
 - **UI Library**: [shadcn/ui](https://ui.shadcn.com/)
+- **AI Integration**: [OpenAI](https://openai.com/)
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/nextjs/saas-starter
-cd saas-starter
+git clone https://github.com/your-username/idea-arena
+cd idea-arena
 pnpm install
 ```
 
@@ -60,7 +56,7 @@ Finally, run the Next.js development server:
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the app in action.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see Idea Arena in action.
 
 Optionally, you can listen for Stripe webhooks locally through their CLI to handle subscription change events:
 
@@ -78,7 +74,7 @@ To test Stripe payments, use the following test card details:
 
 ## Going to Production
 
-When you're ready to deploy your SaaS application to production, follow these steps:
+When you're ready to deploy Idea Arena to production, follow these steps:
 
 ### Set up a production Stripe webhook
 
@@ -101,11 +97,4 @@ In your Vercel project settings (or during deployment), add all the necessary en
 3. `STRIPE_WEBHOOK_SECRET`: Use the webhook secret from the production webhook you created in step 1.
 4. `POSTGRES_URL`: Set this to your production database URL.
 5. `AUTH_SECRET`: Set this to a random string. `openssl rand -base64 32` will generate one.
-
-## Other Templates
-
-While this template is intentionally minimal and to be used as a learning resource, there are other paid versions in the community which are more full-featured:
-
-- https://achromatic.dev
-- https://shipfa.st
-- https://makerkit.dev
+6. `OPENAI_API_KEY`: Your OpenAI API key for AI-powered idea analysis.
