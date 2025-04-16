@@ -11,6 +11,8 @@ import { Label } from '../../../components/ui/label';
 import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Link from 'next/link';
+import type { Components } from 'react-markdown';
 
 // Type definitions for the analysis response
 type Ratings = {
@@ -57,6 +59,18 @@ type AnalysisResult = {
     revenueStrategy?: string;
   };
 }
+
+// Define markdown components configuration
+const markdownComponents: Components = {
+  h1: ({...props}) => <h1 className="text-2xl font-bold mb-4" {...props} />,
+  h2: ({...props}) => <h2 className="text-xl font-semibold mt-6 mb-3 pb-1 border-b border-gray-200" {...props} />,
+  h3: ({...props}) => <h3 className="text-lg font-medium mt-5 mb-2" {...props} />,
+  p: ({...props}) => <p className="text-base leading-relaxed my-4" {...props} />,
+  ul: ({...props}) => <ul className="my-4 list-disc pl-6" {...props} />,
+  ol: ({...props}) => <ol className="my-4 list-decimal pl-6" {...props} />,
+  li: ({...props}) => <li className="my-2 pl-1" {...props} />,
+  a: ({...props}) => <a className="text-blue-600 underline" target="_blank" rel="noopener noreferrer" {...props} />
+};
 
 export default function ArenaPage() {
   const { userPromise } = useUser();
@@ -316,7 +330,7 @@ export default function ArenaPage() {
             <h5 className="mb-1 font-medium leading-none tracking-tight">No Remaining Runs</h5>
             <div className="text-sm">
               You don't have any remaining idea runs. Please purchase more runs from the 
-              <a href="/pricing" className="font-medium underline ml-1">pricing page</a>.
+              <Link href="/pricing" className="font-medium underline ml-1">pricing page</Link>.
             </div>
           </div>
         </div>
@@ -503,7 +517,7 @@ export default function ArenaPage() {
                     size="lg" 
                     className="bg-orange-500 hover:bg-orange-600 text-white"
                   >
-                    <a href="/pricing">View Pricing Plans</a>
+                    <Link href="/pricing">View Pricing Plans</Link>
                   </Button>
                 </div>
               )}
@@ -544,11 +558,11 @@ export default function ArenaPage() {
                       <li>More actionable recommendations</li>
                     </ul>
                     <div className="mt-3">
-                      <a href="/pricing">
+                      <Link href="/pricing">
                         <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
                           Upgrade to Premium
                         </Button>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -625,16 +639,7 @@ export default function ArenaPage() {
                 {results.executiveSummary ? (
                   <ReactMarkdown 
                     remarkPlugins={[remarkGfm]}
-                    components={{
-                      h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4" {...props} />,
-                      h2: ({node, ...props}) => <h2 className="text-xl font-semibold mt-6 mb-3 pb-1 border-b border-gray-200" {...props} />,
-                      h3: ({node, ...props}) => <h3 className="text-lg font-medium mt-5 mb-2" {...props} />,
-                      p: ({node, ...props}) => <p className="text-base leading-relaxed my-4" {...props} />,
-                      ul: ({node, ...props}) => <ul className="my-4 list-disc pl-6" {...props} />,
-                      ol: ({node, ...props}) => <ol className="my-4 list-decimal pl-6" {...props} />,
-                      li: ({node, ...props}) => <li className="my-2 pl-1" {...props} />,
-                      a: ({node, ...props}) => <a className="text-blue-600 underline" target="_blank" rel="noopener noreferrer" {...props} />
-                    }}
+                    components={markdownComponents}
                   >
                     {results.executiveSummary}
                   </ReactMarkdown>
@@ -808,16 +813,7 @@ export default function ArenaPage() {
                 <div className="prose prose-gray prose-h1:text-2xl prose-h1:font-bold prose-h1:mb-4 prose-h2:text-xl prose-h2:font-semibold prose-h2:mt-6 prose-h2:mb-3 prose-h2:pb-1 prose-h2:border-b prose-h2:border-gray-200 prose-h3:text-lg prose-h3:font-medium prose-h3:mt-5 prose-h3:mb-2 prose-p:text-base prose-p:leading-relaxed prose-p:my-4 prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6 prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6 prose-li:my-2 prose-li:pl-1 prose-strong:font-semibold prose-strong:text-gray-800 prose-a:text-blue-600 prose-a:underline max-w-none">
                   <ReactMarkdown 
                     remarkPlugins={[remarkGfm]}
-                    components={{
-                      h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4" {...props} />,
-                      h2: ({node, ...props}) => <h2 className="text-xl font-semibold mt-6 mb-3 pb-1 border-b border-gray-200" {...props} />,
-                      h3: ({node, ...props}) => <h3 className="text-lg font-medium mt-5 mb-2" {...props} />,
-                      p: ({node, ...props}) => <p className="text-base leading-relaxed my-4" {...props} />,
-                      ul: ({node, ...props}) => <ul className="my-4 list-disc pl-6" {...props} />,
-                      ol: ({node, ...props}) => <ol className="my-4 list-decimal pl-6" {...props} />,
-                      li: ({node, ...props}) => <li className="my-2 pl-1" {...props} />,
-                      a: ({node, ...props}) => <a className="text-blue-600 underline" target="_blank" rel="noopener noreferrer" {...props} />
-                    }}
+                    components={markdownComponents}
                   >
                     {results.competitorAnalysis || ''}
                   </ReactMarkdown>
@@ -866,14 +862,14 @@ export default function ArenaPage() {
                     </div>
                   </div>
                   <div className="mt-8">
-                    <a href="/pricing">
+                    <Link href="/pricing">
                       <Button 
                         size="lg" 
                         className="bg-blue-600 hover:bg-blue-700 text-white"
                       >
                         Unlock Competitor Analysis
                       </Button>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </CardContent>
@@ -978,14 +974,14 @@ export default function ArenaPage() {
                     Get insights from 9 additional expert personas including Industry Expert, Technical Co-founder, 
                     Gen Z Consumer, and more.
                   </p>
-                  <a href="/pricing">
+                  <Link href="/pricing">
                     <Button 
                       variant="outline" 
                       className="bg-white hover:bg-gray-50"
                     >
                       Upgrade to Premium
                     </Button>
-                  </a>
+                  </Link>
                 </div>
               </Card>
             )}

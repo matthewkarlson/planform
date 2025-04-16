@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Download, ArrowRight, BarChart2, Target, Users, RefreshCw, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function HomePage() {
   return (
@@ -22,7 +23,7 @@ export default function HomePage() {
               Take the first step on your journey to building a successful business.
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
-                <a
+                <Link
                   href="/arena"
                 >
                   <Button
@@ -33,7 +34,7 @@ export default function HomePage() {
                     Test Your Idea
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                </a>
+                </Link>
               </div>
             </div>
             <div className="mt-8 lg:mt-0 lg:col-span-6">
@@ -120,7 +121,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
-              <a href="/arena">
+              <Link href="/arena">
                 <Button
                   size="lg"
                   className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white"
@@ -128,7 +129,7 @@ export default function HomePage() {
                   Start Your Analysis
                   <BarChart2 className="ml-3 h-6 w-6" />
                 </Button>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -194,12 +195,12 @@ export default function HomePage() {
           </div>
           
           <div className="mt-16 text-center">
-            <a href="/arena">
+            <Link href="/arena">
               <Button className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-6">
                 Start Iterating Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -281,7 +282,7 @@ export default function HomePage() {
           </div>
           
           <div className="mt-12 text-center">
-            <a href="/arena">
+            <Link href="/arena">
               <Button
                 size="lg"
                 className="rounded-full bg-orange-500 hover:bg-orange-600 text-white"
@@ -289,7 +290,7 @@ export default function HomePage() {
                 Test Your First Idea
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

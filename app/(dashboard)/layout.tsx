@@ -15,6 +15,13 @@ import { useUser } from '@/lib/auth';
 import { signOut } from '@/app/(login)/actions';
 import { useRouter } from 'next/navigation';
 
+// Helper function to get consistent initials
+const getInitials = (email: string): string => {
+  if (!email) return 'U';
+  // Just use the first letter of the email
+  return email[0].toUpperCase();
+};
+
 function UserMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { userPromise } = useUser();
@@ -48,17 +55,17 @@ function UserMenu() {
     );
   }
 
+  // Get the user's initials for the avatar fallback
+  const initials = user.name ? 
+    user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+    getInitials(user.email);
+
   return (
     <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger>
         <Avatar className="cursor-pointer size-9">
           <AvatarImage alt={user.name || ''} />
-          <AvatarFallback>
-            {user.email
-              .split(' ')
-              .map((n) => n[0])
-              .join('')}
-          </AvatarFallback>
+          <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="flex flex-col gap-1">
@@ -96,7 +103,7 @@ function Header() {
           <span className="ml-2 text-xl font-semibold text-gray-900">IDEA ARENA</span>
         </Link>
         <div className="flex items-center space-x-4">
-          <Suspense fallback={<div className="h-9" />}>
+          <Suspense fallback={<div className="h-9 w-9 rounded-full bg-gray-200 animate-pulse" />}>
             <UserMenu />
           </Suspense>
         </div>
