@@ -11,13 +11,12 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-12 lg:gap-8">
             <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
               <h1 className="text-4xl font-bold text-gray-900 tracking-tight sm:text-5xl md:text-6xl">
-                Test Your Ideas
-                <span className="block text-orange-500">Faster Than Ever</span>
+              All Ideas Suck,
+                <span className="block text-orange-500">Until They Don't</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                Get instant comprehensive feedback on your business ideas from diverse AI personas. 
-                Analyze market opportunities, identify competitors, and receive actionable 
-                recommendations to refine your concept.
+              It doesn't matter how hard you work if your idea sucks. We can fix that. Idea Arena works with
+              you to refine your idea until it's worth your time and energy.
               </p>
               <p className="mt-3 text-base text-black sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
               Take the first step on your journey to building a successful business.
@@ -29,9 +28,9 @@ export default function HomePage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="text-lg rounded-full"
+                    className="text-lg rounded-full shadow-lg"
                   >
-                    Test Your Idea
+                  Turn Your Ideas into Champions
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>

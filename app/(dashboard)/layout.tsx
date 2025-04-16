@@ -69,6 +69,13 @@ function UserMenu() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="flex flex-col gap-1">
+        {/* User Info Section */}
+        <div className="px-2 py-1.5 border-b mb-1">
+          {user.name && (
+            <p className="font-medium text-sm">{user.name}</p>
+          )}
+          <p className="text-xs text-muted-foreground truncate max-w-[200px]">{user.email}</p>
+        </div>
         <DropdownMenuItem className="cursor-pointer">
           <Link href="/dashboard" className="flex w-full items-center">
             <Home className="mr-2 h-4 w-4" />

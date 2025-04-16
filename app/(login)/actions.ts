@@ -228,16 +228,15 @@ export const deleteAccount = validatedActionWithUser(
 
 const updateAccountSchema = z.object({
   name: z.string().min(2).max(100).optional(),
-  email: z.string().email(),
 });
 
 export const updateAccount = validatedActionWithUser(
   updateAccountSchema,
   async (data, _, user) => {
-    const { name, email } = data;
+    const { name } = data;
 
     await Promise.all([
-      db.update(users).set({ name, email }).where(eq(users.id, user.id)),
+      db.update(users).set({ name }).where(eq(users.id, user.id)),
       logActivity(user.id, ActivityType.UPDATE_ACCOUNT),
     ]);
 

@@ -70,8 +70,11 @@ export default function GeneralPage() {
                 type="email"
                 placeholder="Enter your email"
                 defaultValue={user?.email || ''}
-                required
+                readOnly
+                disabled
+                className="bg-gray-50 text-gray-500"
               />
+              <p className="mt-1 text-xs text-gray-500">Email cannot be changed</p>
             </div>
             {state.error && (
               <p className="text-red-500 text-sm">{state.error}</p>
