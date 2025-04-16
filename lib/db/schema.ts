@@ -20,6 +20,7 @@ export const users = pgTable('users', {
   stripeCustomerId: text('stripe_customer_id').unique(),
   isPremium: boolean('is_premium').default(false),
   remainingRuns: integer('remaining_runs').default(1),
+  isVerified: boolean('is_verified').default(false),
 });
 
 export const activityLogs = pgTable('activity_logs', {
@@ -30,6 +31,14 @@ export const activityLogs = pgTable('activity_logs', {
   ipAddress: varchar('ip_address', { length: 45 }),
 });
 
+export const verificationTokens = pgTable('verification_tokens', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull(),
+  token: text('token').notNull().unique(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  expiresAt: timestamp('expires_at').notNull(),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   activityLogs: many(activityLogs),
 }));
@@ -37,6 +46,13 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   user: one(users, {
     fields: [activityLogs.userId],
+    references: [users.id],
+  }),
+}));
+
+export const verificationTokensRelations = relations(verificationTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [verificationTokens.userId],
     references: [users.id],
   }),
 }));

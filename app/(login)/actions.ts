@@ -20,6 +20,7 @@ import {
   validatedAction,
   validatedActionWithUser,
 } from '@/lib/auth/middleware';
+import { sendVerificationEmail } from '@/lib/email/service';
 
 async function logActivity(
   userId: number,
@@ -129,6 +130,7 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
   await Promise.all([
     logActivity(createdUser.id, ActivityType.SIGN_UP),
     setSession(createdUser),
+    sendVerificationEmail(createdUser.id, createdUser.email),
   ]);
 
   const redirectTo = formData.get('redirect') as string | null;

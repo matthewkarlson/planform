@@ -36,9 +36,14 @@ function UserMenu() {
         >
           Pricing
         </Link>
-        <Button asChild className="rounded-full">
-          <Link href="/sign-up">Sign Up</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" asChild className="rounded-full">
+            <Link href="/sign-in">Login</Link>
+          </Button>
+          <Button asChild className="rounded-full">
+            <Link href="/sign-up">Sign Up</Link>
+          </Button>
+        </div>
       </>
     );
   }

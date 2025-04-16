@@ -149,6 +149,14 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Check if email is verified
+    if (!user.isVerified) {
+      return NextResponse.json(
+        { error: 'Email verification required' },
+        { status: 403 }
+      );
+    }
+    
     // Check if user has remaining runs
     if (!user.remainingRuns || user.remainingRuns <= 0) {
       return NextResponse.json(
@@ -294,7 +302,9 @@ Include hyperlinks to sources where relevant. Keep your writing style consistent
             { role: 'system', content: persona.prompt },
             { 
               role: 'user', 
-              content: `Analyze this business idea from your personal perspective:
+              content: `Tell us how you feel about this business idea, is it interesting to you and people like you?
+              tailor your response to be personal and include your personal experience and feelings about the idea, in particular if 
+              the idea is actually solving a problem that you experience in your day to day life.
 
 Name: ${ideaName}
 Description: ${ideaDescription}
