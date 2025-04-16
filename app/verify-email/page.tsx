@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 export default async function VerifyEmailPage({
   searchParams,
 }: {
-  searchParams: { token?: string };
+  searchParams: Promise<{ token?: string }>;
 }) {
-  const token = searchParams?.token;
+  // In Next.js 15+, searchParams is a Promise that needs to be awaited
+  const { token } = await searchParams;
   
   if (!token) {
-    redirect('/');
+    return redirect('/');
   }
   
   const result = await verifyEmail(token);

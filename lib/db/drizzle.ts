@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '/Users/matthewkarlson/projects/saas-starter/.env.local' });
 
-console.log('LOCAL_POSTGRES_URL', process.env.LOCAL_POSTGRES_URL);
 const databaseUrl = process.env.LOCAL_POSTGRES_URL || process.env.NEON_POSTGRES_URL;
 
 if (!databaseUrl) {
