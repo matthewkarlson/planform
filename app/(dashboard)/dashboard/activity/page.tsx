@@ -17,6 +17,7 @@ const iconMap: Record<ActivityType, LucideIcon> = {
   [ActivityType.SIGN_IN]: UserCog,
   [ActivityType.SIGN_OUT]: LogOut,
   [ActivityType.UPDATE_PASSWORD]: Lock,
+  [ActivityType.RESET_PASSWORD]: Lock,
   [ActivityType.DELETE_ACCOUNT]: UserMinus,
   [ActivityType.UPDATE_ACCOUNT]: Settings,
 };
@@ -45,6 +46,8 @@ function formatAction(action: ActivityType): string {
       return 'You signed out';
     case ActivityType.UPDATE_PASSWORD:
       return 'You changed your password';
+    case ActivityType.RESET_PASSWORD:
+      return 'You reset your password';
     case ActivityType.DELETE_ACCOUNT:
       return 'You deleted your account';
     case ActivityType.UPDATE_ACCOUNT:

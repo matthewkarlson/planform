@@ -9,9 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Swords, Loader2 } from 'lucide-react';
 import { resetPassword } from '../(login)/actions';
 import { ActionState } from '@/lib/auth/middleware';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   
@@ -140,5 +140,32 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback for Suspense
+function ResetPasswordLoading() {
+  return (
+    <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center">
+          <Swords className="h-12 w-12 text-orange-500" />
+        </div>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Loading...
+        </h2>
+        <div className="flex justify-center mt-6">
+          <Loader2 className="animate-spin h-8 w-8 text-orange-500" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<ResetPasswordLoading />}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 } 
