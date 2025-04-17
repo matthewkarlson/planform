@@ -1,21 +1,21 @@
 import { db } from '@/lib/db/drizzle';
-import { ideas } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { ideas, stages } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
 import { getUser } from '@/lib/db/queries';
 import { redirect } from 'next/navigation';
 import ClientWrapper from '@/app/ideas/[id]/[stage]/ClientWrapper';
-import { Suspense } from 'react';
+import { Metadata } from 'next';
 
-// This function is used to safely access dynamic params
-export async function generateMetadata(props: { params: Promise<{ id: string, stage: string }> }) {
-  const params = await props.params;
+type Params = Promise<{ id: string; stage: string }>;
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { id, stage } = await params;
   return {
-    title: `Idea Stage: ${params.stage}`,
+    title: `Idea Stage: ${stage}`,
   };
 }
 
-export default async function StageView({ params }: { params: { id: string, stage: string } }) {
-  // Properly await the params object before accessing its properties
+export default async function StageView({ params }: { params: Params }) {
   const { id, stage } = await params;
   
   const user = await getUser();
@@ -33,11 +33,22 @@ export default async function StageView({ params }: { params: { id: string, stag
     redirect('/ideas');
   }
   
+  // Check if this stage has been completed
+  const stageRecord = await db.query.stages.findFirst({
+    where: and(
+      eq(stages.ideaId, id),
+      eq(stages.stageName, stage)
+    ),
+  });
+  
+  const isReadOnly = stageRecord?.completedAt ? true : false;
+  
   return (
     <ClientWrapper
       ideaId={id} 
       stageName={stage} 
-      initialIdea={idea} 
+      initialIdea={idea}
+      isReadOnly={isReadOnly}
     />
   );
 } 

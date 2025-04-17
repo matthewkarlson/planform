@@ -14,9 +14,10 @@ interface ChatWindowProps {
   stageId: string;
   persona: Persona;
   onStageComplete: () => void;
+  isReadOnly?: boolean;
 }
 
-export default function ChatWindow({ stageId, persona, onStageComplete }: ChatWindowProps) {
+export default function ChatWindow({ stageId, persona, onStageComplete, isReadOnly = false }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -222,37 +223,45 @@ export default function ChatWindow({ stageId, persona, onStageComplete }: ChatWi
         </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="border-t border-gray-200 p-4 bg-white"
-      >
-        <div className="flex">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder={`Message ${persona.name}...`}
-            className="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || inputValue.trim() === ''}
-            className="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-          >
-            {isLoading ? (
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : (
-              'Send'
-            )}
-          </button>
-        </div>
-      </form>
+      {!isReadOnly && (
+        <form
+          onSubmit={handleSubmit}
+          className="border-t border-gray-200 p-4 bg-white"
+        >
+          <div className="flex">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder={`Message ${persona.name}...`}
+              className="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              disabled={isLoading || inputValue.trim() === ''}
+              className="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            >
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                'Send'
+              )}
+            </button>
+          </div>
+        </form>
+      )}
 
-      {isStageComplete && (
+      {isReadOnly && (
+        <div className="border-t border-gray-200 p-4 bg-gray-50 text-center">
+          <p className="text-gray-600">This conversation is in read-only mode</p>
+        </div>
+      )}
+
+      {isStageComplete && !isReadOnly && (
         <StageCompleteDialog
           personaName={persona.name}
           onContinue={onStageComplete}

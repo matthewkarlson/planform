@@ -15,14 +15,16 @@ interface ClientWrapperProps {
   ideaId: string;
   stageName: string;
   initialIdea: Idea;
+  isReadOnly?: boolean;
 }
 
-export default function ClientWrapper({ ideaId, stageName, initialIdea }: ClientWrapperProps) {
+export default function ClientWrapper({ ideaId, stageName, initialIdea, isReadOnly = false }: ClientWrapperProps) {
   return (
     <PersonaChatClient 
       ideaId={ideaId} 
       stageName={stageName} 
       initialIdea={initialIdea} 
+      isReadOnly={isReadOnly}
     />
   );
 } 
