@@ -2,11 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Persona } from '@/components/PersonaChatShell';
-import StageCompleteDialog from '@/components/StageCompleteDialog';
 
 interface Message {
   id: string;
-  role: 'user' | 'ai';
+  role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
@@ -50,10 +49,13 @@ export default function ChatWindow({ stageId, persona, onStageComplete, isReadOn
           // Convert the messages to the expected format
           const formattedMessages: Message[] = data.messages.map((msg: any) => ({
             id: msg.id,
-            role: msg.role === 'assistant' ? 'ai' : msg.role,
+            role: msg.role === 'ai' ? 'assistant' : msg.role,
             content: msg.content || '',
           }));
-          
+          console.log('formattedMessages');
+          console.log(formattedMessages);
+          console.log('messages');
+          console.log(messages);
           setMessages(formattedMessages);
           
           // If conversation has progressed enough, show stage complete option
@@ -109,6 +111,18 @@ export default function ChatWindow({ stageId, persona, onStageComplete, isReadOn
     setError(null);
 
     try {
+      // Format all messages for the API
+      const apiMessages = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+      
+      // Add the new user message
+      apiMessages.push({
+        role: userMessage.role,
+        content: userMessage.content
+      });
+
       const response = await fetch('/api/stage/message', {
         method: 'POST',
         headers: {
@@ -116,7 +130,7 @@ export default function ChatWindow({ stageId, persona, onStageComplete, isReadOn
         },
         body: JSON.stringify({
           stageId,
-          message: userMessage.content,
+          messages: apiMessages,
         }),
       });
 
@@ -132,7 +146,7 @@ export default function ChatWindow({ stageId, persona, onStageComplete, isReadOn
       if (reader) {
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
-          role: 'ai',
+          role: 'assistant',
           content: '',
         };
 
@@ -176,97 +190,92 @@ export default function ChatWindow({ stageId, persona, onStageComplete, isReadOn
 
   return (
     <>
-      <div 
-        ref={chatContainerRef}
-        className="flex-1 p-4 overflow-y-auto"
-      >
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center p-4">
-            <div className="text-xl font-semibold mb-2">Start a conversation with {persona.name}</div>
-            <p className="text-gray-600 max-w-md">
-              {persona.goal}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
+      <div className="relative flex flex-col h-full">
+        <div 
+          ref={chatContainerRef}
+          className="flex-1 p-4 overflow-y-auto"
+        >
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center p-4">
+              <div className="text-xl font-semibold mb-2">Start a conversation with {persona.name}</div>
+              <p className="text-gray-600 max-w-md">
+                {persona.goal}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {messages.map((message) => (
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    message.role === 'user'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-800'
+                  key={message.id}
+                  className={`flex ${
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
                   }`}
                 >
-                  {message.content || (
-                    <div className="animate-pulse">
-                      <div className="h-2 bg-gray-300 rounded w-16 mb-2"></div>
-                      <div className="h-2 bg-gray-300 rounded w-24"></div>
-                    </div>
-                  )}
+                  <div
+                    className={`max-w-[80%] rounded-lg p-3 ${
+                      message.role === 'user'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {message.content || (
+                      <div className="animate-pulse">
+                        <div className="h-2 bg-gray-300 rounded w-16 mb-2"></div>
+                        <div className="h-2 bg-gray-300 rounded w-24"></div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border-t border-red-200 p-3">
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        )}
+
+        {!isReadOnly && (
+          <form
+            onSubmit={handleSubmit}
+            className="border-t border-gray-200 p-4 bg-white"
+          >
+            <div className="flex">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder={`Message ${persona.name}...`}
+                className="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                disabled={isLoading || inputValue.trim() === ''}
+                className="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  'Send'
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {isReadOnly && (
+          <div className="border-t border-gray-200 p-4 bg-gray-50 text-center">
+            <p className="text-gray-600">This conversation is in read-only mode</p>
           </div>
         )}
       </div>
-
-      {error && (
-        <div className="bg-red-50 border-t border-red-200 p-3">
-          <p className="text-red-700 text-sm">{error}</p>
-        </div>
-      )}
-
-      {!isReadOnly && (
-        <form
-          onSubmit={handleSubmit}
-          className="border-t border-gray-200 p-4 bg-white"
-        >
-          <div className="flex">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder={`Message ${persona.name}...`}
-              className="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={isLoading}
-            />
-            <button
-              type="submit"
-              disabled={isLoading || inputValue.trim() === ''}
-              className="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {isLoading ? (
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : (
-                'Send'
-              )}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {isReadOnly && (
-        <div className="border-t border-gray-200 p-4 bg-gray-50 text-center">
-          <p className="text-gray-600">This conversation is in read-only mode</p>
-        </div>
-      )}
-
-      {isStageComplete && !isReadOnly && (
-        <StageCompleteDialog
-          personaName={persona.name}
-          onContinue={onStageComplete}
-        />
-      )}
     </>
   );
 } 

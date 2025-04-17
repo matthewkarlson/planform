@@ -147,6 +147,11 @@ export default function IdeaIntakeForm() {
       const data = await response.json();
       
       if (!response.ok) {
+        if (response.status === 403 && data.error?.includes('No remaining runs available')) {
+          // Redirect to pricing page if no runs remaining
+          router.push('/pricing');
+          return;
+        }
         throw new Error(data.error || 'Failed to submit');
       }
       

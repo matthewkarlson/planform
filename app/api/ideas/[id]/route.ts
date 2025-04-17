@@ -48,9 +48,11 @@ export async function GET(request: NextRequest) {
   }
 }
 
+type Params = Promise<{ id: string }>;
+
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Params }
 ) {
   try {
     const user = await getUser();

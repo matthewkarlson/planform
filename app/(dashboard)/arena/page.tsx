@@ -31,6 +31,9 @@ export default async function ArenaPage() {
     orderBy: [desc(ideas.createdAt)],
   });
 
+  // Check if user has remaining runs
+  const hasRemainingRuns = user.remainingRuns && user.remainingRuns > 0;
+
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="max-w-5xl mx-auto">
@@ -43,12 +46,21 @@ export default async function ArenaPage() {
 
         <div className="mb-8 flex justify-between items-center">
           <h2 className="text-2xl font-semibold">Your Ideas</h2>
-          <Link
-            href="/ideas/new"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            + New Idea
-          </Link>
+          {hasRemainingRuns ? (
+            <Link
+              href="/ideas/new"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              + New Idea
+            </Link>
+          ) : (
+            <Link
+              href="/pricing"
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center"
+            >
+              <span>Purchase Runs</span>
+            </Link>
+          )}
         </div>
 
         {userIdeas.length === 0 ? (
@@ -57,12 +69,21 @@ export default async function ArenaPage() {
             <p className="text-gray-600 mb-6">
               Submit your first idea to get started with the Idea Arena pipeline.
             </p>
-            <Link
-              href="/ideas/new"
-              className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 inline-block"
-            >
-              Create Your First Idea
-            </Link>
+            {hasRemainingRuns ? (
+              <Link
+                href="/ideas/new"
+                className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 inline-block"
+              >
+                Create Your First Idea
+              </Link>
+            ) : (
+              <Link
+                href="/pricing"
+                className="px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 inline-block"
+              >
+                Purchase Runs to Create Ideas
+              </Link>
+            )}
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-6">

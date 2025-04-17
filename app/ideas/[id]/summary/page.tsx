@@ -23,7 +23,9 @@ interface StageSummary {
   score: number | null;
 }
 
-export default async function SummaryPage(props: { params: Promise<{ id: string }> }) {
+type tParams = Promise<{ id: string }>;
+
+export default async function SummaryPage(props: { params: tParams }) {
   const params = await props.params;
   const user = await getUser();
 
@@ -31,8 +33,8 @@ export default async function SummaryPage(props: { params: Promise<{ id: string 
     redirect('/login');
   }
 
-  // Get the ID from params (await it)
-  const id = await params.id;
+  // Get the ID from params
+  const id = params.id;
 
   // Fetch idea details
   const idea = await db.query.ideas.findFirst({
@@ -86,7 +88,15 @@ export default async function SummaryPage(props: { params: Promise<{ id: string 
       
       if (stageName in stageMap) {
         stageMap[stageName].completed = true;
-        stageMap[stageName].summary = stage.summary;
+        // Parse the JSON string to an object if it's a string
+        try {
+          stageMap[stageName].summary = typeof stage.summary === 'string' 
+            ? JSON.parse(stage.summary) 
+            : stage.summary;
+        } catch (e) {
+          // If parsing fails, use the original summary
+          stageMap[stageName].summary = stage.summary;
+        }
         stageMap[stageName].score = stage.score;
       }
     }

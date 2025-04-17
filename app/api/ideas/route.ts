@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/db/drizzle';
-import { ideas } from '@/lib/db/schema';
+import { ideas, users } from '@/lib/db/schema';
 import { getUser } from '@/lib/db/queries';
+import { eq } from 'drizzle-orm';
 
 // Schema for idea creation
 const ideaSchema = z.object({
@@ -24,8 +25,24 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check if user has remaining runs
+    if (!user.remainingRuns || user.remainingRuns <= 0) {
+      return NextResponse.json(
+        { error: 'No remaining runs available. Please purchase more runs to create ideas.' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const validatedData = ideaSchema.parse(body);
+
+    // Decrement user's remaining runs
+    await db.update(users)
+      .set({ 
+        remainingRuns: user.remainingRuns - 1,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, user.id));
 
     const [newIdea] = await db.insert(ideas).values({
       ownerId: user.id,
@@ -37,7 +54,10 @@ export async function POST(request: Request) {
       valueProp: validatedData.valueProp,
     }).returning({ ideaId: ideas.id });
 
-    return NextResponse.json({ ideaId: newIdea.ideaId }, { status: 201 });
+    return NextResponse.json({ 
+      ideaId: newIdea.ideaId,
+      remainingRuns: user.remainingRuns - 1
+    }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
