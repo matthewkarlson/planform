@@ -23,9 +23,10 @@ interface StageSummary {
   score: number | null;
 }
 
-export default async function SummaryPage({ params }: { params: { id: string } }) {
+export default async function SummaryPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const user = await getUser();
-  
+
   if (!user) {
     redirect('/login');
   }
@@ -95,7 +96,7 @@ export default async function SummaryPage({ params }: { params: { id: string } }
   const completedStages = Object.values(stageMap).filter(
     (stage) => stage.completed && typeof stage.score === 'number'
   );
-  
+
   const overallScore = completedStages.length > 0
     ? Math.round(
         completedStages.reduce((sum, stage) => sum + (stage.score || 0), 0) /

@@ -36,6 +36,7 @@ export const ideas = pgTable('ideas', {
   currentSolutions: text('current_solutions'),
   valueProp: text('value_prop'),
   createdAt: timestamp('created_at').defaultNow(),
+  completedAt: timestamp('completed_at'),
 });
 
 export const stages = pgTable('stages', {

@@ -15,6 +15,13 @@
       "when": 1744885281590,
       "tag": "0001_colossal_frank_castle",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744895164536,
+      "tag": "0002_dashing_phantom_reporter",
+      "breakpoints": true
     }
   ]
 }

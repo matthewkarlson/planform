@@ -7,7 +7,8 @@ import ClientWrapper from '@/app/ideas/[id]/[stage]/ClientWrapper';
 import { Suspense } from 'react';
 
 // This function is used to safely access dynamic params
-export async function generateMetadata({ params }: { params: { id: string, stage: string } }) {
+export async function generateMetadata(props: { params: Promise<{ id: string, stage: string }> }) {
+  const params = await props.params;
   return {
     title: `Idea Stage: ${params.stage}`,
   };
