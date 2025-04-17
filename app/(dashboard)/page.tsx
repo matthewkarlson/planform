@@ -11,8 +11,8 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-12 lg:gap-8">
             <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
               <h1 className="text-4xl font-bold text-gray-900 tracking-tight sm:text-5xl md:text-6xl">
-              All Ideas Suck,
-                <span className="block text-orange-500">Until They Don't</span>
+              Start Anywhere. Improve Relentlessly. 
+                <span className="block text-orange-500">Build Something Great.</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
               It doesn't matter how hard you work if your idea sucks. We can fix that. Idea Arena works with
@@ -110,13 +110,14 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-                Detailed Idea Assessment
+              It Doesn't Matter Where You Start
               </h2>
               <p className="mt-3 max-w-3xl text-lg text-gray-500">
-                Share your business concept with key details like revenue strategy, 
-                core problem, and value proposition. Get an executive summary with 
-                strengths, weaknesses, competitive landscape, and specific recommendations
-                to improve your idea.
+              It Matters Where You End Up. Idea Arena iterates on your ideas until they're worth your time and energy. We take from a rough outline to a polished idea with 
+              clear and actionable steps so you can build something great.
+              </p>
+              <p className="mt-3 max-w-3xl text-lg text-gray-500">
+              The sooner you start, the quicker you improve.
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
@@ -125,7 +126,7 @@ export default function HomePage() {
                   size="lg"
                   className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white"
                 >
-                  Start Your Analysis
+                Start Iterating Now
                   <BarChart2 className="ml-3 h-6 w-6" />
                 </Button>
               </Link>
