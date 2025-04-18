@@ -5,13 +5,13 @@ import { useParams, useRouter } from 'next/navigation';
 import ChatWindow from '@/components/ChatWindow';
 import ProgressStepper from '@/components/ProgressStepper';
 
+
 export interface Persona {
   name: string;
   role: string;
   goal: string;
   avatarUrl: string;
   tips: string[];
-  initialMessage: string;
 }
 
 const personaMap: Record<string, Persona> = {
@@ -26,7 +26,6 @@ const personaMap: Record<string, Persona> = {
       'Share what would make you purchase it',
       'Be honest about any concerns',
     ],
-    initialMessage: 'Hey! I\'m Jordan, tell me how your product will help me',
   },
   designer: {
     name: 'Ava',
@@ -39,7 +38,6 @@ const personaMap: Record<string, Persona> = {
       'Discuss potential technical challenges',
       'Simplify the feature set for MVP',
     ],
-    initialMessage: 'Hey! I\'m Ava, tell me how your product will help me',
   },
   marketer: {
     name: 'Zeke',
@@ -52,7 +50,6 @@ const personaMap: Record<string, Persona> = {
       'Explore potential messaging',
       'Plan small experiments to validate demand',
     ],
-    initialMessage: 'Hey! I\'m Zeke, tell me how your product will help me',
   },
   vc: {
     name: 'Morgan',
@@ -65,7 +62,6 @@ const personaMap: Record<string, Persona> = {
       'Address potential scaling challenges',
       'Talk about the competitive landscape',
     ],
-    initialMessage: 'Hey! I\'m Morgan, tell me how your product will help me',
   },
 };
 

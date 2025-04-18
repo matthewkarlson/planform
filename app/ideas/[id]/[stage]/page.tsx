@@ -21,7 +21,7 @@ export default async function StageView({ params }: { params: Params }) {
   const user = await getUser();
   
   if (!user) {
-    redirect('/sign-in');
+    redirect('/login');
   }
   
   // Verify the idea exists and user has access

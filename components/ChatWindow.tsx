@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Persona } from '@/components/PersonaChatShell';
-import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -53,11 +52,15 @@ export default function ChatWindow({ stageId, persona, onStageComplete, isReadOn
             role: msg.role === 'ai' ? 'assistant' : msg.role,
             content: msg.content || '',
           }));
+          console.log('formattedMessages');
+          console.log(formattedMessages);
+          console.log('messages');
+          console.log(messages);
           setMessages(formattedMessages);
           
-          // If no messages exist, automatically send an initial message
-          if (formattedMessages.length === 0 && isMounted && !isReadOnly) {
-            sendAutomatedMessage();
+          // If conversation has progressed enough, show stage complete option
+          if (formattedMessages.length > 6) {
+            setIsStageComplete(true);
           }
         }
       } catch (error) {
@@ -79,82 +82,7 @@ export default function ChatWindow({ stageId, persona, onStageComplete, isReadOn
     return () => {
       isMounted = false;
     };
-  }, [stageId, isReadOnly]);
-
-  // Function to send an automated initial message
-  const sendAutomatedMessage = async () => {
-    const initialMessage = persona.initialMessage;
-    
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Create API message format
-      const apiMessages = [{
-        role: 'user' as const,
-        content: initialMessage
-      }];
-
-      const response = await fetch('/api/stage/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          stageId,
-          messages: apiMessages,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send initial message');
-      }
-
-      // Add user message to UI
-      const userMessage = {
-        id: Date.now().toString(),
-        role: 'user' as const,
-        content: initialMessage,
-      };
-      setMessages((prev) => [...prev, userMessage]);
-
-      // Process the streaming response
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let responseText = '';
-
-      if (reader) {
-        const aiMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: '',
-        };
-
-        // Add empty AI message to the list
-        setMessages((prev) => [...prev, aiMessage]);
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          responseText += chunk;
-
-          // Update the AI message content incrementally
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === aiMessage.id ? { ...msg, content: responseText } : msg
-            )
-          );
-        }
-      }
-    } catch (error) {
-      console.error('Error sending initial message:', error);
-      setError('Failed to send initial message. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [stageId]);
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -290,30 +218,7 @@ export default function ChatWindow({ stageId, persona, onStageComplete, isReadOn
                         : 'bg-gray-100 text-gray-800'
                     }`}
                   >
-                    {message.content ? (
-                      <ReactMarkdown
-                        components={{
-                          p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                          ul: ({ children }) => <ul className="list-disc pl-5 mb-2">{children}</ul>,
-                          ol: ({ children }) => <ol className="list-decimal pl-5 mb-2">{children}</ol>,
-                          li: ({ children }) => <li className="mb-1">{children}</li>,
-                          h1: ({ children }) => <h1 className="text-xl font-bold mb-2">{children}</h1>,
-                          h2: ({ children }) => <h2 className="text-lg font-bold mb-2">{children}</h2>,
-                          h3: ({ children }) => <h3 className="text-md font-bold mb-1">{children}</h3>,
-                          pre: ({ children }) => <pre className={`${
-                            message.role === 'user' ? 'bg-blue-700' : 'bg-gray-800'
-                          } text-white p-2 rounded my-2 overflow-x-auto`}>{children}</pre>,
-                          code: ({ children }) => <code className={`${
-                            message.role === 'user' ? 'bg-blue-700' : 'bg-gray-700'
-                          } text-white px-1 py-0.5 rounded`}>{children}</code>,
-                          blockquote: ({ children }) => <blockquote className={`border-l-4 ${
-                            message.role === 'user' ? 'border-blue-300' : 'border-gray-300'
-                          } pl-2 italic my-2`}>{children}</blockquote>,
-                        }}
-                      >
-                        {message.content}
-                      </ReactMarkdown>
-                    ) : (
+                    {message.content || (
                       <div className="animate-pulse">
                         <div className="h-2 bg-gray-300 rounded w-16 mb-2"></div>
                         <div className="h-2 bg-gray-300 rounded w-24"></div>
