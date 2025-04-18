@@ -30,7 +30,7 @@ export default async function SummaryPage(props: { params: tParams }) {
   const user = await getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect('/sign-in');
   }
 
   // Get the ID from params

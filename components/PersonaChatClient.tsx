@@ -23,6 +23,7 @@ export interface Persona {
   goal: string;
   avatarUrl: string;
   tips: string[];
+  initialMessage: string;
 }
 
 const personaMap: Record<string, Persona> = {
@@ -37,6 +38,7 @@ const personaMap: Record<string, Persona> = {
       'Share what would make you purchase it',
       'Be honest about any concerns',
     ],
+    initialMessage: 'Hey Jordan, what do you think of my idea? Is this something you would use?',
   },
   designer: {
     name: 'Ava',
@@ -49,6 +51,7 @@ const personaMap: Record<string, Persona> = {
       'Discuss potential technical challenges',
       'Simplify the feature set for MVP',
     ],
+    initialMessage: 'Hey Ava, what do you think of my idea? How could we build this into an MVP?',
   },
   marketer: {
     name: 'Zeke',
@@ -61,6 +64,7 @@ const personaMap: Record<string, Persona> = {
       'Explore potential messaging',
       'Plan small experiments to validate demand',
     ],
+    initialMessage: 'Hey Zeke, what do you think of my idea? How could we market this?',
   },
   vc: {
     name: 'Morgan',
@@ -73,6 +77,7 @@ const personaMap: Record<string, Persona> = {
       'Address potential scaling challenges',
       'Talk about the competitive landscape',
     ],
+    initialMessage: 'Hey Morgan, what do you think of my idea? How could we scale this?',
   },
 };
 
