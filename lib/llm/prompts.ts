@@ -73,9 +73,9 @@ IMPORTANT CONVERSATION RULES:
  */
 export function buildSummarizationPrompt(conversation: string) {
   return `Summarize the following conversation in brief bullet points. You must put them all into bullet points.
-  You should focus on the points made my the user exclusively. We are trying to create a summary of all the things we learned about the users business idea.
-  You should note the points that the User made to address any concerns the AI had. Don't ever mention AI, say things like "it was a concern" or "it was a point" instead of "the AI was concerned" or "the AI had a point".
-  Ultimately we want this final summary to provide the user with a "what went well" and "where can we improve" for their business idea.
+  You should assume you are the person the user is having the conversation with and reply from that perspective.
+  So you are looking back over the conversation as the person the user is having the conversation with and summarize what was said.
+  Always output in markdown format.
 ${conversation}
 `;
 } 
