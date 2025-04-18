@@ -1,9 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import ReactMarkdown from 'react-markdown';
-import { ReactNode } from 'react';
-import type { Components } from 'react-markdown';
 
 // Client component for export button
 function ExportButton() {
@@ -58,22 +55,43 @@ export default function SummaryClient({
   overallScore, 
   completedStageCount,
 }: SummaryClientProps) {
-  // Markdown components configuration
-  const markdownComponents: Components = {
-    h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-3 mt-4" {...props} />,
-    h2: ({ node, ...props }) => <h2 className="text-xl font-semibold mb-2 mt-4" {...props} />,
-    h3: ({ node, ...props }) => <h3 className="text-lg font-medium mb-2 mt-3" {...props} />,
-    p: ({ node, ...props }) => <p className="mb-3 text-gray-700" {...props} />,
-    ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-4 space-y-1" {...props} />,
-    ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-4 space-y-1" {...props} />,
-    li: ({ node, ...props }) => <li className="text-gray-700" {...props} />,
-    blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-3 text-gray-600" {...props} />,
-    code: ({ node, className, ...props }) => {
-      // Check if this is an inline code block
-      const isInline = !className || !className.includes('language-');
-      return <code className={`${isInline ? 'bg-gray-100 px-1 py-0.5 rounded text-sm' : ''} ${className || ''}`} {...props} />;
-    },
-    pre: ({ node, ...props }) => <pre className="bg-gray-100 p-3 rounded-md my-3 overflow-x-auto text-sm" {...props} />,
+  // Helper function to safely get key points from summary data
+  const getKeyPoints = (summary: any): string[] => {
+    if (!summary) return [];
+    
+    // Try different formats the data might be in
+    if (Array.isArray(summary.key_points)) {
+      return summary.key_points;
+    }
+    
+    // If summary itself is an array
+    if (Array.isArray(summary)) {
+      return summary;
+    }
+    
+    // If it's an object with a different structure
+    if (typeof summary === 'object') {
+      // Look for any array property that might contain the key points
+      for (const key in summary) {
+        if (Array.isArray(summary[key])) {
+          return summary[key];
+        }
+      }
+    }
+    
+    // If nothing works, convert to string and return as single item
+    return [String(summary)];
+  };
+  
+  // Helper function to safely get blocking risks from summary data
+  const getBlockingRisks = (summary: any): string[] => {
+    if (!summary) return [];
+    
+    if (Array.isArray(summary.blocking_risks)) {
+      return summary.blocking_risks;
+    }
+    
+    return [];
   };
 
   return (
@@ -157,9 +175,23 @@ export default function SummaryClient({
 
               {stage.completed && stage.summary && (
                 <div className="p-4">
-                  <ReactMarkdown components={markdownComponents}>
-                    {stage.summary}
-                  </ReactMarkdown>
+                  <h4 className="font-medium mb-2">Key Points</h4>
+                  <ul className="list-disc pl-5 space-y-1 mb-4">
+                    {getKeyPoints(stage.summary).map((point: string, index: number) => (
+                      <li key={index} className="text-gray-700">{point}</li>
+                    ))}
+                  </ul>
+
+                  {getBlockingRisks(stage.summary).length > 0 && (
+                    <>
+                      <h4 className="font-medium mb-2">Risks to Address</h4>
+                      <ul className="list-disc pl-5 space-y-1 text-red-600">
+                        {getBlockingRisks(stage.summary).map((risk: string, index: number) => (
+                          <li key={index}>{risk}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </div>
               )}
             </div>
