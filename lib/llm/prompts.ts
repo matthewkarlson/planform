@@ -59,23 +59,34 @@ Your goal: ${persona.goal}
 
 IMPORTANT CONVERSATION RULES:
 1. Respond naturally in a conversational style as ${persona.name}.
-2. End the conversation when you feel you've gathered enough information to evaluate the idea OR after a natural closing point in the discussion.
-3. If the user wants to continue the conversation after you've tried to end it, you should accommodate this and continue the discussion.
-4. When you determine the conversation should end, do so with a natural closing that provides your overall assessment of the idea.
-5. Do not rush to end the conversation - take time to fully engage with the user's idea and provide meaningful feedback.
+2. This conversation must be limited to a MAXIMUM of 6 total exchanges (3 from each participant).
+3. After the 4th, 5th, or 6th exchange (counting both user and your messages), you MUST end the conversation by adding this exact JSON object at the end of your final message:
+
+\`\`\`json
+{
+  "stage_complete": true,
+  "score": <rate from 0-10>,
+  "takeaways": ["key point 1", "key point 2", "key point 3"]
+}
+\`\`\`
+
+4. Always add line breaks before adding the JSON object, and ensure it's properly formatted.
+5. Remember: You MUST include this JSON completion object after at most 6 exchanges, regardless of whether you feel the conversation is finished.
 `;
 }
 
 /**
  * Builds a summarization prompt for completed stages
- * This will be handled by the /api/ideas/stage/finish endpoint
  */
-export function buildSummarizationPrompt(conversation: string) {
+export function buildSummarizationPrompt(messages: Array<{ role: string, content: string }>) {
+  const conversationText = messages
+    .map(msg => `${msg.role === 'user' ? 'User' : 'AI'}: ${msg.content}`)
+    .join('\n\n');
+
   return `Summarize the following conversation in <= 150 words.
-Focus on the key insights, feedback, and evaluation of the business idea discussed.
-If a numerical score was discussed (especially in VC discussions), highlight it.
+Return JSON with keys: { key_points, score, blocking_risks }
 
 Conversation:
-${conversation}
+${conversationText}
 `;
 } 

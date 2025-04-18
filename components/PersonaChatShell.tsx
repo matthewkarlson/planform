@@ -99,7 +99,6 @@ export default function PersonaChatShell() {
         }
         
         const data = await response.json();
-        console.log('Loaded idea details:', data);
         setIdeaDetails(data);
       } catch (error) {
         console.error('Error fetching idea details:', error);
@@ -187,21 +186,7 @@ export default function PersonaChatShell() {
   }, [ideaId, currentStage, ideaDetails]);
 
   const handleStageComplete = async () => {
-    console.log('Continue button clicked, stageId:', stageId);
-    
-    if (!stageId) {
-      console.log('No stageId found, navigating to next stage');
-      // Find the next stage and navigate to it
-      const currentIndex = stages.indexOf(currentStage);
-      const nextStage = currentIndex < stages.length - 1 ? stages[currentIndex + 1] : null;
-      
-      if (nextStage) {
-        router.push(`/ideas/${ideaId}/${nextStage}`);
-      } else {
-        router.push(`/ideas/${ideaId}/summary`);
-      }
-      return;
-    }
+    if (!stageId) return;
     
     try {
       const response = await fetch('/api/stage/finish', {
@@ -309,12 +294,6 @@ export default function PersonaChatShell() {
               <h3 className="font-bold text-lg mb-2">Your Idea</h3>
               <h4 className="font-semibold">{ideaDetails.title}</h4>
               <p className="text-sm text-gray-700 mt-1">{ideaDetails.rawIdea}</p>
-              <button
-                onClick={handleStageComplete}
-                className="w-full mt-6 py-3 bg-blue-600 text-white text-lg rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 border-2 border-blue-400 shadow-lg transition-all"
-              >
-                Continue →
-              </button>
             </div>
           )}
         </div>

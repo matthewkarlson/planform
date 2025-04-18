@@ -1,20 +1,6 @@
 import IdeaIntakeForm from '@/components/IdeaIntakeForm';
-import { getUser } from '@/lib/db/queries';
-import { redirect } from 'next/navigation';
 
-export default async function NewIdeaPage() {
-  const user = await getUser();
-  
-  // Redirect if not logged in
-  if (!user) {
-    redirect('/login');
-  }
-  
-  // Redirect to pricing page if no runs remaining
-  if (!user.remainingRuns || user.remainingRuns <= 0) {
-    redirect('/pricing');
-  }
-  
+export default function NewIdeaPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-5xl mx-auto">

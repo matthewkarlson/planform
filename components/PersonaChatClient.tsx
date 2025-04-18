@@ -293,14 +293,6 @@ export default function PersonaChatClient({ ideaId, stageName, initialIdea, isRe
               <h3 className="font-bold text-lg mb-2">Your Idea</h3>
               <h4 className="font-semibold">{initialIdea.title}</h4>
               <p className="text-sm text-gray-700 mt-1">{initialIdea.rawIdea}</p>
-              {!isReadOnly && (
-                <button
-                  onClick={handleStageComplete}
-                  className="w-full mt-6 py-3 bg-blue-600 text-white text-lg rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 border-2 border-blue-400 shadow-lg transition-all"
-                >
-                  Continue →
-                </button>
-              )}
             </div>
           )}
         </div>

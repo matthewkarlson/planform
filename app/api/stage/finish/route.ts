@@ -66,13 +66,36 @@ export async function POST(request: Request) {
       );
     }
 
-    // Convert conversation to a flat string format for summarization
-    const conversationText = conversationHistory
-      .map(msg => `${msg.role === 'ai' ? 'AI' : 'User'}: ${msg.content}`)
-      .join('\n\n');
+    // Extract score from the last AI message if it contains stage_complete
+    let score = 0;
+    try {
+      const aiMessages = conversationHistory.filter(msg => msg.role === 'ai');
+      const lastAiMessage = aiMessages.length > 0 ? aiMessages[aiMessages.length - 1] : null;
+      
+      if (lastAiMessage && lastAiMessage.content) {
+        if (lastAiMessage.content.includes('"stage_complete": true')) {
+          const jsonStart = lastAiMessage.content.indexOf('{');
+          const jsonEnd = lastAiMessage.content.lastIndexOf('}') + 1;
+          if (jsonStart !== -1 && jsonEnd !== -1) {
+            const jsonStr = lastAiMessage.content.substring(jsonStart, jsonEnd);
+            const parsedJson = JSON.parse(jsonStr);
+            if (typeof parsedJson.score === 'number') {
+              score = parsedJson.score;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error extracting score:', error);
+    }
 
     // Create a summary of the conversation
-    const summarizationPrompt = buildSummarizationPrompt(conversationText);
+    const summarizationPrompt = buildSummarizationPrompt(
+      conversationHistory.map(msg => ({
+        role: msg.role || 'user', // Default to 'user' if null
+        content: msg.content || '',
+      }))
+    );
 
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
@@ -80,17 +103,18 @@ export async function POST(request: Request) {
       temperature: 0.3,
     });
 
-    const summary = response.choices[0].message.content || '';
-    
-    // For VC stage, try to extract score from the summary or assign default
-    let score = 0;
-    if (stageRecord.stageName === 'vc') {
-      // Try to find a score in the format like "Score: 7/10" or similar patterns
-      const scorePattern = /(?:score|rating):\s*(\d+)(?:\/10)?|(\d+)(?:\/10)\s*(?:score|rating)/i;
-      const scoreMatch = summary.match(scorePattern);
-      if (scoreMatch) {
-        score = parseInt(scoreMatch[1] || scoreMatch[2], 10);
-      }
+    let summary;
+    try {
+      // Try to parse summary as JSON
+      const jsonContent = response.choices[0].message.content || '';
+      summary = JSON.parse(jsonContent);
+    } catch (error) {
+      // If not valid JSON, use as plain text
+      summary = { 
+        key_points: [response.choices[0].message.content],
+        score: score,
+        blocking_risks: []
+      };
     }
 
     // Update the stage with summary, score, and mark as completed

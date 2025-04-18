@@ -12,18 +12,3 @@ type Params = Promise<{ slug: string[] }>
 export default async function Page({ params }: { params: Params }) {  
   const { slug } = await params
 }
-
-
-to solve this issue:
-  Type "{ params: { id: string; }; }" is not a valid type for the function's second argument.
-
-  look at this example:
-
-type tParams = Promise<{ slug: string[] }>;
-
-export default async function Challenge(props: { params: tParams }) {
-  const { slug } = await props.params;
-  const productID = slug[1];
-
-  // other code here
-}

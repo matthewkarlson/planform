@@ -55,45 +55,6 @@ export default function SummaryClient({
   overallScore, 
   completedStageCount,
 }: SummaryClientProps) {
-  // Helper function to safely get key points from summary data
-  const getKeyPoints = (summary: any): string[] => {
-    if (!summary) return [];
-    
-    // Try different formats the data might be in
-    if (Array.isArray(summary.key_points)) {
-      return summary.key_points;
-    }
-    
-    // If summary itself is an array
-    if (Array.isArray(summary)) {
-      return summary;
-    }
-    
-    // If it's an object with a different structure
-    if (typeof summary === 'object') {
-      // Look for any array property that might contain the key points
-      for (const key in summary) {
-        if (Array.isArray(summary[key])) {
-          return summary[key];
-        }
-      }
-    }
-    
-    // If nothing works, convert to string and return as single item
-    return [String(summary)];
-  };
-  
-  // Helper function to safely get blocking risks from summary data
-  const getBlockingRisks = (summary: any): string[] => {
-    if (!summary) return [];
-    
-    if (Array.isArray(summary.blocking_risks)) {
-      return summary.blocking_risks;
-    }
-    
-    return [];
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-5xl mx-auto">
@@ -177,16 +138,18 @@ export default function SummaryClient({
                 <div className="p-4">
                   <h4 className="font-medium mb-2">Key Points</h4>
                   <ul className="list-disc pl-5 space-y-1 mb-4">
-                    {getKeyPoints(stage.summary).map((point: string, index: number) => (
+                    {Array.isArray((stage.summary as any).key_points) && 
+                     (stage.summary as any).key_points.map((point: string, index: number) => (
                       <li key={index} className="text-gray-700">{point}</li>
                     ))}
                   </ul>
 
-                  {getBlockingRisks(stage.summary).length > 0 && (
+                  {Array.isArray((stage.summary as any).blocking_risks) && 
+                   (stage.summary as any).blocking_risks.length > 0 && (
                     <>
                       <h4 className="font-medium mb-2">Risks to Address</h4>
                       <ul className="list-disc pl-5 space-y-1 text-red-600">
-                        {getBlockingRisks(stage.summary).map((risk: string, index: number) => (
+                        {(stage.summary as any).blocking_risks.map((risk: string, index: number) => (
                           <li key={index}>{risk}</li>
                         ))}
                       </ul>
