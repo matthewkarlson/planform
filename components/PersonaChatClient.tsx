@@ -83,10 +83,9 @@ interface PersonaChatClientProps {
   ideaId: string;
   stageName: string;
   initialIdea: Idea;
-  isReadOnly?: boolean;
 }
 
-export default function PersonaChatClient({ ideaId, stageName, initialIdea, isReadOnly = false }: PersonaChatClientProps) {
+export default function PersonaChatClient({ ideaId, stageName, initialIdea }: PersonaChatClientProps) {
   const router = useRouter();
   const [stageId, setStageId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -241,14 +240,6 @@ export default function PersonaChatClient({ ideaId, stageName, initialIdea, isRe
     <div className="flex flex-col h-screen max-h-screen">
       <header className="bg-white border-b border-gray-200 p-4">
         <ProgressStepper currentStage={currentStage} progress={progress} />
-        {isReadOnly && (
-          <div className="mt-2 text-amber-600 text-sm font-medium flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            Read-only mode: This stage has been completed
-          </div>
-        )}
       </header>
       
       <div className="flex flex-1 overflow-hidden">
@@ -271,7 +262,6 @@ export default function PersonaChatClient({ ideaId, stageName, initialIdea, isRe
               stageId={stageId} 
               persona={persona}
               onStageComplete={handleStageComplete}
-              isReadOnly={isReadOnly}
             />
           )}
         </div>

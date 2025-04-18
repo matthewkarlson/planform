@@ -1,14 +1,129 @@
 we use pnpm as the package manager, not npm
 Always write clear, well executed code that achieves the users instructions without massive sweeping code changes (althought sometimes this may be necessary)
-We always use the responses API from openai
+We always use the responses API from openai:
+Streaming API responses
+Learn how to stream model responses from the OpenAI API using server-sent events.
+By default, when you make a request to the OpenAI API, we generate the model's entire output before sending it back in a single HTTP response. When generating long outputs, waiting for a response can take time. Streaming responses lets you start printing or processing the beginning of the model's output while it continues generating the full response.
 
-Keep in mind we are using Next.JS 15 which has some breakgin changes like for this error
-Type '{ slug: string[]; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+Enable streaming
+To start streaming responses, set stream=True in your request to the Responses endpoint:
 
-we actually need to do the following:
+import { OpenAI } from "openai";
+const client = new OpenAI();
 
-type Params = Promise<{ slug: string[] }>
+const stream = await client.responses.create({
+    model: "gpt-4.1",
+    input: [
+        {
+            role: "user",
+            content: "Say 'double bubble bath' ten times fast.",
+        },
+    ],
+    stream: true,
+});
 
-export default async function Page({ params }: { params: Params }) {  
-  const { slug } = await params
+for await (const event of stream) {
+    console.log(event);
+}
+The Responses API uses semantic events for streaming. Each event is typed with a predefined schema, so you can listen for events you care about.
+
+For a full list of event types, see the API reference for streaming. Here are a few examples:
+
+type StreamingEvent = 
+	| ResponseCreatedEvent
+	| ResponseInProgressEvent
+	| ResponseFailedEvent
+	| ResponseCompletedEvent
+	| ResponseOutputItemAdded
+	| ResponseOutputItemDone
+	| ResponseContentPartAdded
+	| ResponseContentPartDone
+	| ResponseOutputTextDelta
+	| ResponseOutputTextAnnotationAdded
+	| ResponseTextDone
+	| ResponseRefusalDelta
+	| ResponseRefusalDone
+	| ResponseFunctionCallArgumentsDelta
+	| ResponseFunctionCallArgumentsDone
+	| ResponseFileSearchCallInProgress
+	| ResponseFileSearchCallSearching
+	| ResponseFileSearchCallCompleted
+	| ResponseCodeInterpreterInProgress
+	| ResponseCodeInterpreterCallCodeDelta
+	| ResponseCodeInterpreterCallCodeDone
+	| ResponseCodeInterpreterCallIntepreting
+	| ResponseCodeInterpreterCallCompleted
+	| Error
+Read the responses
+If you're using our SDK, every event is a typed instance. You can also identity individual events using the type property of the event.
+
+Some key lifecycle events are emitted only once, while others are emitted multiple times as the response is generated. Common events to listen for when streaming text are:
+
+- `response.created`
+- `response.output_text.delta`
+- `response.completed`
+- `error`
+For a full list of events you can listen for, see the API reference for streaming.
+
+Advanced use cases
+For more advanced use cases, like streaming tool calls, check out the following dedicated guides:
+
+Streaming function calls
+Streaming structured output
+
+
+Guide for Streaming ouputs:
+Streaming
+You can use streaming to process model responses or function call arguments as they are being generated, and parse them as structured data.
+
+That way, you don't have to wait for the entire response to complete before handling it. This is particularly useful if you would like to display JSON fields one by one, or handle function call arguments as soon as they are available.
+
+We recommend relying on the SDKs to handle streaming with Structured Outputs.
+
+import { OpenAI } from "openai";
+
+const openai = new OpenAI();
+
+const stream = await openai.responses.create({
+    model: "gpt-4.1",
+    input: [{ role: "user", content: "What's the weather like in Paris today?" }],
+    stream: true,
+    text: {
+        "format": {
+            "type": "json_schema",
+            "name": "entities",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "attributes": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "colors": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "animals": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }
+                },
+                "required": ["attributes", "colors", "animals"],
+                "additionalProperties": false
+            },
+        }
+    }
+});
+
+for await (const event of stream) {
+    if (event.type === 'response.refusal.delta') {
+        process.stdout.write(event.delta);
+    } else if (event.type === 'response.output_text.delta') {
+        process.stdout.write(event.delta);
+    } else if (event.type === 'response.error') {
+        process.stdout.write(event.error);  
+    } else if (event.type === 'response.completed') {
+        console.log("Completed")
+        // console.log(event.response.output);
+    }
 }

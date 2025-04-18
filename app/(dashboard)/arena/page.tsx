@@ -3,7 +3,6 @@ import { db } from '@/lib/db/drizzle';
 import { ideas } from '@/lib/db/schema';
 import { getUser } from '@/lib/db/queries';
 import { desc } from 'drizzle-orm';
-import DeleteIdeaButton from '@/app/components/DeleteIdeaButton';
 
 export default async function ArenaPage() {
   const user = await getUser();
@@ -79,15 +78,12 @@ export default async function ArenaPage() {
                     <span className="text-sm text-gray-500">
                       {new Date(idea.createdAt!).toLocaleDateString()}
                     </span>
-                    <div className="flex items-center gap-4">
-                      <DeleteIdeaButton ideaId={idea.id} />
-                      <Link
-                        href={`/ideas/${idea.id}/customer`}
-                        className="text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        Continue →
-                      </Link>
-                    </div>
+                    <Link
+                      href={`/ideas/${idea.id}/customer`}
+                      className="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Continue →
+                    </Link>
                   </div>
                 </div>
               </div>
