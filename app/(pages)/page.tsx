@@ -15,15 +15,15 @@ export default function HomePage() {
                 <span className="block text-orange-500">Build Something Great.</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-              It doesn't matter how hard you work if your idea sucks. We can fix that. Idea Arena works with
-              you to refine your idea until it's worth your time and energy.
+              Most startups fail because they're based on bad ideas. Yours doesn't have to be. We validate and 
+              analyse your idea based on frameworks from the top startup accelerators and VC firms.
               </p>
               <p className="mt-3 text-base text-black sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-              Take the first step on your journey to building a successful business.
+              Don't waste time and money building something nobody wants.
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <Link
-                  href="/arena"
+                  href="/waitlist"
                 >
                   <Button
                     size="lg"
@@ -121,7 +121,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
-              <Link href="/arena">
+              <Link href="/waitlist">
                 <Button
                   size="lg"
                   className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white"
@@ -195,7 +195,7 @@ export default function HomePage() {
           </div>
           
           <div className="mt-16 text-center">
-            <Link href="/arena">
+            <Link href="/waitlist">
               <Button className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-6">
                 Start Iterating Now
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -282,7 +282,7 @@ export default function HomePage() {
           </div>
           
           <div className="mt-12 text-center">
-            <Link href="/arena">
+            <Link href="/waitlist">
               <Button
                 size="lg"
                 className="rounded-full bg-orange-500 hover:bg-orange-600 text-white"

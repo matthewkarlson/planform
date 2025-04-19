@@ -23,6 +23,15 @@ export const users = pgTable('users', {
   isVerified: boolean('is_verified').default(false),
 });
 
+export const waitlistEntries = pgTable('waitlist_entries', {
+  id: serial('id').primaryKey(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  isVerified: boolean('is_verified').default(false),
+  verificationToken: text('verification_token'),
+  verificationTokenExpiresAt: timestamp('verification_token_expires_at'),
+});
+
 export const activityLogs = pgTable('activity_logs', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id),
@@ -76,6 +85,8 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type ActivityLog = typeof activityLogs.$inferSelect;
 export type NewActivityLog = typeof activityLogs.$inferInsert;
+export type WaitlistEntry = typeof waitlistEntries.$inferSelect;
+export type NewWaitlistEntry = typeof waitlistEntries.$inferInsert;
 
 export enum ActivityType {
   SIGN_UP = 'SIGN_UP',

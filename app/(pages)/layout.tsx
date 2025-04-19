@@ -38,17 +38,17 @@ function UserMenu() {
     return (
       <>
         <Link
-          href="/pricing"
+          href="/waitlist"
           className="text-sm font-medium text-gray-700 hover:text-gray-900"
         >
           Pricing
         </Link>
         <div className="flex items-center gap-2">
           <Button variant="ghost" asChild className="rounded-full">
-            <Link href="/sign-in">Login</Link>
+            <Link href="/waitlist">Login</Link>
           </Button>
           <Button asChild className="rounded-full">
-            <Link href="/sign-up">Sign Up</Link>
+            <Link href="/waitlist">Sign Up</Link>
           </Button>
         </div>
       </>

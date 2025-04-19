@@ -254,6 +254,72 @@ export async function sendPasswordResetEmail(userId: number, email: string) {
   }
 }
 
+export async function sendWaitlistVerificationEmail(email: string, token: string) {
+  // Generate verification URL
+  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const verificationUrl = `${baseUrl}/waitlist/verify?token=${token}`;
+  
+  // Email content
+  const fromEmail = process.env.EMAIL_FROM || '"SaaS Starter" <noreply@saas-starter.com>';
+  const subject = "Verify your waitlist signup";
+  const text = `Thank you for joining our waitlist! Please verify your email address by clicking on the following link: ${verificationUrl}`;
+  const html = `
+    <div>
+      <h1>Waitlist Verification</h1>
+      <p>Thank you for joining our waitlist! Please verify your email address by clicking on the button below:</p>
+      <a href="${verificationUrl}" style="
+        display: inline-block;
+        background-color: #f97316;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 20px 0;
+      ">
+        Verify Email
+      </a>
+      <p>Or copy and paste the following link in your browser:</p>
+      <p>${verificationUrl}</p>
+      <p>This link will expire in 24 hours.</p>
+    </div>
+  `;
+  
+  // If SendGrid API key is available and we're in production, use SendGrid API
+  if (process.env.SENDGRID_API_KEY) {
+    const msg = {
+      to: email,
+      from: fromEmail,
+      subject,
+      text,
+      html,
+    };
+    
+    await sgMail.send(msg);
+    console.log(`Waitlist verification email sent to ${email} using SendGrid API`);
+    return { sent: true };
+  } 
+  // Otherwise use SMTP
+  else {
+    // Send the email
+    const transporter = await getEmailTransporter();
+    
+    const info = await transporter.sendMail({
+      from: fromEmail,
+      to: email,
+      subject,
+      text,
+      html,
+    });
+    
+    // For testing, log the URL where the email can be viewed
+    if (testAccount) {
+      console.log("Waitlist verification email sent: %s", nodemailer.getTestMessageUrl(info));
+    }
+    
+    return info;
+  }
+}
+
 export async function verifyPasswordResetToken(token: string) {
   // Find the token in the database
   const tokenRecord = await db.query.passwordResetTokens.findFirst({

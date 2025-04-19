@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
     if (user.isPremium) {
       try {
         const competitorSearchResponse = await openai.responses.create({
-          model: 'gpt-4o',
+          model: 'gpt-4o-mini',
           tools: [{ type: "web_search_preview" }],
           input: [
             { 
@@ -297,7 +297,7 @@ Include hyperlinks to sources where relevant. Keep your writing style consistent
     const analysisPromises = personas.map(async (persona) => {
       try {
         const response = await openai.responses.create({
-          model: 'gpt-4o',
+          model: 'gpt-4o-mini',
           input: [
             { role: 'system', content: persona.prompt },
             { 
@@ -402,7 +402,7 @@ Please share your honest personal reaction and feedback in a structured format:
     
     if (user.isPremium) {
       const executiveSummaryResponse = await openai.responses.create({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         input: [
           { 
             role: 'system', 
@@ -498,7 +498,7 @@ Keep your response under 300 words total. Do not include any preamble - start di
     } else {
       // Simpler executive summary for free users
       const basicSummaryResponse = await openai.responses.create({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         input: [
           { 
             role: 'system', 
