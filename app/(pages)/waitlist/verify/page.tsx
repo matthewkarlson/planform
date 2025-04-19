@@ -6,6 +6,7 @@ import { verifyWaitlistEmail } from '@/lib/actions/waitlist'
 import { Card } from '@/components/ui/card'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Check, X } from 'lucide-react'
 
 function VerifyContent() {
     const searchParams = useSearchParams()
@@ -56,20 +57,7 @@ function VerifyContent() {
             ) : status?.success ? (
                 <>
                     <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="text-green-600"
-                        >
-                            <path d="M20 6L9 17l-5-5" />
-                        </svg>
+                        <Check className="text-green-600 h-6 w-6" />
                     </div>
                     <h1 className="text-2xl font-bold">Email Verified!</h1>
                     <p className="text-gray-500">{status.message}</p>
@@ -81,21 +69,7 @@ function VerifyContent() {
             ) : (
                 <>
                     <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="text-red-600"
-                        >
-                            <path d="M18 6L6 18" />
-                            <path d="M6 6l12 12" />
-                        </svg>
+                        <X className="text-red-600 h-6 w-6" />
                     </div>
                     <h1 className="text-2xl font-bold">Verification Failed</h1>
                     <p className="text-gray-500">{status?.message}</p>
