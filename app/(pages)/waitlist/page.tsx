@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Check, AlignLeft, Sun } from 'lucide-react'
+import { track } from '@vercel/analytics';
 
 export default function WaitlistPage() {
     const [email, setEmail] = useState('')
@@ -16,7 +17,8 @@ export default function WaitlistPage() {
         e.preventDefault()
         setIsSubmitting(true)
         setMessage(null)
-
+ 
+        track('Joined Waitlist');
         const formData = new FormData()
         formData.append('email', email)
 
