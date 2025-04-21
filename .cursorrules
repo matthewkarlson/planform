@@ -1,1 +1,29 @@
 we use pnpm as the package manager, not npm
+Always write clear, well executed code that achieves the users instructions without massive sweeping code changes (althought sometimes this may be necessary)
+We always use the responses API from openai
+
+Keep in mind we are using Next.JS 15 which has some breaking changes like for this error
+Type '{ slug: string[]; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+
+we actually need to do the following:
+
+type Params = Promise<{ slug: string[] }>
+
+export default async function Page({ params }: { params: Params }) {  
+  const { slug } = await params
+}
+
+
+to solve this issue:
+  Type "{ params: { id: string; }; }" is not a valid type for the function's second argument.
+
+  look at this example:
+
+type tParams = Promise<{ slug: string[] }>;
+
+export default async function Challenge(props: { params: tParams }) {
+  const { slug } = await props.params;
+  const productID = slug[1];
+
+  // other code here
+}

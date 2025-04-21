@@ -6,6 +6,8 @@ import {
   timestamp,
   integer,
   boolean,
+  primaryKey,
+  json,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -56,6 +58,19 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
   expiresAt: timestamp('expires_at').notNull(),
 });
 
+export const services = pgTable('services', {
+  id: serial('id').primaryKey(),
+  serviceId: varchar('service_id', { length: 100 }).notNull().unique(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description').notNull(),
+  outcomes: json('outcomes').$type<string[]>().notNull(),
+  priceLower: integer('price_lower'),
+  priceUpper: integer('price_upper'),
+  whenToRecommend: json('when_to_recommend').$type<string[]>().notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   activityLogs: many(activityLogs),
 }));
@@ -87,6 +102,8 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 export type NewActivityLog = typeof activityLogs.$inferInsert;
 export type WaitlistEntry = typeof waitlistEntries.$inferSelect;
 export type NewWaitlistEntry = typeof waitlistEntries.$inferInsert;
+export type Service = typeof services.$inferSelect;
+export type NewService = typeof services.$inferInsert;
 
 export enum ActivityType {
   SIGN_UP = 'SIGN_UP',
