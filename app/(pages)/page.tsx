@@ -11,26 +11,23 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-12 lg:gap-8">
             <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
               <h1 className="text-4xl font-bold text-gray-900 tracking-tight sm:text-5xl md:text-6xl">
-              Start Anywhere. Improve Relentlessly. 
-                <span className="block text-orange-500">Build Something Great.</span>
+                Turn Site Visits
+                <span className="block text-orange-500">Into Sales</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-              Most startups fail because they're based on bad ideas. Yours doesn't have to be. We validate and 
-              analyse your idea based on frameworks from the top startup accelerators and VC firms.
-              </p>
-              <p className="mt-3 text-base text-black sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-              Don't waste time and money building something nobody wants.
+                Your "Book a free consultation" button is costing you sales. We bridge the gap between leads visiting your site and booking a call - 
+                With personalised growth plans built from your real offerings and services.
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <Link
-                  href="/waitlist"
+                  href="/planform"
                 >
                   <Button
                     size="lg"
                     variant="outline"
                     className="text-lg rounded-full shadow-lg"
                   >
-                  Turn Your Ideas into Champions
+                    Replace your consultation form
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
@@ -39,8 +36,8 @@ export default function HomePage() {
             <div className="mt-8 lg:mt-0 lg:col-span-6">
               <div className="relative aspect-video rounded-lg overflow-hidden shadow-xl">
                 <Image
-                  src="/idea_arena_hero.png"
-                  alt="Idea Arena Dashboard"
+                  src="/planformai.png"
+                  alt="Planform.ai Dashboard"
                   fill
                   priority
                   className="object-cover"
@@ -60,12 +57,11 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Multi-Persona Analysis
+                  Personalised Growth Plans
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  Receive feedback from diverse viewpoints including venture capitalists, 
-                  product managers, marketing directors, consumers, and industry experts. 
-                  Each provides ratings and actionable suggestions.
+                  Give leads a powerful reason to book a call with you. We take your real services and offerings and create custom packages
+                  that give leads a powerful reason to book a call with you.
                 </p>
               </div>
             </div>
@@ -76,12 +72,10 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Competitor Analysis
+                  Fully Customisable
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  Identify your top competitors, understand market saturation, 
-                  and discover opportunities for differentiation. Get concrete insights
-                  on positioning your idea in the current market landscape.
+                  Your plans are fully customisable to your business. We don't use templates - we use your real services and offerings to create a plan that works for you.
                 </p>
               </div>
             </div>
@@ -92,12 +86,11 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Exportable Results
+                  Turn Consultation Calls into Closes
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  Save your analysis as a well-structured markdown document. 
-                  No need to create an account or store data - simply download
-                  your comprehensive report with all insights and recommendations.
+                  That dead time between booking a call and the call itself is a huge opportunity to lose a lead.
+                  We fixed that with our powerful lead magnet that makes sure leads not only book a call, but also show up to calls prepared and ready to buy.
                 </p>
               </div>
             </div>
@@ -110,24 +103,20 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-              It Doesn't Matter Where You Start
+                Booking a call is a big step.
               </h2>
               <p className="mt-3 max-w-3xl text-lg text-gray-500">
-              It Matters Where You End Up. Idea Arena iterates on your ideas until they're worth your time and energy. We take from a rough outline to a polished idea with 
-              clear and actionable steps so you can build something great.
-              </p>
-              <p className="mt-3 max-w-3xl text-lg text-gray-500">
-              The sooner you start, the quicker you improve.
+                Stop letting your leads bounce off your site because they aren't ready to book a call.
+                With our powerful lead magnet, leads get to move gradually from site visitor, to lead, to customer.
               </p>
             </div>
             <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
-              <Link href="/waitlist">
+              <Link href="/planform">
                 <Button
                   size="lg"
                   className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white"
                 >
-                Start Iterating Now
-                  <BarChart2 className="ml-3 h-6 w-6" />
+                  Fix your funnel
                 </Button>
               </Link>
             </div>
@@ -135,16 +124,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* New Iterative Process Section */}
+      {/* How Planform Works Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-              Turn Good Ideas Into Great Ones
+              How Planform.ai Works
             </h2>
             <p className="mt-4 max-w-3xl mx-auto text-xl text-gray-500">
-              The difference between success and failure often comes down to iteration. 
-              Our platform helps you refine your concepts through targeted feedback loops.
+              Transform your website visitors into qualified leads and paying clients with 
+              our AI-powered personalized growth plans.
             </p>
           </div>
           
@@ -154,7 +143,7 @@ export default function HomePage() {
             </div>
             
             <div className="relative flex justify-center">
-              <span className="bg-white px-4 text-lg font-medium text-gray-500">The Refinement Process</span>
+              <span className="bg-white px-4 text-lg font-medium text-gray-500">The Growth Plan Process</span>
             </div>
           </div>
           
@@ -163,9 +152,9 @@ export default function HomePage() {
               <div className="flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 text-orange-500 mb-4 mx-auto">
                 <span className="text-xl font-bold">1</span>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 text-center mb-4">Test Your Idea</h3>
+              <h3 className="text-xl font-medium text-gray-900 text-center mb-4">Capture Lead Information</h3>
               <p className="text-base text-gray-500 text-center mb-4">
-                Enter your business concept with all the key details. Our AI personas will analyze every aspect.
+                Your prospects answer a few key questions about their business needs and goals through our streamlined questionnaire.
               </p>
               <div className="hidden lg:block absolute top-6 right-0 w-16 h-1 bg-orange-100"></div>
             </div>
@@ -174,9 +163,9 @@ export default function HomePage() {
               <div className="flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 text-orange-500 mb-4 mx-auto">
                 <span className="text-xl font-bold">2</span>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 text-center mb-4">Review Insights</h3>
+              <h3 className="text-xl font-medium text-gray-900 text-center mb-4">Generate Custom Plans</h3>
               <p className="text-base text-gray-500 text-center mb-4">
-                Get a comprehensive analysis including market positioning, competitor insights, and specific improvement recommendations.
+                Our AI instantly creates a tailored growth plan using your actual services, matching their needs with your specific offerings.
               </p>
               <div className="hidden lg:block absolute top-6 right-0 w-16 h-1 bg-orange-100"></div>
             </div>
@@ -187,17 +176,17 @@ export default function HomePage() {
                   <RefreshCw className="h-6 w-6" />
                 </div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 text-center mb-4">Refine & Retest</h3>
+              <h3 className="text-xl font-medium text-gray-900 text-center mb-4">Convert More Clients</h3>
               <p className="text-base text-gray-500 text-center mb-4">
-                Apply the suggestions to refine your idea, then test again to see how your changes improved your score.
+                Leads receive their professional growth plan immediately, priming them for a successful sales conversation when they book their call.
               </p>
             </div>
           </div>
           
           <div className="mt-16 text-center">
-            <Link href="/waitlist">
+            <Link href="/planform">
               <Button className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-6">
-                Start Iterating Now
+                Create Your Plan Generator
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -211,7 +200,7 @@ export default function HomePage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
             <p className="mt-4 text-lg text-gray-500">
-              Everything you need to know about improving your business ideas
+              Everything you need to know about improving your lead conversion process
             </p>
           </div>
           
@@ -219,75 +208,74 @@ export default function HomePage() {
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
                 <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
-                <span>How does the multi-persona analysis work?</span>
+                <span>How do the personalized growth plans work?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
-                Your idea is evaluated by AI personas representing different stakeholders: 
-                venture capitalists, product managers, marketing directors, average consumers, 
-                industry experts, and more. Each provides ratings and personalized feedback 
-                based on their unique perspective.
+                Planform.ai takes your actual services and offerings and matches them to your prospect's 
+                specific needs based on their questionnaire responses. The AI analyzes their business goals, 
+                challenges, and priorities to create a custom plan that showcases exactly how your services 
+                can help them achieve their objectives.
               </p>
             </div>
             
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
                 <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
-                <span>Do I need to create an account to use the Arena?</span>
+                <span>How long does it take to implement Planform on my site?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
-                Yes, a simple account is required to track your remaining runs. However, we don't 
-                permanently store your ideas or analysis results. You can export your results as 
-                markdown files for your records.
+                Setup is quick and straightforward. After you add your services and customize your questionnaire, 
+                you can embed Planform.ai on your website in minutes. Our team also offers optional assistance 
+                with integration to ensure a seamless experience for your visitors.
               </p>
             </div>
             
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
                 <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
-                <span>What kind of ideas can I test in the Arena?</span>
+                <span>Will this replace my consultation booking system?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
-                You can test any business idea, product concept, or service offering. The system 
-                works best when you provide details about your target audience, core problem being 
-                solved, unique value proposition, and revenue strategy. The more information you 
-                provide, the more specific and valuable the feedback will be.
+                Planform.ai complements your existing booking system rather than replacing it. It adds a valuable 
+                step in your sales funnel that converts more visitors into qualified leads. After receiving their 
+                personalized plan, prospects are directed to your booking system to schedule a call, but now they're 
+                much more likely to follow through and become clients.
               </p>
             </div>
             
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
                 <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
-                <span>How accurate is the competitor analysis?</span>
+                <span>How does this improve my conversion rates?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
-                Our system performs real-time web searches to identify actual competitors in your 
-                market space. It evaluates market saturation, identifies key players, analyzes their 
-                approaches, and suggests positioning strategies based on current market conditions. 
-                This provides a realistic snapshot of the competitive landscape your idea would face.
+                Most websites ask visitors to book a call immediately, which is a high-commitment action many aren't 
+                ready for. Planform.ai creates an intermediate step where visitors receive immediate value (their custom plan) 
+                while you capture their information. This approach typically increases lead generation by 35-50% and improves 
+                consultation show-up rates by over 80%.
               </p>
             </div>
             
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
                 <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
-                <span>How many times can I refine and retest my idea?</span>
+                <span>Can I customize the look and feel of the questionnaire?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
-                Each test counts as one run from your account's allotment. We encourage the 
-                iterative process of refinement, as ideas typically improve significantly after 
-                2-3 rounds of feedback and adjustments. You can purchase additional runs if needed 
-                from the pricing page.
+                Absolutely! Planform.ai is fully customizable to match your brand's colors, fonts, and overall aesthetic. 
+                You can also tailor the questions, add your logo, and customize the format of the growth plans to ensure 
+                a consistent brand experience for your prospects.
               </p>
             </div>
           </div>
           
           <div className="mt-12 text-center">
-            <Link href="/waitlist">
+            <Link href="/planform">
               <Button
                 size="lg"
                 className="rounded-full bg-orange-500 hover:bg-orange-600 text-white"
               >
-                Test Your First Idea
+                Get Started with Planform
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>

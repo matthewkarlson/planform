@@ -2,7 +2,7 @@ import { db } from './drizzle';
 import { services } from './schema';
 
 async function seedServices() {
-  console.log('Seeding services for Hayes Media...');
+  console.log('Seeding services for Planform.ai...');
 
   // Delete existing services to avoid duplicates
   await db.delete(services);
@@ -206,7 +206,7 @@ async function seedServices() {
     await db.insert(services).values(service);
   }
 
-  console.log(`Seeded ${marketingServices.length} Hayes Media services successfully.`);
+  console.log(`Seeded ${marketingServices.length} Planform.ai services successfully.`);
 }
 
 seedServices()

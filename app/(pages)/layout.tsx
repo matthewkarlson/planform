@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { use, useState, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sword, Home, LogOut, SwordsIcon } from 'lucide-react';
+import { Sword, Home, LogOut, DraftingCompass } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -85,7 +85,7 @@ function UserMenu() {
         <DropdownMenuItem className="cursor-pointer">
           <Link href="/arena" className="flex w-full items-center">
             <Sword className="mr-2 h-4 w-4" />
-            <span>Idea Arena</span>
+            <span>Planform.ai</span>
           </Link>
         </DropdownMenuItem>
         <form action={handleSignOut} className="w-full">
@@ -106,8 +106,8 @@ function Header() {
     <header className="border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
-          <SwordsIcon className="h-6 w-6 text-orange-500" />
-          <span className="ml-2 text-xl font-semibold text-gray-900">IDEA ARENA</span>
+          <DraftingCompass className="h-6 w-6 text-orange-500" />
+          <span className="ml-2 text-xl font-semibold text-gray-900">PLANFORM.AI</span>
         </Link>
         <div className="flex items-center space-x-4">
           <Suspense fallback={<div className="h-9 w-9 rounded-full bg-gray-200 animate-pulse" />}>

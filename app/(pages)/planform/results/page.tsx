@@ -176,7 +176,7 @@ export default function ResultsPage() {
           {clientName ? `Prepared exclusively for ${clientName}` : 'Prepared exclusively for you'}
         </p>
         <p className="text-md text-gray-500 mt-2">
-          By Hayes Media • Luxury Digital Marketing
+          By Planform.ai
         </p>
       </div>
 
@@ -325,7 +325,7 @@ export default function ResultsPage() {
           
           <div className="mt-8 text-center bg-gray-50 p-6 rounded-lg">
             <h4 className="text-xl font-medium mb-4">Contact us to get started</h4>
-            <p className="mb-2">Email: <a href="mailto:hello@hayesmedia.com" className="text-primary">hello@hayesmedia.com</a></p>
+            <p className="mb-2">Email: <a href="mailto:hello@planform.ai" className="text-primary">hello@planform.ai</a></p>
             <p>Phone: <a href="tel:+15555555555" className="text-primary">(555) 555-5555</a></p>
           </div>
         </CardContent>
@@ -345,7 +345,7 @@ export default function ResultsPage() {
       
       {/* Footer - visible in print */}
       <div className="mt-16 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
-        <p>© {new Date().getFullYear()} Hayes Media • Luxury Digital Marketing</p>
+        <p>© {new Date().getFullYear()} Planform.ai</p>
         <p className="mt-1">This plan is confidential and tailored specifically for your business needs.</p>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { UserProvider } from '@/lib/auth';
 import { getUser } from '@/lib/db/queries';
 import { Analytics } from '@vercel/analytics/react';
 export const metadata: Metadata = {
-  title: 'Idea Arena',
+  title: 'Planform.ai',
   description: 'The best way to iterate on your ideas.',
 };
 
