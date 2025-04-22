@@ -44,11 +44,13 @@ export async function POST(request: Request) {
       ${JSON.stringify(allServices, null, 2)}
       
       For each recommended service, provide a clear justification based on the client's specific needs.
+      Your response will be shown to the client so it should be addressed to them.
+      You should be specific with the transformation that the service you are recommending will deliver to the client.
     `;
 
     // Call OpenAI using the responses API with structured schema
     const aiResponse = await openai.responses.create({
-      model: "gpt-4o",
+      model: "gpt-4.1-mini",
       input: [
         {
           role: "system",

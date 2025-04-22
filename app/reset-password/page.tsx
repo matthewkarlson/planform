@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { DraftinCompass, Loader2 } from 'lucide-react';
+import { DraftingCompass, Loader2 } from 'lucide-react';
 import { resetPassword } from '../(login)/actions';
 import { ActionState } from '@/lib/auth/middleware';
 import { useEffect, Suspense } from 'react';
@@ -26,7 +26,7 @@ function ResetPasswordForm() {
       <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex justify-center">
-            <DraftinCompass className="h-12 w-12 text-orange-500" />
+            <DraftingCompass className="h-12 w-12 text-orange-500" />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Invalid Link
@@ -48,7 +48,7 @@ function ResetPasswordForm() {
     <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <DraftinCompass className="h-12 w-12 text-orange-500" />
+          <DraftingCompass className="h-12 w-12 text-orange-500" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Set New Password
@@ -149,7 +149,7 @@ function ResetPasswordLoading() {
     <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <DraftinCompass className="h-12 w-12 text-orange-500" />
+          <DraftingCompass className="h-12 w-12 text-orange-500" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Loading...

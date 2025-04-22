@@ -12,7 +12,7 @@ export default function HomePage() {
             <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
               <h1 className="text-4xl font-bold text-gray-900 tracking-tight sm:text-5xl md:text-6xl">
                 Turn Site Visits
-                <span className="block text-orange-500">Into Sales</span>
+                <span className="block text-indigo-600">Into Sales</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
                 Your "Book a free consultation" button is costing you sales. We bridge the gap between leads visiting your site and booking a call - 
@@ -25,7 +25,7 @@ export default function HomePage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="text-lg rounded-full shadow-lg"
+                    className="text-lg rounded-full shadow-lg text-indigo-700 border-indigo-300 hover:bg-indigo-50"
                   >
                     Replace your consultation form
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -52,7 +52,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-3 lg:gap-8">
             <div>
-              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-orange-500 text-white">
+              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-700 text-white">
                 <Users className="h-6 w-6" />
               </div>
               <div className="mt-5">
@@ -67,7 +67,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-10 lg:mt-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-orange-500 text-white">
+              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-700 text-white">
                 <Target className="h-6 w-6" />
               </div>
               <div className="mt-5">
@@ -81,7 +81,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-10 lg:mt-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-orange-500 text-white">
+              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-700 text-white">
                 <Download className="h-6 w-6" />
               </div>
               <div className="mt-5">
@@ -114,7 +114,7 @@ export default function HomePage() {
               <Link href="/planform">
                 <Button
                   size="lg"
-                  className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white"
+                  className="text-lg rounded-full bg-indigo-700 hover:bg-indigo-800 text-white"
                 >
                   Fix your funnel
                 </Button>
@@ -149,29 +149,29 @@ export default function HomePage() {
           
           <div className="mt-12 lg:grid lg:grid-cols-3 lg:gap-8">
             <div className="relative">
-              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 text-orange-500 mb-4 mx-auto">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 text-indigo-700 mb-4 mx-auto">
                 <span className="text-xl font-bold">1</span>
               </div>
               <h3 className="text-xl font-medium text-gray-900 text-center mb-4">Capture Lead Information</h3>
               <p className="text-base text-gray-500 text-center mb-4">
                 Your prospects answer a few key questions about their business needs and goals through our streamlined questionnaire.
               </p>
-              <div className="hidden lg:block absolute top-6 right-0 w-16 h-1 bg-orange-100"></div>
+              <div className="hidden lg:block absolute top-6 right-0 w-16 h-1 bg-indigo-100"></div>
             </div>
             
             <div className="relative mt-10 lg:mt-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 text-orange-500 mb-4 mx-auto">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 text-indigo-700 mb-4 mx-auto">
                 <span className="text-xl font-bold">2</span>
               </div>
               <h3 className="text-xl font-medium text-gray-900 text-center mb-4">Generate Custom Plans</h3>
               <p className="text-base text-gray-500 text-center mb-4">
                 Our AI instantly creates a tailored growth plan using your actual services, matching their needs with your specific offerings.
               </p>
-              <div className="hidden lg:block absolute top-6 right-0 w-16 h-1 bg-orange-100"></div>
+              <div className="hidden lg:block absolute top-6 right-0 w-16 h-1 bg-indigo-100"></div>
             </div>
             
             <div className="relative mt-10 lg:mt-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-orange-100 text-orange-500 mb-4 mx-auto">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 text-indigo-700 mb-4 mx-auto">
                 <div className="flex items-center justify-center">
                   <RefreshCw className="h-6 w-6" />
                 </div>
@@ -185,7 +185,7 @@ export default function HomePage() {
           
           <div className="mt-16 text-center">
             <Link href="/planform">
-              <Button className="text-lg rounded-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-6">
+              <Button className="text-lg rounded-full bg-indigo-700 hover:bg-indigo-800 text-white px-8 py-6">
                 Create Your Plan Generator
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -207,7 +207,7 @@ export default function HomePage() {
           <div className="space-y-8">
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
-                <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="h-6 w-6 text-indigo-700 mr-2 flex-shrink-0 mt-0.5" />
                 <span>How do the personalized growth plans work?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
@@ -220,7 +220,7 @@ export default function HomePage() {
             
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
-                <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="h-6 w-6 text-indigo-700 mr-2 flex-shrink-0 mt-0.5" />
                 <span>How long does it take to implement Planform on my site?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
@@ -232,7 +232,7 @@ export default function HomePage() {
             
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
-                <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="h-6 w-6 text-indigo-700 mr-2 flex-shrink-0 mt-0.5" />
                 <span>Will this replace my consultation booking system?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
@@ -245,7 +245,7 @@ export default function HomePage() {
             
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
-                <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="h-6 w-6 text-indigo-700 mr-2 flex-shrink-0 mt-0.5" />
                 <span>How does this improve my conversion rates?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
@@ -258,7 +258,7 @@ export default function HomePage() {
             
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 flex items-start">
-                <CheckCircle className="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="h-6 w-6 text-indigo-700 mr-2 flex-shrink-0 mt-0.5" />
                 <span>Can I customize the look and feel of the questionnaire?</span>
               </h3>
               <p className="mt-2 text-gray-500 ml-8">
@@ -273,7 +273,7 @@ export default function HomePage() {
             <Link href="/planform">
               <Button
                 size="lg"
-                className="rounded-full bg-orange-500 hover:bg-orange-600 text-white"
+                className="rounded-full bg-indigo-700 hover:bg-indigo-800 text-white"
               >
                 Get Started with Planform
                 <ArrowRight className="ml-2 h-5 w-5" />

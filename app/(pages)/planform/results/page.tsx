@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,7 +33,8 @@ type AnalysisResponse = {
   };
 };
 
-export default function ResultsPage() {
+// Component that uses useSearchParams, to be wrapped in Suspense
+function Results() {
   const searchParams = useSearchParams();
   const recommendationId = searchParams.get('id');
   const [loading, setLoading] = useState(true);
@@ -349,5 +350,19 @@ export default function ResultsPage() {
         <p className="mt-1">This plan is confidential and tailored specifically for your business needs.</p>
       </div>
     </div>
+  );
+}
+
+// Main component that wraps Results in a Suspense boundary
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto py-12 text-center">
+        <h1 className="text-3xl font-bold">Loading your custom plan...</h1>
+        <p className="mt-4">Please wait while we prepare your results.</p>
+      </div>
+    }>
+      <Results />
+    </Suspense>
   );
 } 
