@@ -401,7 +401,7 @@ function Results() {
           
           <div className="mt-8 text-center bg-gray-50 p-6 rounded-lg">
             <h4 className="text-xl font-medium mb-4">Contact us to get started</h4>
-            <p className="mb-2">Email: <a href="mailto:hello@planform.ai" className="text-primary">hello@planform.ai</a></p>
+            <p className="mb-2">Email: <a href="mailto:micheal@hayesmedia.co.za" className="text-primary">hello@planform.ai</a></p>
             <p>Phone: <a href="tel:+15555555555" className="text-primary">(555) 555-5555</a></p>
           </div>
         </CardContent>

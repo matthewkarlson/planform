@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Zap } from 'lucide-react';
-import { useActionState } from 'react';
 import { User } from '@/lib/db/schema';
 
 type ActionState = {
@@ -58,7 +57,7 @@ export function Settings({ userData }: SettingsProps) {
                 <p className="text-2xl font-bold">{userData.remainingRuns || 0}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => window.location.href = '/arena'}>
+            <Button variant="outline" className="rounded-full" onClick={() => window.location.href = '/planform/'}>
               Start New Run
             </Button>
           </div>
