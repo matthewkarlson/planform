@@ -308,13 +308,16 @@ export default function PlanformPage() {
     setError(null);
     
     try {
-      // Send answers to our API endpoint
+      // Send answers to our API endpoint with agencyId=1
       const response = await fetch('/api/planform/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(answers),
+        body: JSON.stringify({ 
+          ...answers,
+          agencyId: '1' // Default to agency ID 1 for now
+        }),
       });
       
       if (!response.ok) {

@@ -8,6 +8,7 @@ import {
   boolean,
   primaryKey,
   json,
+  unique,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -23,6 +24,7 @@ export const users = pgTable('users', {
   isPremium: boolean('is_premium').default(false),
   remainingRuns: integer('remaining_runs').default(1),
   isVerified: boolean('is_verified').default(false),
+  agencyId: integer('agency_id').references(() => agencies.id),
 });
 
 export const waitlistEntries = pgTable('waitlist_entries', {
@@ -58,9 +60,23 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
   expiresAt: timestamp('expires_at').notNull(),
 });
 
+export const agencies = pgTable('agencies', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 100 }).notNull().unique(),
+  logoUrl: text('logo_url'),
+  websiteUrl: text('website_url'),
+  description: text('description'),
+  primaryColor: varchar('primary_color', { length: 20 }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  isActive: boolean('is_active').default(true),
+});
+
 export const services = pgTable('services', {
   id: serial('id').primaryKey(),
-  serviceId: varchar('service_id', { length: 100 }).notNull().unique(),
+  agencyId: integer('agency_id').notNull().references(() => agencies.id),
+  serviceId: varchar('service_id', { length: 100 }).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description').notNull(),
   outcomes: json('outcomes').$type<string[]>().notNull(),
@@ -69,10 +85,17 @@ export const services = pgTable('services', {
   whenToRecommend: json('when_to_recommend').$type<string[]>().notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+  isActive: boolean('is_active').default(true),
+}, (table) => [
+  unique().on(table.serviceId, table.agencyId),
+]);
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   activityLogs: many(activityLogs),
+  agency: one(agencies, {
+    fields: [users.agencyId],
+    references: [agencies.id],
+  }),
 }));
 
 export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
@@ -96,6 +119,18 @@ export const passwordResetTokensRelations = relations(passwordResetTokens, ({ on
   }),
 }));
 
+export const agenciesRelations = relations(agencies, ({ many }) => ({
+  users: many(users),
+  services: many(services),
+}));
+
+export const servicesRelations = relations(services, ({ one }) => ({
+  agency: one(agencies, {
+    fields: [services.agencyId],
+    references: [agencies.id],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type ActivityLog = typeof activityLogs.$inferSelect;
@@ -104,6 +139,8 @@ export type WaitlistEntry = typeof waitlistEntries.$inferSelect;
 export type NewWaitlistEntry = typeof waitlistEntries.$inferInsert;
 export type Service = typeof services.$inferSelect;
 export type NewService = typeof services.$inferInsert;
+export type Agency = typeof agencies.$inferSelect;
+export type NewAgency = typeof agencies.$inferInsert;
 
 export enum ActivityType {
   SIGN_UP = 'SIGN_UP',

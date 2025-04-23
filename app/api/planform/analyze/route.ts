@@ -9,6 +9,7 @@ import { join, dirname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '@/lib/db/queries';
 import { existsSync } from 'fs';
+import { eq } from 'drizzle-orm';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -21,6 +22,7 @@ const MAX_SCREENSHOTS = 10;
 interface ClientResponses {
   [key: string]: string | string[] | undefined;
   websiteUrl?: string;
+  agencyId?: string;
 }
 
 // Define the structure for service recommendations
@@ -140,6 +142,15 @@ export async function POST(request: Request) {
 
     // Parse the request body
     const clientResponses: ClientResponses = await request.json();
+    
+    // Check for agency ID
+    if (!clientResponses.agencyId) {
+      return NextResponse.json(
+        { error: 'Agency ID is required' },
+        { status: 400 }
+      );
+    }
+
     let websiteAnalysis: WebsiteAnalysis | null = null;
     let screenshotBase64: string | null = null;
     let screenshotId: string | null = null;
@@ -308,11 +319,17 @@ export async function POST(request: Request) {
       }
     }
 
-    // Fetch all services from the database
-    const allServices = await db.select().from(services);
+    // Fetch services filtered by agency ID
+    const agencyServices = await db
+      .select()
+      .from(services)
+      .where(eq(services.agencyId, parseInt(clientResponses.agencyId)));
     
-    if (!allServices.length) {
-      return NextResponse.json({ error: 'No services found in database' }, { status: 404 });
+    if (!agencyServices.length) {
+      return NextResponse.json(
+        { error: 'No services found for this agency' },
+        { status: 404 }
+      );
     }
 
     // Create a prompt for OpenAI
@@ -321,7 +338,7 @@ export async function POST(request: Request) {
       ${JSON.stringify(clientResponses, null, 2)}
       
       Based on these responses, recommend the most appropriate services from this catalog:
-      ${JSON.stringify(allServices, null, 2)}
+      ${JSON.stringify(agencyServices, null, 2)}
       
       For each recommended service, provide a clear justification based on the client's specific needs.
       Your response will be shown to the client so it should be addressed to them.
@@ -382,7 +399,7 @@ export async function POST(request: Request) {
     const response = {
       clientResponses,
       recommendations: parsedResponse.recommendations,
-      totalEstimatedCost: calculateTotalCost(parsedResponse.recommendations, allServices),
+      totalEstimatedCost: calculateTotalCost(parsedResponse.recommendations, agencyServices),
       websiteAnalysis: websiteAnalysis,
       // Check environment for how to return screenshot data
       screenshotUrl: process.env.NODE_ENV === 'development' && screenshotId ? 
