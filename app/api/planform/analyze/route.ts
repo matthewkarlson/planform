@@ -3,13 +3,16 @@ import { db } from '@/lib/db/drizzle';
 import { services } from '@/lib/db/schema';
 import OpenAI from 'openai';
 import puppeteer from 'puppeteer';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir, readdir, stat, unlink } from 'fs/promises';
 import { join, dirname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// Maximum number of screenshots to keep
+const MAX_SCREENSHOTS = 10;
 
 // Define the expected type for client responses
 interface ClientResponses {
@@ -35,6 +38,56 @@ type WebsiteAnalysis = {
 type AIResponse = {
   recommendations: ServiceRecommendation[];
 };
+
+/**
+ * Cleans up old screenshots, keeping only the most recent ones
+ * @param screenshotsDir Directory containing screenshots
+ */
+async function cleanupScreenshots(screenshotsDir: string): Promise<void> {
+  try {
+    // Ensure the directory exists
+    await mkdir(screenshotsDir, { recursive: true });
+    
+    // Get all files in the screenshots directory
+    const files = await readdir(screenshotsDir);
+    
+    // Filter out non-PNG files
+    const pngFiles = files.filter(file => file.endsWith('.png'));
+    
+    // If we're under the limit, no need to delete anything
+    if (pngFiles.length <= MAX_SCREENSHOTS) {
+      return;
+    }
+    
+    // Get file stats for each PNG file
+    const fileStats = await Promise.all(
+      pngFiles.map(async (file) => {
+        const filePath = join(screenshotsDir, file);
+        const stats = await stat(filePath);
+        return {
+          name: file,
+          path: filePath,
+          createdAt: stats.birthtime,
+        };
+      })
+    );
+    
+    // Sort files by creation date (oldest first)
+    fileStats.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    
+    // Delete oldest files to keep only MAX_SCREENSHOTS
+    const filesToDelete = fileStats.slice(0, fileStats.length - MAX_SCREENSHOTS);
+    
+    // Delete each file
+    for (const file of filesToDelete) {
+      await unlink(file.path);
+      console.log(`Deleted old screenshot: ${file.name}`);
+    }
+  } catch (error) {
+    // Log the error but don't fail the request
+    console.error('Error cleaning up screenshots:', error);
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -67,10 +120,14 @@ export async function POST(request: Request) {
         
         // Create a unique ID for the screenshot file
         screenshotId = uuidv4();
-        const screenshotPath = join(process.cwd(), 'public', 'screenshots', `${screenshotId}.png`);
+        const screenshotsDir = join(process.cwd(), 'public', 'screenshots');
+        const screenshotPath = join(screenshotsDir, `${screenshotId}.png`);
         
         // Ensure directory exists
         await mkdir(dirname(screenshotPath), { recursive: true });
+        
+        // Clean up old screenshots
+        await cleanupScreenshots(screenshotsDir);
         
         // Save screenshot to file system
         await writeFile(screenshotPath, Buffer.from(screenshotBase64, 'base64'));
