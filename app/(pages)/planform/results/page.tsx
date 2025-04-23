@@ -23,6 +23,14 @@ type ServiceData = {
   whenToRecommend: string[];
 };
 
+// Define website analysis type
+type WebsiteAnalysis = {
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
+  overallImpression: string;
+};
+
 type AnalysisResponse = {
   clientResponses: Record<string, string | string[]>;
   recommendations: ServiceRecommendation[];
@@ -31,6 +39,8 @@ type AnalysisResponse = {
     maxTotal: number;
     formattedRange: string;
   };
+  websiteAnalysis?: WebsiteAnalysis;
+  screenshotUrl?: string;
 };
 
 // Component that uses useSearchParams, to be wrapped in Suspense
@@ -242,6 +252,70 @@ function Results() {
           </Card>
         );
       })}
+
+      {/* Website Analysis Section */}
+      {analysis.websiteAnalysis && analysis.screenshotUrl && (
+        <>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">Website Analysis</h2>
+          <Card className="mb-12">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-xl font-medium text-gray-800 mb-4">Your Current Website</h3>
+                  <div className="border rounded-lg overflow-hidden shadow-sm">
+                    <img 
+                      src={analysis.screenshotUrl} 
+                      alt="Your website screenshot" 
+                      className="w-full h-auto"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2 italic">
+                    Screenshot taken during analysis
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 className="text-xl font-medium text-gray-800 mb-4">Expert Assessment</h3>
+                  <p className="text-gray-700 mb-6 italic">
+                    "{analysis.websiteAnalysis.overallImpression}"
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h4 className="font-medium text-lg mb-3 text-green-700">Strengths</h4>
+                  <ul className="list-disc pl-5 text-gray-700 space-y-2">
+                    {analysis.websiteAnalysis.strengths.map((strength, i) => (
+                      <li key={i}>{strength}</li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium text-lg mb-3 text-amber-700">Areas for Improvement</h4>
+                  <ul className="list-disc pl-5 text-gray-700 space-y-2">
+                    {analysis.websiteAnalysis.weaknesses.map((weakness, i) => (
+                      <li key={i}>{weakness}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="mt-8">
+                <h4 className="font-medium text-lg mb-3 text-blue-700">Recommendations</h4>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <ul className="list-disc pl-5 text-gray-700 space-y-2">
+                    {analysis.websiteAnalysis.recommendations.map((recommendation, i) => (
+                      <li key={i}>{recommendation}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Implementation Plan */}
       <h2 className="text-3xl font-bold text-gray-900 mb-6">Implementation Plan</h2>
