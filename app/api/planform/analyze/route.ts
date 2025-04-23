@@ -203,20 +203,40 @@ export async function POST(request: Request) {
         const screenshot = await page.screenshot({ encoding: "base64" });
         screenshotBase64 = screenshot.toString();
         
-        // Create a unique ID for the screenshot file
+        // Create a unique ID for the screenshot
         screenshotId = uuidv4();
-        const screenshotsDir = join(process.cwd(), 'public', 'screenshots');
-        const screenshotPath = join(screenshotsDir, `${screenshotId}.png`);
         
-        // Ensure directory exists
-        await mkdir(dirname(screenshotPath), { recursive: true });
-        
-        // Clean up old screenshots
-        await cleanupScreenshots(screenshotsDir);
-        
-        // Save screenshot to file system
-        if (screenshotBase64) {
-          await writeFile(screenshotPath, Buffer.from(screenshotBase64, 'base64'));
+        // For local development, save to public directory for static serving
+        if (isLocal) {
+          const screenshotsDir = join(process.cwd(), 'public', 'screenshots');
+          const screenshotPath = join(screenshotsDir, `${screenshotId}.png`);
+          
+          // Ensure directory exists
+          await mkdir(dirname(screenshotPath), { recursive: true });
+          
+          // Clean up old screenshots
+          await cleanupScreenshots(screenshotsDir);
+          
+          // Save screenshot to file system (local only)
+          if (screenshotBase64) {
+            await writeFile(screenshotPath, Buffer.from(screenshotBase64, 'base64'));
+          }
+        } else {
+          // In serverless environment, optionally save to /tmp for debugging
+          // but we'll return the base64 data directly in the response
+          console.log('In serverless environment, not saving screenshot to filesystem');
+          
+          // Optional: If you need to save for debugging/logs
+          try {
+            const tmpScreenshotPath = join('/tmp', `${screenshotId}.png`);
+            if (screenshotBase64) {
+              await writeFile(tmpScreenshotPath, Buffer.from(screenshotBase64, 'base64'));
+              console.log(`Saved debug screenshot to ${tmpScreenshotPath}`);
+            }
+          } catch (writeError) {
+            console.error('Warning: Could not write debug screenshot to /tmp', writeError);
+            // Continue processing, this is just for debugging
+          }
         }
         
         await browser.close();
@@ -364,8 +384,14 @@ export async function POST(request: Request) {
       recommendations: parsedResponse.recommendations,
       totalEstimatedCost: calculateTotalCost(parsedResponse.recommendations, allServices),
       websiteAnalysis: websiteAnalysis,
-      // Include screenshot URL if available
-      screenshotUrl: screenshotId ? `/screenshots/${screenshotId}.png` : null,
+      // Check environment for how to return screenshot data
+      screenshotUrl: process.env.NODE_ENV === 'development' && screenshotId ? 
+        `/screenshots/${screenshotId}.png` : 
+        null,
+      // Include base64 data for production/serverless environments
+      screenshotBase64: process.env.NODE_ENV !== 'development' ? 
+        screenshotBase64 : 
+        null,
     };
 
     return NextResponse.json(response);

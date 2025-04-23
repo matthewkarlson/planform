@@ -41,6 +41,7 @@ type AnalysisResponse = {
   };
   websiteAnalysis?: WebsiteAnalysis;
   screenshotUrl?: string;
+  screenshotBase64?: string;
 };
 
 // Component that uses useSearchParams, to be wrapped in Suspense
@@ -254,7 +255,7 @@ function Results() {
       })}
 
       {/* Website Analysis Section */}
-      {analysis.websiteAnalysis && analysis.screenshotUrl && (
+      {analysis.websiteAnalysis && (analysis.screenshotUrl || analysis.screenshotBase64) && (
         <>
           <h2 className="text-3xl font-bold text-gray-900 mb-6">Website Analysis</h2>
           <Card className="mb-12">
@@ -264,7 +265,7 @@ function Results() {
                   <h3 className="text-xl font-medium text-gray-800 mb-4">Your Current Website</h3>
                   <div className="border rounded-lg overflow-hidden shadow-sm">
                     <img 
-                      src={analysis.screenshotUrl} 
+                      src={analysis.screenshotUrl || (analysis.screenshotBase64 ? `data:image/png;base64,${analysis.screenshotBase64}` : '')} 
                       alt="Your website screenshot" 
                       className="w-full h-auto"
                     />

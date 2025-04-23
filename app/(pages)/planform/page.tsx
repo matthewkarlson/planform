@@ -244,6 +244,14 @@ type AnalysisResponse = {
     maxTotal: number;
     formattedRange: string;
   };
+  websiteAnalysis?: {
+    strengths: string[];
+    weaknesses: string[];
+    recommendations: string[];
+    overallImpression: string;
+  };
+  screenshotUrl?: string;
+  screenshotBase64?: string;
 };
 
 export default function PlanformPage() {
