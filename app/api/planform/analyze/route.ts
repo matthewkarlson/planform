@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { services } from '@/lib/db/schema';
 import OpenAI from 'openai';
-import puppeteer from 'puppeteer';
+import puppeteerCore from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 import { writeFile, mkdir, readdir, stat, unlink } from 'fs/promises';
 import { join, dirname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '@/lib/db/queries';
+import { existsSync } from 'fs';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -90,6 +92,33 @@ async function cleanupScreenshots(screenshotsDir: string): Promise<void> {
   }
 }
 
+// Helper function to find a Chrome executable
+async function findChromeExecutable(): Promise<string | null> {
+  // Common Chrome locations on MacOS
+  const macOSChromePaths = [
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
+    '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+    '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
+  ];
+  
+  // Check each path
+  for (const path of macOSChromePaths) {
+    try {
+      if (existsSync(path)) {
+        console.log(`Found Chrome at: ${path}`);
+        return path;
+      }
+    } catch (e) {
+      // Ignore error and continue to next path
+    }
+  }
+  
+  console.log('No Chrome installation found in common locations');
+  return null;
+}
+
 export async function POST(request: Request) {
   try {
     // Check if user is logged in and verified
@@ -118,8 +147,46 @@ export async function POST(request: Request) {
     // Take screenshot and analyze website if URL is provided
     if (clientResponses.websiteUrl) {
       try {
-        // Launch browser and capture screenshot
-        const browser = await puppeteer.launch({ headless: true });
+        // Check if running locally or in production
+        const isLocal = process.env.NODE_ENV === 'development';
+        console.log(`Running in ${isLocal ? 'development' : 'production'} mode`);
+        
+        let browser;
+        
+        try {
+          if (isLocal) {
+            console.log('Using local Chrome installation');
+            // For local development, use the system Chrome/Chromium
+            const chromeExecutablePath = await findChromeExecutable();
+            
+            if (!chromeExecutablePath) {
+              throw new Error('Could not find a Chrome installation. Please install Chrome, Chromium, Edge, or Brave browser.');
+            }
+            
+            browser = await puppeteerCore.launch({
+              headless: true,
+              executablePath: chromeExecutablePath,
+              args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+          } else {
+            console.log('Using @sparticuz/chromium for serverless');
+            // For Vercel serverless functions, use @sparticuz/chromium
+            chromium.setGraphicsMode = false;
+            const browserArgs = [...chromium.args, '--ignore-certificate-errors'];
+            
+            browser = await puppeteerCore.launch({
+              args: browserArgs,
+              defaultViewport: chromium.defaultViewport,
+              executablePath: await chromium.executablePath(),
+              headless: chromium.headless,
+            });
+          }
+          console.log('Browser launched successfully');
+        } catch (browserError) {
+          console.error('Error launching browser:', browserError);
+          throw browserError;
+        }
+        
         const page = await browser.newPage();
         await page.setViewport({
           width: 1240,
@@ -148,7 +215,9 @@ export async function POST(request: Request) {
         await cleanupScreenshots(screenshotsDir);
         
         // Save screenshot to file system
-        await writeFile(screenshotPath, Buffer.from(screenshotBase64, 'base64'));
+        if (screenshotBase64) {
+          await writeFile(screenshotPath, Buffer.from(screenshotBase64, 'base64'));
+        }
         
         await browser.close();
         
