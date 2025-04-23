@@ -6,6 +6,7 @@ import puppeteer from 'puppeteer';
 import { writeFile, mkdir, readdir, stat, unlink } from 'fs/promises';
 import { join, dirname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { getUser } from '@/lib/db/queries';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -91,6 +92,23 @@ async function cleanupScreenshots(screenshotsDir: string): Promise<void> {
 
 export async function POST(request: Request) {
   try {
+    // Check if user is logged in and verified
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    // Check if user's email is verified
+    if (!user.isVerified) {
+      return NextResponse.json(
+        { error: 'Email verification required to use this feature' },
+        { status: 403 }
+      );
+    }
+
     // Parse the request body
     const clientResponses: ClientResponses = await request.json();
     let websiteAnalysis: WebsiteAnalysis | null = null;
