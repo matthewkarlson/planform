@@ -6,7 +6,7 @@ import { getUser } from '@/lib/db/queries';
 import { Analytics } from '@vercel/analytics/react';
 export const metadata: Metadata = {
   title: 'Planform.ai',
-  description: 'The best way to iterate on your ideas.',
+  description: 'Turn site visits into sales.',
 };
 
 export const viewport: Viewport = {

@@ -11,10 +11,13 @@ export default function HomePage() {
           <div className="lg:grid lg:grid-cols-12 lg:gap-8">
             <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
               <h1 className="text-4xl font-bold text-gray-900 tracking-tight sm:text-5xl md:text-6xl">
-                Turn Site Visits
+              Turn Site Visits
                 <span className="block text-indigo-600">Into Sales</span>
               </h1>
-              <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+              <p className="text-xs font-bold mt-7 text-gray-700 tracking-tight sm:text-lg md:text-xl">
+                Built for marketing agencies that want more leads without more manual work.
+              </p>
+              <p className="mt-3 text-base text-gray-500 sm:mt-7 sm:text-xl lg:text-lg xl:text-xl">
                 Your "Book a free consultation" button is costing you sales. We bridge the gap between leads visiting your site and booking a call - 
                 With personalised growth plans built from your real offerings and services.
               </p>
@@ -36,7 +39,7 @@ export default function HomePage() {
             <div className="mt-8 lg:mt-0 lg:col-span-6">
               <div className="relative aspect-video rounded-lg overflow-hidden shadow-xl">
                 <Image
-                  src="/planformai.png"
+                  src="/book-call-no.png"
                   alt="Planform.ai Dashboard"
                   fill
                   priority
@@ -57,11 +60,10 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Personalised Growth Plans
+                Personalized Plans That Actually Convert
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  Give leads a powerful reason to book a call with you. We take your real services and offerings and create custom packages
-                  that give leads a powerful reason to book a call with you.
+Don't let leads walk away. We turn your real services into a tailored plan that gives visitors a reason to book a call—based on exactly what you offer.
                 </p>
               </div>
             </div>
@@ -72,10 +74,12 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Fully Customisable
+                 Tailored to Your Agency, Not a Template
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  Your plans are fully customisable to your business. We don't use templates - we use your real services and offerings to create a plan that works for you.
+No generic audits. Your tool is fully customized to your services, language, and offers—so every visitor gets a plan that feels like it came from you.
+
+
                 </p>
               </div>
             </div>
@@ -86,11 +90,10 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Turn Consultation Calls into Closes
+                From Site Visit to Booked Call—Fast 
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-                  That dead time between booking a call and the call itself is a huge opportunity to lose a lead.
-                  We fixed that with our powerful lead magnet that makes sure leads not only book a call, but also show up to calls prepared and ready to buy.
+Most leads bounce before they ever talk to you. Planform bridges the gap with instant value—so they book faster and show up ready to buy.
                 </p>
               </div>
             </div>
@@ -117,6 +120,7 @@ export default function HomePage() {
                   className="text-lg rounded-full bg-indigo-700 hover:bg-indigo-800 text-white"
                 >
                   Fix your funnel
+                <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
@@ -186,7 +190,7 @@ export default function HomePage() {
           <div className="mt-16 text-center">
             <Link href="/planform">
               <Button className="text-lg rounded-full bg-indigo-700 hover:bg-indigo-800 text-white px-8 py-6">
-                Create Your Plan Generator
+              Convert More Clients
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
