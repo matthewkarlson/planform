@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Printer, Download, ArrowLeft } from 'lucide-react';
+import { Printer, Download, ArrowLeft, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 type ServiceRecommendation = {
@@ -23,8 +23,19 @@ type ServiceData = {
   whenToRecommend: string[];
 };
 
+type AgencyData = {
+  id: number;
+  name: string;
+  contactNumber: string | null;
+  email: string | null;
+  bookingLink: string | null;
+  logoUrl: string | null;
+  primaryColor: string | null;
+};
+
 // Define website analysis type
 type WebsiteAnalysis = {
+  companyName: string;
   strengths: string[];
   weaknesses: string[];
   recommendations: string[];
@@ -34,6 +45,7 @@ type WebsiteAnalysis = {
 type AnalysisResponse = {
   clientResponses: Record<string, string | string[]>;
   recommendations: ServiceRecommendation[];
+  executiveSummary: string;
   totalEstimatedCost: {
     minTotal: number;
     maxTotal: number;
@@ -53,6 +65,7 @@ function Results() {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [services, setServices] = useState<Record<string, ServiceData>>({});
   const [clientName, setClientName] = useState<string>('');
+  const [agency, setAgency] = useState<AgencyData | null>(null);
 
   // Fetch the analysis results
   useEffect(() => {
@@ -81,12 +94,12 @@ function Results() {
         const agencyId = parsedAnalysis.clientResponses.agencyId || '1';
         
         // Fetch services for this agency
-        const response = await fetch(`/api/planform/services?agencyId=${agencyId}`);
-        if (!response.ok) {
+        const servicesResponse = await fetch(`/api/planform/services?agencyId=${agencyId}`);
+        if (!servicesResponse.ok) {
           throw new Error('Failed to fetch services');
         }
         
-        const allServices = await response.json();
+        const allServices = await servicesResponse.json();
         const servicesMap: Record<string, ServiceData> = {};
         
         for (const service of allServices) {
@@ -94,6 +107,15 @@ function Results() {
         }
         
         setServices(servicesMap);
+        
+        // Fetch agency details
+        const agencyResponse = await fetch(`/api/planform/agency?id=${agencyId}`);
+        if (!agencyResponse.ok) {
+          throw new Error('Failed to fetch agency details');
+        }
+        
+        const agencyData = await agencyResponse.json();
+        setAgency(agencyData);
         
         // Set client name if available
         if (parsedAnalysis.clientResponses && parsedAnalysis.clientResponses.name) {
@@ -186,12 +208,12 @@ function Results() {
 
       {/* Header Section */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Your Custom Growth Plan</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{analysis.websiteAnalysis?.companyName}'s Custom Growth Plan</h1>
         <p className="text-xl text-gray-600">
           {clientName ? `Prepared exclusively for ${clientName}` : 'Prepared exclusively for you'}
         </p>
         <p className="text-md text-gray-500 mt-2">
-          By Planform.ai
+          By {agency?.name || 'Planform.ai'}
         </p>
       </div>
 
@@ -202,9 +224,7 @@ function Results() {
         </CardHeader>
         <CardContent>
           <p className="mb-4 text-gray-700">
-            Based on your responses, we've crafted a tailored digital strategy that addresses your specific needs
-            {businessType && ` as a ${businessType} business`}{primaryGoal && `, with a focus on ${primaryGoal.replace(/_/g, ' ')}`}.
-            Our recommended approach includes {analysis.recommendations.length} key services designed to work together to achieve your goals.
+            {analysis.executiveSummary}
           </p>
           
           <div className="bg-gray-50 rounded-lg p-4 mt-6">
@@ -214,53 +234,10 @@ function Results() {
         </CardContent>
       </Card>
 
-      {/* Recommended Services */}
-      <h2 className="text-3xl font-bold text-gray-900 mb-6">Recommended Services</h2>
-      
-      {analysis.recommendations.map((recommendation, index) => {
-        const service = services[recommendation.serviceId];
-        if (!service) return null;
-        
-        return (
-          <Card key={index} className="mb-8">
-            <CardHeader>
-              <CardTitle className="text-2xl">{service.name}</CardTitle>
-              <div className="text-gray-500 mt-1">
-                {service.priceLower && service.priceUpper ? 
-                  `$${service.priceLower.toLocaleString()} - $${service.priceUpper.toLocaleString()}` : 
-                  'Price upon request'}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-medium mb-2 text-gray-800">Service Description</h4>
-                  <p className="text-gray-700">{service.description}</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium mb-2 text-gray-800">Why This Is Right For You</h4>
-                  <p className="text-gray-700">{recommendation.reason}</p>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium mb-2 text-gray-800">Expected Outcomes</h4>
-                  <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                    {service.outcomes.map((outcome, i) => (
-                      <li key={i}>{outcome}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
-
       {/* Website Analysis Section */}
       {analysis.websiteAnalysis && (analysis.screenshotUrl || analysis.screenshotBase64) && (
         <>
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Website Analysis</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">Website First Fold Analysis</h2>
           <Card className="mb-12">
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -320,6 +297,49 @@ function Results() {
           </Card>
         </>
       )}
+
+      {/* Recommended Services */}
+      <h2 className="text-3xl font-bold text-gray-900 mb-6">Recommended Services</h2>
+      
+      {analysis.recommendations.map((recommendation, index) => {
+        const service = services[recommendation.serviceId];
+        if (!service) return null;
+        
+        return (
+          <Card key={index} className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-2xl">{service.name}</CardTitle>
+              <div className="text-gray-500 mt-1">
+                {service.priceLower && service.priceUpper ? 
+                  `$${service.priceLower.toLocaleString()} - $${service.priceUpper.toLocaleString()}` : 
+                  'Price upon request'}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h4 className="font-medium mb-2 text-gray-800">Service Description</h4>
+                  <p className="text-gray-700">{service.description}</p>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium mb-2 text-gray-800">Why This Is Right For You</h4>
+                  <p className="text-gray-700">{recommendation.reason}</p>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium mb-2 text-gray-800">Expected Outcomes</h4>
+                  <ul className="list-disc pl-5 text-gray-700 space-y-1">
+                    {service.outcomes.map((outcome, i) => (
+                      <li key={i}>{outcome}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
 
       {/* Implementation Plan */}
       <h2 className="text-3xl font-bold text-gray-900 mb-6">Implementation Plan</h2>
@@ -403,12 +423,28 @@ function Results() {
           </ol>
           
           <div className="mt-8 text-center bg-gray-50 p-6 rounded-lg">
-            <h4 className="text-xl font-medium mb-4">Contact us to get started</h4>
-            <p className="mb-2">Email: <a href="mailto:micheal@hayesmedia.co.za" className="text-primary">hello@planform.ai</a></p>
-            <p>Phone: <a href="tel:+15555555555" className="text-primary">(555) 555-5555</a></p>
+            <h4 className="text-xl font-medium mb-4">Got questions? Get in touch:</h4>
+            {agency?.email && <p className="mb-2">Email: <a href={`mailto:${agency.email}`} className="text-primary">{agency.email}</a></p>}
+            {agency?.contactNumber && <p className="mb-4">Phone: <a href={`tel:${agency.contactNumber}`} className="text-primary">{agency.contactNumber}</a></p>}
+            
           </div>
         </CardContent>
       </Card>
+
+      {/* Big CTA Button - will be hidden when printing */}
+      {agency?.bookingLink && (
+        <div className="print:hidden mt-12 mb-16">
+          <a href={agency.bookingLink} target="_blank" rel="noopener noreferrer" className="block">
+            <Button 
+              className="w-full py-8 text-xl shadow-lg transition-transform hover:scale-105"
+              style={agency.primaryColor ? {backgroundColor: agency.primaryColor} : {}}
+            >
+              <Calendar className="mr-3 h-6 w-6" />
+              Book This Plan Now
+            </Button>
+          </a>
+        </div>
+      )}
 
       {/* Print controls at bottom - will be hidden when printing */}
       <div className="print:hidden flex justify-center mt-12">
@@ -424,7 +460,7 @@ function Results() {
       
       {/* Footer - visible in print */}
       <div className="mt-16 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
-        <p>© {new Date().getFullYear()} Planform.ai</p>
+        <p>© {new Date().getFullYear()} {agency?.name || 'Planform.ai'}</p>
         <p className="mt-1">This plan is confidential and tailored specifically for your business needs.</p>
       </div>
     </div>

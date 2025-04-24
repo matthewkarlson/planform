@@ -9,7 +9,8 @@
     "db:seed:services": "npx tsx lib/db/seedServices.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "seed:services": "tsx lib/db/seedServices.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",

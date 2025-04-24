@@ -42,6 +42,7 @@ type WebsiteAnalysis = {
 // Define the response structure that will be received from OpenAI
 type AIResponse = {
   recommendations: ServiceRecommendation[];
+  executiveSummary: string;
 };
 
 /**
@@ -200,16 +201,29 @@ export async function POST(request: Request) {
         
         const page = await browser.newPage();
         await page.setViewport({
-          width: 1240,
-          height: 700,
+          width: 1366,
+          height: 768,
           deviceScaleFactor: 1,
         });
-        
+       console.log('Navigating to website: ', clientResponses.websiteUrl);
         await page.goto(clientResponses.websiteUrl, {
           waitUntil: 'networkidle2',
-          timeout: 60000,
+          timeout: 10000,
         });
-        
+         // 1) Try clicking consent buttons
+        await page.evaluate(() => {
+          const btns = Array.from(document.querySelectorAll('button, a'));
+          const re = /^(accept|allow|ok)/i;
+          const btn = btns.find(b => re.test(b.textContent?.trim() || ''));
+          if (btn) {
+            (btn as HTMLElement).click();
+          }
+        });
+
+        // 2) Fallback: hide any remaining banners
+        await page.addStyleTag({
+          content: `[class*="cookie"], [id*="cookie"], .consent, .cc-banner { display: none !important; }`
+        });
         // Capture screenshot as base64
         const screenshot = await page.screenshot({ encoding: "base64" });
         screenshotBase64 = screenshot.toString();
@@ -265,7 +279,7 @@ export async function POST(request: Request) {
               content: [
                 { 
                   type: "input_text", 
-                  text: `Analyze this website (${clientResponses.websiteUrl}) and provide insights on its design, user experience, and effectiveness. Focus on strengths, weaknesses, and actionable recommendations.` 
+                  text: `Analyze the first fold of this website (${clientResponses.websiteUrl}) and provide insights on its design, user experience, and effectiveness. Focus on strengths, weaknesses, and actionable recommendations. Don't mention the client's name, but you can mention the company name. The client has provided the following answers to a questionnaire: ${JSON.stringify(clientResponses, null, 2)}` 
                 },
                 {
                   type: "input_image",
@@ -282,6 +296,10 @@ export async function POST(request: Request) {
               schema: {
                 type: "object",
                 properties: {
+                  companyName:{
+                    type: "string",
+                    description: "The name of the company"
+                  },
                   strengths: {
                     type: "array",
                     items: { type: "string" },
@@ -302,7 +320,7 @@ export async function POST(request: Request) {
                     description: "Overall impression of the website"
                   }
                 },
-                required: ["strengths", "weaknesses", "recommendations", "overallImpression"],
+                required: ["companyName", "strengths", "weaknesses", "recommendations", "overallImpression"],
                 additionalProperties: false
               },
               strict: true
@@ -336,6 +354,9 @@ export async function POST(request: Request) {
     const prompt = `
       I have a client with the following responses to a questionnaire:
       ${JSON.stringify(clientResponses, null, 2)}
+
+      We have analyzed the first fold of their website and provided the following feedback:
+      ${JSON.stringify(websiteAnalysis, null, 2)}
       
       Based on these responses, recommend the most appropriate services from this catalog:
       ${JSON.stringify(agencyServices, null, 2)}
@@ -382,9 +403,13 @@ export async function POST(request: Request) {
                   required: ["serviceId", "reason"],
                   additionalProperties: false
                 }
+              },
+              executiveSummary: { 
+                type: "string",
+                description: "A concise summary of the plan that will be shown to the client, with a clear emphasis on the transformation that the services will deliver. Showing the customer where they are now,  and where they could be if they went with our services. Demonstrating the pain points our services will address."
               }
             },
-            required: ["recommendations"],
+            required: ["recommendations", "executiveSummary"],
             additionalProperties: false
           },
           strict: true
@@ -399,6 +424,7 @@ export async function POST(request: Request) {
     const response = {
       clientResponses,
       recommendations: parsedResponse.recommendations,
+      executiveSummary: parsedResponse.executiveSummary,
       totalEstimatedCost: calculateTotalCost(parsedResponse.recommendations, agencyServices),
       websiteAnalysis: websiteAnalysis,
       // Check environment for how to return screenshot data
