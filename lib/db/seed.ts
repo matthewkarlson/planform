@@ -7,11 +7,6 @@ async function seed() {
   console.log('Starting seed process...');
 
   // Clean up existing data
-  console.log('Cleaning up existing data...');
-  await db.delete(services);
-  await db.delete(users);
-  await db.delete(agencies);
-  
   // Create agencies
   console.log('Creating agencies...');
   

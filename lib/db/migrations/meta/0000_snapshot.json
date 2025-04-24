@@ -1,5 +1,5 @@
 {
-  "id": "84c9a2bc-8b7a-47f3-9976-7ea657ca27ac",
+  "id": "c7e2dbf5-543a-4d46-b028-8338bcdfb202",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -92,6 +92,24 @@
         },
         "website_url": {
           "name": "website_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "contact_number": {
+          "name": "contact_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "booking_link": {
+          "name": "booking_link",
           "type": "text",
           "primaryKey": false,
           "notNull": false
