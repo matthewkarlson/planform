@@ -77,8 +77,11 @@ function Results() {
         const parsedAnalysis = JSON.parse(storedAnalysis) as AnalysisResponse;
         setAnalysis(parsedAnalysis);
         
-        // Fetch all services to get the full details
-        const response = await fetch('/api/planform/services');
+        // Extract agencyId from the client responses
+        const agencyId = parsedAnalysis.clientResponses.agencyId || '1';
+        
+        // Fetch services for this agency
+        const response = await fetch(`/api/planform/services?agencyId=${agencyId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch services');
         }

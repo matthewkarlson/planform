@@ -308,6 +308,16 @@ export default function PlanformPage() {
     setError(null);
     
     try {
+      // Format website URL to ensure it has https:// prefix if provided
+      let formattedAnswers = { ...answers };
+      
+      if (formattedAnswers.websiteUrl) {
+        const websiteUrl = formattedAnswers.websiteUrl as string;
+        if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+          formattedAnswers.websiteUrl = `https://${websiteUrl}`;
+        }
+      }
+      
       // Send answers to our API endpoint with agencyId=1
       const response = await fetch('/api/planform/analyze', {
         method: 'POST',
@@ -315,7 +325,7 @@ export default function PlanformPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          ...answers,
+          ...formattedAnswers,
           agencyId: '1' // Default to agency ID 1 for now
         }),
       });

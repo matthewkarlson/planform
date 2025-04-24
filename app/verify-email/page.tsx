@@ -53,9 +53,9 @@ export default async function VerifyEmailPage({
             )}
             
             <div className="mt-6">
-              <Link href="/dashboard" passHref>
+              <Link href="/planform" passHref>
                 <Button className="w-full bg-orange-600 hover:bg-orange-700">
-                  Go to Dashboard
+                  Go to Planform
                 </Button>
               </Link>
             </div>

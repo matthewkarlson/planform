@@ -45,10 +45,10 @@ function UserMenu() {
         </Link>
         <div className="flex items-center gap-2">
           <Button variant="ghost" asChild className="rounded-full">
-            <Link href="/waitlist">Login</Link>
+            <Link href="/sign-in">Login</Link>
           </Button>
           <Button asChild className="rounded-full">
-            <Link href="/waitlist">Sign Up</Link>
+            <Link href="/sign-up">Sign Up</Link>
           </Button>
         </div>
       </>
