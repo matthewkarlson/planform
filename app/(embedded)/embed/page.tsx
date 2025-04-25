@@ -596,7 +596,6 @@ export default function PlanformPage() {
   };
 
   return (
-    <div className="w-full h-full" style={getStyleVariables() as React.CSSProperties}>
       <Card className="w-full border-0 shadow-none" style={getCardStyle()}>
         <CardHeader className="px-4 sm:px-6">
           <CardTitle className="text-2xl">{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
@@ -633,6 +632,5 @@ export default function PlanformPage() {
           </Button>
         </CardFooter>
       </Card>
-    </div>
   );
 }
