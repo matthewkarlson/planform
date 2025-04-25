@@ -282,7 +282,6 @@ export default function PlanformPage() {
       try {
         const url = new URL(window.location.href);
         const apiKey = url.searchParams.get('apiKey');
-
         if (apiKey) {
           // Fetch agency details using API key
           const agencyEndpoint = `/api/planform/agency?apiKey=${apiKey}`;
@@ -296,7 +295,6 @@ export default function PlanformPage() {
           // Fetch demo agency data for preview
           const agencyEndpoint = `/api/planform/agency_demo`;
           const agencyResponse = await fetch(agencyEndpoint);
-          
           if (agencyResponse.ok) {
             const agencyData = await agencyResponse.json();
             setAgency(agencyData);

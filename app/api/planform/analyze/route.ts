@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
-import { services } from '@/lib/db/schema';
+import { agencies, services, clients, plans } from '@/lib/db/schema';
 import OpenAI from 'openai';
 import puppeteerCore from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
@@ -63,6 +63,8 @@ interface ClientResponses {
   websiteUrl?: string;
   agencyId?: string;
   apiKey?: string;
+  email?: string;
+  name?: string;
 }
 
 // Define the structure for service recommendations
@@ -199,25 +201,17 @@ export async function POST(request: Request) {
       );
     }
     
-    if (!apiKey && !user) {
-      return NextResponse.json({ error: 'Authentication via api key or user is required' }, { status: 401 });
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Authentication via api key is required' }, { status: 401 });
     }
 
-    // Check if user's email is verified
-    if (user && !user.isVerified) {
-      return NextResponse.json(
-        { error: 'Email verification required to use this feature' },
-        { status: 403 }
-      );
-    }
-
-    // Check for agency ID
-    if (!clientResponses.agencyId) {
-      return NextResponse.json(
-        { error: 'Agency ID is required' },
-        { status: 400 }
-      );
-    }
+    const agency = await db.query.agencies.findFirst({
+      where: eq(agencies.apiKey, apiKey),
+      columns: {
+        id: true,
+      },
+    });
+    
 
     let websiteAnalysis: WebsiteAnalysis | null = null;
     let screenshotBase64: string | null = null;
@@ -405,10 +399,16 @@ export async function POST(request: Request) {
     }
 
     // Fetch services filtered by agency ID
+    if (!agency) {
+      return NextResponse.json(
+        { error: 'No agency found for this API key' },
+        { status: 404 }
+      );
+    }
     const agencyServices = await db
       .select()
       .from(services)
-      .where(eq(services.agencyId, parseInt(clientResponses.agencyId)));
+      .where(eq(services.agencyId, agency.id));
     
     if (!agencyServices.length) {
       return NextResponse.json(
@@ -503,6 +503,40 @@ export async function POST(request: Request) {
         screenshotBase64 : 
         null,
     };
+
+    // Store the analysis in the database if client email is provided
+    if (clientResponses.email) {
+      try {
+        // Check if the client already exists
+        let client = await db.query.clients.findFirst({
+          where: eq(clients.email, clientResponses.email as string),
+        });
+
+        // If client doesn't exist, create a new one
+        if (!client) {
+          const [newClient] = await db.insert(clients).values({
+            name: clientResponses.name as string || 'Unknown',
+            email: clientResponses.email as string,
+            agencyId: agency.id,
+            websiteUrl: clientResponses.websiteUrl as string || null,
+          }).returning();
+          
+          client = newClient;
+        }
+
+        // Store the plan data
+        await db.insert(plans).values({
+          clientId: client.id,
+          agencyId: agency.id,
+          planData: response,
+        });
+
+        console.log(`Plan saved for client: ${client.email}`);
+      } catch (dbError) {
+        console.error('Error storing plan in database:', dbError);
+        // Continue with the response even if DB storage fails
+      }
+    }
 
     return NextResponse.json(response);
   } catch (error) {

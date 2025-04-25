@@ -27,41 +27,6 @@ export const users = pgTable('users', {
   agencyId: integer('agency_id').references(() => agencies.id),
 });
 
-export const plans = pgTable('plans', {
-  id: serial('id').primaryKey(),
-  name: varchar('name', { length: 100 }),
-  description: text('description'),
-  price: integer('price'),
-  clientId: integer('client_id').references(() => clients.id),
-  agencyId: integer('agency_id').references(() => agencies.id),
-  executiveSummary: text('executive_summary'),
-  totalMinCost: integer('total_min_cost'),
-  totalMaxCost: integer('total_max_cost'),
-  screenshotUrl: text('screenshot_url'),
-  websiteUrl: text('website_url'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
-
-export const planRecommendations = pgTable('plan_recommendations', {
-  id: serial('id').primaryKey(),
-  planId: integer('plan_id').notNull().references(() => plans.id),
-  serviceId: varchar('service_id', { length: 100 }).notNull(),
-  reason: text('reason').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
-
-export const websiteAnalyses = pgTable('website_analyses', {
-  id: serial('id').primaryKey(),
-  planId: integer('plan_id').notNull().references(() => plans.id),
-  companyName: varchar('company_name', { length: 255 }),
-  strengths: json('strengths').$type<string[]>(),
-  weaknesses: json('weaknesses').$type<string[]>(),
-  recommendations: json('recommendations').$type<string[]>(),
-  overallImpression: text('overall_impression'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
-
 export const clients = pgTable('clients', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }),
@@ -119,6 +84,7 @@ export const agencies = pgTable('agencies', {
   primaryColor: varchar('primary_color', { length: 20 }),
   secondaryColor: varchar('secondary_color', { length: 20 }),
   backgroundColor: varchar('background_color', { length: 20 }),
+  textColor: varchar('text_color', { length: 20 }),
   apiKey: text('api_key').unique(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -141,6 +107,15 @@ export const services = pgTable('services', {
 }, (table) => [
   unique().on(table.serviceId, table.agencyId),
 ]);
+
+export const plans = pgTable('plans', {
+  id: serial('id').primaryKey(),
+  clientId: integer('client_id').references(() => clients.id),
+  planData: json('plan_data').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  agencyId: integer('agency_id').references(() => agencies.id),
+});
 
 export const usersRelations = relations(users, ({ many, one }) => ({
   activityLogs: many(activityLogs),
@@ -174,7 +149,6 @@ export const passwordResetTokensRelations = relations(passwordResetTokens, ({ on
 export const agenciesRelations = relations(agencies, ({ many }) => ({
   clients: many(clients),
   services: many(services),
-  plans: many(plans),
 }));
 
 export const clientsRelations = relations(clients, ({ one, many }) => ({
@@ -185,36 +159,20 @@ export const clientsRelations = relations(clients, ({ one, many }) => ({
   plans: many(plans),
 }));
 
-export const plansRelations = relations(plans, ({ one, many }) => ({
+export const servicesRelations = relations(services, ({ one }) => ({
+  agency: one(agencies, {
+    fields: [services.agencyId],
+    references: [agencies.id],
+  }),
+}));
+
+export const plansRelations = relations(plans, ({ one }) => ({
   client: one(clients, {
     fields: [plans.clientId],
     references: [clients.id],
   }),
   agency: one(agencies, {
     fields: [plans.agencyId],
-    references: [agencies.id],
-  }),
-  recommendations: many(planRecommendations),
-  websiteAnalysis: many(websiteAnalyses),
-}));
-
-export const planRecommendationsRelations = relations(planRecommendations, ({ one }) => ({
-  plan: one(plans, {
-    fields: [planRecommendations.planId],
-    references: [plans.id],
-  }),
-}));
-
-export const websiteAnalysesRelations = relations(websiteAnalyses, ({ one }) => ({
-  plan: one(plans, {
-    fields: [websiteAnalyses.planId],
-    references: [plans.id],
-  }),
-}));
-
-export const servicesRelations = relations(services, ({ one }) => ({
-  agency: one(agencies, {
-    fields: [services.agencyId],
     references: [agencies.id],
   }),
 }));
@@ -233,10 +191,6 @@ export type Client = typeof clients.$inferSelect;
 export type NewClient = typeof clients.$inferInsert;
 export type Plan = typeof plans.$inferSelect;
 export type NewPlan = typeof plans.$inferInsert;
-export type PlanRecommendation = typeof planRecommendations.$inferSelect;
-export type NewPlanRecommendation = typeof planRecommendations.$inferInsert;
-export type WebsiteAnalysis = typeof websiteAnalyses.$inferSelect;
-export type NewWebsiteAnalysis = typeof websiteAnalyses.$inferInsert;
 
 export enum ActivityType {
   SIGN_UP = 'SIGN_UP',

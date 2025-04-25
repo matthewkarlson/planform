@@ -6,13 +6,13 @@ async function seedServices() {
   console.log('Starting service seed process for Planform.ai...');
 
   // Clean up existing services for Planform.ai
-  console.log('Cleaning up existing services for agencyId=1...');
-  await db.delete(services).where(eq(services.agencyId, 1));
+  console.log('Cleaning up existing services for agencyId=2...');
+  await db.delete(services).where(eq(services.agencyId, 2));
   
-  // Define 10 services for Planform agency
+  // Define 20 services for Planform agency
   const planformServices = [
     {
-      agencyId: 1, // Planform.ai
+      agencyId: 2, // Planform.ai
       serviceId: 'brand_strategy',
       name: 'Brand Strategy',
       description: 'Comprehensive brand strategy development tailored for your market.',
@@ -22,7 +22,7 @@ async function seedServices() {
         'Cohesive visual identity system', 
         'Elevated brand perception'
       ],
-      priceLower: 10000,
+      priceLower: 20000,
       priceUpper: 25000,
       whenToRecommend: [
         'Brand feels generic or outdated',
@@ -31,7 +31,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 1,
+      agencyId: 2,
       serviceId: 'website_redesign',
       name: 'Website Redesign',
       description: 'Complete redesign of your digital presence with custom design and content strategy.',
@@ -41,7 +41,7 @@ async function seedServices() {
         'Reduced bounce rate',
         'Increased average time on site'
       ],
-      priceLower: 15000,
+      priceLower: 25000,
       priceUpper: 40000,
       whenToRecommend: [
         'Website feels outdated',
@@ -51,7 +51,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 1,
+      agencyId: 2,
       serviceId: 'seo_optimization',
       name: 'SEO Optimization',
       description: 'Comprehensive search engine optimization to improve rankings and traffic.',
@@ -71,7 +71,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 1,
+      agencyId: 2,
       serviceId: 'content_marketing',
       name: 'Content Marketing Strategy',
       description: 'Strategic content creation and distribution to engage your audience and drive business results.',
@@ -82,7 +82,7 @@ async function seedServices() {
         'Better lead quality and conversion'
       ],
       priceLower: 4000,
-      priceUpper: 12000,
+      priceUpper: 22000,
       whenToRecommend: [
         'Inconsistent content production',
         'Low engagement with current content',
@@ -91,7 +91,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 1,
+      agencyId: 2,
       serviceId: 'ecommerce_optimization',
       name: 'E-Commerce Optimization',
       description: 'Comprehensive analysis and improvement of your online store to maximize sales and customer satisfaction.',
@@ -102,7 +102,7 @@ async function seedServices() {
         'Improved customer satisfaction'
       ],
       priceLower: 6000,
-      priceUpper: 18000,
+      priceUpper: 28000,
       whenToRecommend: [
         'High shopping cart abandonment',
         'Low product page conversion',
@@ -111,7 +111,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 1,
+      agencyId: 2,
       serviceId: 'marketing_automation',
       name: 'Marketing Automation',
       description: 'Implementation of automated marketing processes to nurture leads and increase efficiency.',
@@ -122,7 +122,7 @@ async function seedServices() {
         'Improved conversion rates'
       ],
       priceLower: 5000,
-      priceUpper: 15000,
+      priceUpper: 25000,
       whenToRecommend: [
         'Manual marketing processes',
         'Inconsistent follow-up with leads',
@@ -131,7 +131,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 1,
+      agencyId: 2,
       serviceId: 'social_media_strategy',
       name: 'Social Media Strategy',
       description: 'Develop a comprehensive social media strategy to build your brand and engage your audience.',
@@ -142,7 +142,7 @@ async function seedServices() {
         'Higher social conversion'
       ],
       priceLower: 4000,
-      priceUpper: 10000,
+      priceUpper: 20000,
       whenToRecommend: [
         'Inconsistent social presence',
         'Low engagement metrics',
@@ -151,7 +151,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 1,
+      agencyId: 2,
       serviceId: 'conversion_rate_optimization',
       name: 'Conversion Rate Optimization',
       description: 'Data-driven approach to optimize your website and marketing for maximum conversions.',
@@ -162,7 +162,7 @@ async function seedServices() {
         'Data-backed design decisions'
       ],
       priceLower: 5000,
-      priceUpper: 12000,
+      priceUpper: 22000,
       whenToRecommend: [
         'Low website conversion rates',
         'High traffic but low conversion',
@@ -171,7 +171,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 1,
+      agencyId: 2,
       serviceId: 'digital_advertising',
       name: 'Digital Advertising Management',
       description: 'Strategic management of paid digital channels to drive targeted traffic and conversions.',
@@ -182,7 +182,7 @@ async function seedServices() {
         'Improved targeting precision'
       ],
       priceLower: 4000,
-      priceUpper: 15000,
+      priceUpper: 25000,
       whenToRecommend: [
         'Ineffective ad campaigns',
         'High cost per acquisition',
@@ -191,7 +191,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 1,
+      agencyId: 2,
       serviceId: 'market_research',
       name: 'Market Research & Analysis',
       description: 'Comprehensive research to understand your market, competitors, and customers.',
@@ -225,7 +225,7 @@ async function seedServices() {
 seedServices()
   .catch((error) => {
     console.error('Service seed process failed:', error);
-    process.exit(1);
+    process.exit(2);
   })
   .finally(() => {
     console.log('Service seed process finished. Exiting...');
