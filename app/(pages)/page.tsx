@@ -236,7 +236,7 @@ Most visitors bounce before they ever talk to you. Planform captures them with a
           </div>
           
           <div className="mt-16 text-center">
-            <Link href="/planform">
+            <Link href="/waitlist">
               <Button className="text-lg rounded-full bg-indigo-700 hover:bg-indigo-800 text-white px-8 py-6">
               Convert More Clients
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -322,7 +322,7 @@ Most visitors bounce before they ever talk to you. Planform captures them with a
           </div>
           
           <div className="mt-12 text-center">
-            <Link href="/planform">
+            <Link href="/waitlist">
               <Button
                 size="lg"
                 className="rounded-full bg-indigo-700 hover:bg-indigo-800 text-white"
@@ -345,7 +345,7 @@ Most visitors bounce before they ever talk to you. Planform captures them with a
             We're opening 2 more pilot spots this week.
           </p>
           
-          <Link href="/planform">
+          <Link href="/waitlist">
             <Button
               size="lg"
               className="rounded-full bg-indigo-700 hover:bg-indigo-800 text-white px-8 py-6 text-xl"

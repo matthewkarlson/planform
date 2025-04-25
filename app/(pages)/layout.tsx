@@ -83,7 +83,7 @@ function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer">
-          <Link href="/arena" className="flex w-full items-center">
+          <Link href="/waitlist" className="flex w-full items-center">
             <Sword className="mr-2 h-4 w-4" />
             <span>Planform.ai</span>
           </Link>

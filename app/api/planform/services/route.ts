@@ -1,43 +1,46 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
-import { services } from '@/lib/db/schema';
-import { getUser } from '@/lib/db/queries';
-import { eq } from 'drizzle-orm';
+import { services, agencies } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
 
+// Simple API key validation - in a real app, you would use a more secure method
+// and store API keys securely in a database with proper validation
 export async function GET(request: Request) {
   try {
-    // Check if user is logged in
-    const user = await getUser();
-    if (!user) {
+    const { searchParams } = new URL(request.url);
+    const apiKey = searchParams.get('apiKey');
+
+    // Require API key authentication
+    if (!apiKey) {
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'Valid API key required' },
         { status: 401 }
       );
     }
 
-    // Get agency ID from URL query parameter
-    const url = new URL(request.url);
-    const agencyId = url.searchParams.get('agencyId');
+    // First, find the agency by API key
+    const agency = await db.query.agencies.findFirst({
+      where: eq(agencies.apiKey, apiKey),
+      columns: {
+        id: true
+      }
+    });
 
-    if (!agencyId) {
-      return NextResponse.json(
-        { error: 'Agency ID is required' },
-        { status: 400 }
-      );
+    if (!agency) {
+      return NextResponse.json({ error: 'Agency not found' }, { status: 404 });
     }
 
-    // Fetch services filtered by agency ID
-    const agencyServices = await db
-      .select()
-      .from(services)
-      .where(eq(services.agencyId, parseInt(agencyId)));
-    
+    // Then fetch services for this agency
+    const agencyServices = await db.query.services.findMany({
+      where: and(
+        eq(services.agencyId, agency.id),
+        eq(services.isActive, true)
+      )
+    });
+
     return NextResponse.json(agencyServices);
   } catch (error) {
     console.error('Error fetching services:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch services' }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch services' }, { status: 500 });
   }
 } 

@@ -15,6 +15,45 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
+const RATE_LIMIT_MAX = 10; // Maximum 10 requests per hour
+
+// Simple in-memory store for rate limiting
+// Note: This will reset on server restart and doesn't work across multiple instances
+// For production, use Redis or another persistent store
+type RateLimitStore = {
+  [key: string]: {
+    count: number;
+    resetAt: number;
+  }
+};
+
+const rateLimitStore: RateLimitStore = {};
+
+// Rate limit function
+function checkRateLimit(identifier: string): { allowed: boolean; resetAt: number; current: number; limit: number } {
+  const now = Date.now();
+  
+  // Initialize or reset expired entries
+  if (!rateLimitStore[identifier] || now > rateLimitStore[identifier].resetAt) {
+    rateLimitStore[identifier] = {
+      count: 0,
+      resetAt: now + RATE_LIMIT_WINDOW
+    };
+  }
+  
+  // Increment count
+  rateLimitStore[identifier].count += 1;
+  
+  return {
+    allowed: rateLimitStore[identifier].count <= RATE_LIMIT_MAX,
+    resetAt: rateLimitStore[identifier].resetAt,
+    current: rateLimitStore[identifier].count,
+    limit: RATE_LIMIT_MAX
+  };
+}
+
 // Maximum number of screenshots to keep
 const MAX_SCREENSHOTS = 10;
 
@@ -23,6 +62,7 @@ interface ClientResponses {
   [key: string]: string | string[] | undefined;
   websiteUrl?: string;
   agencyId?: string;
+  apiKey?: string;
 }
 
 // Define the structure for service recommendations
@@ -124,26 +164,53 @@ async function findChromeExecutable(): Promise<string | null> {
 
 export async function POST(request: Request) {
   try {
-    // Check if user is logged in and verified
+    // Parse the request body
+    const clientResponses: ClientResponses = await request.json();
+    
+    // Get API key from request body instead of URL parameters for better security
+    const apiKey = clientResponses.apiKey as string;
     const user = await getUser();
-    if (!user) {
+    
+    // Create an identifier for rate limiting (use API key, user ID, or IP)
+    const identifier = apiKey || (user?.id?.toString() || '') || request.headers.get('x-forwarded-for') || 'anonymous';
+    
+    // Check rate limit
+    const rateLimit = checkRateLimit(identifier);
+    
+    // If rate limit exceeded, return 429 Too Many Requests
+    if (!rateLimit.allowed) {
+      const resetDate = new Date(rateLimit.resetAt).toISOString();
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { 
+          error: 'Rate limit exceeded',
+          resetAt: resetDate,
+          current: rateLimit.current,
+          limit: rateLimit.limit
+        }, 
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': rateLimit.limit.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': resetDate,
+            'Retry-After': Math.ceil((rateLimit.resetAt - Date.now()) / 1000).toString()
+          }
+        }
       );
+    }
+    
+    if (!apiKey && !user) {
+      return NextResponse.json({ error: 'Authentication via api key or user is required' }, { status: 401 });
     }
 
     // Check if user's email is verified
-    if (!user.isVerified) {
+    if (user && !user.isVerified) {
       return NextResponse.json(
         { error: 'Email verification required to use this feature' },
         { status: 403 }
       );
     }
 
-    // Parse the request body
-    const clientResponses: ClientResponses = await request.json();
-    
     // Check for agency ID
     if (!clientResponses.agencyId) {
       return NextResponse.json(

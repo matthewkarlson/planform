@@ -6,19 +6,17 @@ import { eq } from 'drizzle-orm';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const apiKey = searchParams.get('apiKey');
 
-    if (!id) {
-      return NextResponse.json({ error: 'Agency ID is required' }, { status: 400 });
+    // Require API key authentication 
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'Valid API key required' },
+        { status: 401 }
+      );
     }
-
-    const agencyId = parseInt(id);
-    if (isNaN(agencyId)) {
-      return NextResponse.json({ error: 'Invalid agency ID format' }, { status: 400 });
-    }
-
     const agency = await db.query.agencies.findFirst({
-      where: eq(agencies.id, agencyId),
+      where: eq(agencies.apiKey, apiKey),
       columns: {
         id: true,
         name: true,
@@ -26,7 +24,9 @@ export async function GET(request: Request) {
         contactNumber: true,
         email: true,
         bookingLink: true,
-        primaryColor: true
+        primaryColor: true,
+        secondaryColor: true,
+        backgroundColor: true
       }
     });
 
