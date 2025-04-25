@@ -7,12 +7,11 @@ async function seedServices() {
 
   // Clean up existing services for Planform.ai
   console.log('Cleaning up existing services for agencyId=2...');
-  await db.delete(services).where(eq(services.agencyId, 2));
   
-  // Define 20 services for Planform agency
+  // Define 10 services for Planform agency
   const planformServices = [
     {
-      agencyId: 2, // Planform.ai
+      agencyId: 1, // Planform.ai
       serviceId: 'brand_strategy',
       name: 'Brand Strategy',
       description: 'Comprehensive brand strategy development tailored for your market.',
@@ -31,7 +30,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 2,
+      agencyId: 1,
       serviceId: 'website_redesign',
       name: 'Website Redesign',
       description: 'Complete redesign of your digital presence with custom design and content strategy.',
@@ -51,7 +50,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 2,
+      agencyId: 1,
       serviceId: 'seo_optimization',
       name: 'SEO Optimization',
       description: 'Comprehensive search engine optimization to improve rankings and traffic.',
@@ -71,7 +70,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 2,
+      agencyId: 1,
       serviceId: 'content_marketing',
       name: 'Content Marketing Strategy',
       description: 'Strategic content creation and distribution to engage your audience and drive business results.',
@@ -91,7 +90,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 2,
+      agencyId: 1,
       serviceId: 'ecommerce_optimization',
       name: 'E-Commerce Optimization',
       description: 'Comprehensive analysis and improvement of your online store to maximize sales and customer satisfaction.',
@@ -111,7 +110,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 2,
+      agencyId: 1,
       serviceId: 'marketing_automation',
       name: 'Marketing Automation',
       description: 'Implementation of automated marketing processes to nurture leads and increase efficiency.',
@@ -131,7 +130,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 2,
+      agencyId: 1,
       serviceId: 'social_media_strategy',
       name: 'Social Media Strategy',
       description: 'Develop a comprehensive social media strategy to build your brand and engage your audience.',
@@ -151,7 +150,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 2,
+      agencyId: 1,
       serviceId: 'conversion_rate_optimization',
       name: 'Conversion Rate Optimization',
       description: 'Data-driven approach to optimize your website and marketing for maximum conversions.',
@@ -171,7 +170,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 2,
+      agencyId: 1,
       serviceId: 'digital_advertising',
       name: 'Digital Advertising Management',
       description: 'Strategic management of paid digital channels to drive targeted traffic and conversions.',
@@ -191,7 +190,7 @@ async function seedServices() {
       ]
     },
     {
-      agencyId: 2,
+      agencyId: 1,
       serviceId: 'market_research',
       name: 'Market Research & Analysis',
       description: 'Comprehensive research to understand your market, competitors, and customers.',

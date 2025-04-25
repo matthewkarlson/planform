@@ -209,6 +209,8 @@ export async function POST(request: Request) {
       where: eq(agencies.apiKey, apiKey),
       columns: {
         id: true,
+        name: true,
+        description: true,
       },
     });
     
@@ -416,7 +418,6 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
-
     // Create a prompt for OpenAI
     const prompt = `
       I have a client with the following responses to a questionnaire:
@@ -432,6 +433,10 @@ export async function POST(request: Request) {
       Your response will be shown to the client so it should be addressed to them.
       You should be specific with the transformation that the service you are recommending will deliver to the client.
     `;
+    const systemPrompt = `
+      You are an expert business consultant that works for ${agency.name} and helps match client needs to appropriate services. Provide structured, specific recommendations that are directly tied to the client's responses.
+      a brief description of the agency is: ${agency.description}. Keep this in mind and remember you work for this agency.
+    `;
 
     // Call OpenAI using the responses API with structured schema
     const aiResponse = await openai.responses.create({
@@ -439,7 +444,7 @@ export async function POST(request: Request) {
       input: [
         {
           role: "system",
-          content: "You are an expert business consultant that helps match client needs to appropriate services. Provide structured, specific recommendations that are directly tied to the client's responses."
+          content: systemPrompt
         },
         {
           role: "user",
