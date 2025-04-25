@@ -268,7 +268,7 @@ type AgencyData = {
 };
 
 export default function PlanformPage() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [analysisResponse, setAnalysisResponse] = useState<AnalysisResponse | null>(null);
@@ -369,7 +369,9 @@ export default function PlanformPage() {
   };
 
   const handleNext = () => {
-    if (currentStep < totalSteps) {
+    if (currentStep === 0) {
+      setCurrentStep(1);
+    } else if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     }
   };
@@ -377,6 +379,8 @@ export default function PlanformPage() {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
+    } else if (currentStep === 1) {
+      setCurrentStep(0);
     }
   };
 
@@ -439,6 +443,8 @@ export default function PlanformPage() {
   };
 
   const isStepValid = () => {
+    if (currentStep === 0) return true;
+    
     if (!currentQuestions) return false;
     
     return currentQuestions.fields.every((field) => {
@@ -598,22 +604,61 @@ export default function PlanformPage() {
   return (
       <Card className="w-full border-0 shadow-none" style={getCardStyle()}>
         <CardHeader className="px-4 sm:px-6">
-          <CardTitle className="text-2xl">{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
-          {currentQuestions?.description && (
+          {currentStep === 0 ? (
+            <CardTitle className="text-2xl">Marketing Strategy Planner</CardTitle>
+          ) : (
+            <CardTitle className="text-2xl">{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
+          )}
+          {currentStep === 0 ? (
+            <p className="text-sm text-muted-foreground mt-1">
+              Answer a few questions about your business to get a personalized marketing strategy.
+            </p>
+          ) : currentQuestions?.description && (
             <p className="text-sm text-muted-foreground mt-1">{currentQuestions.description}</p>
           )}
-          <div className="text-sm text-muted-foreground mt-2">
-            Step {currentStep} of {totalSteps}
-          </div>
+          {currentStep > 0 && (
+            <div className="text-sm text-muted-foreground mt-2">
+              Step {currentStep} of {totalSteps}
+            </div>
+          )}
         </CardHeader>
         <CardContent className="space-y-6 px-4 sm:px-6">
-          {currentQuestions?.fields.map((field) => renderField(field))}
+          {currentStep === 0 ? (
+            <div className="flex flex-col items-center space-y-6 py-4">
+              {agency?.logoUrl && (
+                <div className="w-48 h-48 flex items-center justify-center">
+                  <img 
+                    src={agency.logoUrl} 
+                    alt={`${agency.name} logo`} 
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+              )}
+              <div className="text-center space-y-4">
+                <h3 className="text-xl font-semibold">
+                  {agency?.name ? `Welcome to ${agency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner'}
+                </h3>
+                <div className="space-y-2 text-left">
+                  <p>This short questionnaire will help us understand your business and create a personalized marketing strategy for you.</p>
+                  <p>Here's what to expect:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>10 simple questions about your business</li>
+                    <li>Takes about 3-5 minutes to complete</li>
+                    <li>Get instant recommendations based on your answers</li>
+                  </ul>
+                  <p className="mt-4">Your responses will help us tailor our recommendations specifically to your business needs.</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            currentQuestions?.fields.map((field) => renderField(field))
+          )}
         </CardContent>
         <CardFooter className="flex justify-between border-t pt-4 px-4 sm:px-6">
           <Button
             variant="outline"
             onClick={handleBack}
-            disabled={currentStep === 1 || isSubmitting}
+            disabled={currentStep === 0 || isSubmitting}
           >
             <ChevronLeft className="mr-2 h-4 w-4" /> Back
           </Button>
@@ -626,6 +671,8 @@ export default function PlanformPage() {
               <>Processing...</>
             ) : currentStep === totalSteps ? (
               <>Submit</>
+            ) : currentStep === 0 ? (
+              <>Get Your Plan <ChevronRight className="ml-2 h-4 w-4" /></>
             ) : (
               <>Next <ChevronRight className="ml-2 h-4 w-4" /></>
             )}
