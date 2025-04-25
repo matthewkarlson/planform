@@ -18,8 +18,7 @@ export default function HomePage() {
                 Built for marketing agencies that want more leads without more manual work.
               </p>
               <p className="mt-3 text-base text-gray-500 sm:mt-7 sm:text-xl lg:text-lg xl:text-xl">
-                Your "Book a free consultation" button is costing you sales. We bridge the gap between leads visiting your site and booking a call - 
-                With personalised growth plans built from your real offerings and services.
+Most visitors bounce before they ever talk to you. Planform captures them with a personalized marketing plan tied to your actual services—so you stop leaving money on the table.
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                 <Link
@@ -53,6 +52,67 @@ export default function HomePage() {
 
       <section className="py-16 bg-white w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Why Your Current Funnel Is Losing You Leads</h2>
+          <p className="text-lg text-gray-700 mb-4">
+            Most agency sites rely on "Book a Free Consultation" CTAs. That's too much, too soon—and your best leads bounce.
+          </p>
+          <p className="text-lg text-gray-700 mb-6">
+            Planform fixes that with:
+          </p>
+          <div className="space-y-3 mb-8">
+            <p className="flex items-start text-lg">
+              <CheckCircle className="h-6 w-6 text-indigo-600 mr-2 flex-shrink-0" />
+              <span>A custom growth plan built from your services</span>
+            </p>
+            <p className="flex items-start text-lg">
+              <CheckCircle className="h-6 w-6 text-indigo-600 mr-2 flex-shrink-0" />
+              <span>Instant feedback on their website to hook attention</span>
+            </p>
+            <p className="flex items-start text-lg">
+              <CheckCircle className="h-6 w-6 text-indigo-600 mr-2 flex-shrink-0" />
+              <span>Zero manual work for you or your team</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">You'll Get the Most Value From Planform If:</h2>
+          <div className="space-y-3 mb-8">
+            <p className="flex items-start text-lg">
+              <Target className="h-6 w-6 text-indigo-600 mr-2 flex-shrink-0" />
+              <span>You're manually doing audits or proposals to qualify leads</span>
+            </p>
+            <p className="flex items-start text-lg">
+              <Target className="h-6 w-6 text-indigo-600 mr-2 flex-shrink-0" />
+              <span>You know traffic's coming in—but few book calls</span>
+            </p>
+            <p className="flex items-start text-lg">
+              <Target className="h-6 w-6 text-indigo-600 mr-2 flex-shrink-0" />
+              <span>You want to look bigger and more professional without hiring more staff</span>
+            </p>
+            <p className="flex items-start text-lg">
+              <Target className="h-6 w-6 text-indigo-600 mr-2 flex-shrink-0" />
+              <span>You're tired of "free consultation" CTAs that lead nowhere</span>
+            </p>
+          </div>
+          <div className="mt-8 flex justify-center lg:justify-end">
+            <Link href="/planform">
+              <Button
+                size="lg"
+                className="text-lg rounded-full bg-indigo-700 hover:bg-indigo-800 text-white"
+              >
+                Fix your funnel
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-white w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-3 lg:gap-8">
             <div>
               <div className="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-700 text-white">
@@ -60,10 +120,10 @@ export default function HomePage() {
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                Personalized Plans That Actually Convert
+                🧠 Personalized Plans That Convert
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-Don't let leads walk away. We turn your real services into a tailored plan that gives visitors a reason to book a call—based on exactly what you offer.
+                We turn your services into a custom plan that helps visitors understand exactly how you'll help them—and why they should book with you.
                 </p>
               </div>
             </div>
@@ -74,12 +134,10 @@ Don't let leads walk away. We turn your real services into a tailored plan that 
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                 Tailored to Your Agency, Not a Template
+                🎛 Tailored to Your Agency
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-No generic audits. Your tool is fully customized to your services, language, and offers—so every visitor gets a plan that feels like it came from you.
-
-
+                No templates. Planform uses your real offers, packages, and brand language—so every plan feels like you wrote it.
                 </p>
               </div>
             </div>
@@ -90,10 +148,10 @@ No generic audits. Your tool is fully customized to your services, language, and
               </div>
               <div className="mt-5">
                 <h2 className="text-lg font-medium text-gray-900">
-                From Site Visit to Booked Call—Fast 
+                📈 From Visit to Call in One Click
                 </h2>
                 <p className="mt-2 text-base text-gray-500">
-Most leads bounce before they ever talk to you. Planform bridges the gap with instant value—so they book faster and show up ready to buy.
+                Forget PDFs, forms, or follow-up emails. Your visitors get value instantly, and your team gets qualified leads ready to talk.
                 </p>
               </div>
             </div>
@@ -102,27 +160,17 @@ Most leads bounce before they ever talk to you. Planform bridges the gap with in
       </section>
 
       <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-                Booking a call is a big step.
-              </h2>
-              <p className="mt-3 max-w-3xl text-lg text-gray-500">
-                Stop letting your leads bounce off your site because they aren't ready to book a call.
-                With our powerful lead magnet, leads get to move gradually from site visitor, to lead, to customer.
-              </p>
-            </div>
-            <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
-              <Link href="/planform">
-                <Button
-                  size="lg"
-                  className="text-lg rounded-full bg-indigo-700 hover:bg-indigo-800 text-white"
-                >
-                  Fix your funnel
-                <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white p-8 rounded-lg shadow-sm">
+            <p className="text-xl italic text-gray-800 mb-4">
+              "We replaced our old contact form with Planform and saw 3x more qualified leads in the first two weeks."
+            </p>
+            <div className="flex items-center">
+              <div className="h-12 w-12 rounded-full bg-gray-200 mr-4"></div>
+              <div>
+                <p className="font-medium">Jordan M.</p>
+                <p className="text-sm text-gray-500">Founder at Lightbridge Studio</p>
+              </div>
             </div>
           </div>
         </div>
@@ -284,6 +332,29 @@ Most leads bounce before they ever talk to you. Planform bridges the gap with in
               </Button>
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-indigo-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Be One of the First Agencies to Use This</h2>
+          <p className="text-xl text-gray-700 mb-2">
+            Planform is in private beta for small, fast-moving agencies.
+          </p>
+          <p className="text-xl text-gray-700 mb-8">
+            We're opening 2 more pilot spots this week.
+          </p>
+          
+          <Link href="/planform">
+            <Button
+              size="lg"
+              className="rounded-full bg-indigo-700 hover:bg-indigo-800 text-white px-8 py-6 text-xl"
+            >
+              Try Planform Free
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+          <p className="text-sm text-gray-500 mt-4">(Takes 5 mins to install. No dev needed.)</p>
         </div>
       </section>
     </main>
