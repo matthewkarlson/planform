@@ -211,6 +211,7 @@ export async function POST(request: Request) {
         id: true,
         name: true,
         description: true,
+        currency: true,
       },
     });
     
@@ -497,7 +498,7 @@ export async function POST(request: Request) {
       clientResponses,
       recommendations: parsedResponse.recommendations,
       executiveSummary: parsedResponse.executiveSummary,
-      totalEstimatedCost: calculateTotalCost(parsedResponse.recommendations, agencyServices),
+      totalEstimatedCost: calculateTotalCost(parsedResponse.recommendations, agencyServices, agency.currency),
       websiteAnalysis: websiteAnalysis,
       // Check environment for how to return screenshot data
       screenshotUrl: process.env.NODE_ENV === 'development' && screenshotId ? 
@@ -556,7 +557,8 @@ export async function POST(request: Request) {
 // Helper function to calculate total cost based on recommended services
 function calculateTotalCost(
   recommendations: ServiceRecommendation[], 
-  allServices: typeof services.$inferSelect[]
+  allServices: typeof services.$inferSelect[],
+  currency: string | null
 ) {
   let minTotal = 0;
   let maxTotal = 0;
@@ -579,6 +581,6 @@ function calculateTotalCost(
   return {
     minTotal,
     maxTotal,
-    formattedRange: minTotal && maxTotal ? `$${minTotal.toLocaleString()} - $${maxTotal.toLocaleString()}` : 'Price upon request'
+    formattedRange: minTotal && maxTotal ? `${currency} ${minTotal.toLocaleString()} - ${currency} ${maxTotal.toLocaleString()}` : 'Price upon request'
   };
 } 

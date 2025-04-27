@@ -89,6 +89,7 @@ export const agencies = pgTable('agencies', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   isActive: boolean('is_active').default(true),
+  currency: varchar('currency', { length: 1 }).default('$'),
 });
 
 export const services = pgTable('services', {
