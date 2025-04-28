@@ -530,11 +530,20 @@ export async function POST(request: Request) {
           client = newClient;
         }
 
-        // Store the plan data
+        // Create a clean version of the response data without screenshot information
+        const cleanResponseData = {
+          clientResponses,
+          recommendations: parsedResponse.recommendations,
+          executiveSummary: parsedResponse.executiveSummary,
+          totalEstimatedCost: calculateTotalCost(parsedResponse.recommendations, agencyServices, agency.currency),
+          websiteAnalysis: websiteAnalysis,
+        };
+
+        // Store the plan data without screenshot information
         await db.insert(plans).values({
           clientId: client.id,
           agencyId: agency.id,
-          planData: response,
+          planData: cleanResponseData,
         });
 
         console.log(`Plan saved for client: ${client.email}`);
