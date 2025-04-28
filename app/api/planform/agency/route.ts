@@ -26,7 +26,8 @@ export async function GET(request: Request) {
         bookingLink: true,
         primaryColor: true,
         secondaryColor: true,
-        backgroundColor: true
+        backgroundColor: true,
+        currency: true
       }
     });
 

@@ -33,6 +33,7 @@ type AgencyData = {
   primaryColor: string | null;
   backgroundColor?: string;
   secondaryColor?: string;
+  currency: string;
 };
 
 // Define website analysis type
@@ -356,7 +357,7 @@ function Results() {
               <CardTitle className="text-2xl" style={getHeaderStyle()}>{service.name}</CardTitle>
               <div className="text-gray-500 mt-1">
                 {service.priceLower && service.priceUpper ? 
-                  `$${service.priceLower.toLocaleString()} - $${service.priceUpper.toLocaleString()}` : 
+                  `${agency?.currency} ${service.priceLower.toLocaleString()} - ${agency?.currency} ${service.priceUpper.toLocaleString()}` : 
                   'Price upon request'}
               </div>
             </CardHeader>

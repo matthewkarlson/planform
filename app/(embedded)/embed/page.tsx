@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Define type for different field types
 type BaseField = {
@@ -40,7 +41,13 @@ type CheckboxField = BaseField & {
   options: Array<{ value: string; label: string }>;
 };
 
-type Field = TextField | TextareaField | RadioField | CheckboxField;
+type DropdownField = BaseField & {
+  type: 'dropdown';
+  options: Array<{ value: string; label: string }>;
+  placeholder?: string;
+};
+
+type Field = TextField | TextareaField | RadioField | CheckboxField | DropdownField;
 
 type Question = {
   step: number;
@@ -89,6 +96,26 @@ const questions: Question[] = [
   },
   {
     step: 3,
+    title: "Business Experience",
+    fields: [
+      {
+        id: 'businessExperience',
+        label: 'How long have you been in business?',
+        type: 'dropdown',
+        placeholder: 'Select your experience level',
+        options: [
+          { value: 'less_than_1', label: 'Less than 1 year' },
+          { value: '1_to_2', label: '1-2 years' },
+          { value: '3_to_5', label: '3-5 years' },
+          { value: '5_to_10', label: '5-10 years' },
+          { value: 'more_than_10', label: 'More than 10 years' },
+        ],
+        required: true,
+      },
+    ],
+  },
+  {
+    step: 4,
     title: "Primary Goal",
     description: "What's your #1 goal over the next 3–6 months?",
     fields: [
@@ -109,7 +136,7 @@ const questions: Question[] = [
     ],
   },
   {
-    step: 4,
+    step: 5,
     title: "Current Marketing Activities",
     description: "Check all that apply",
     fields: [
@@ -131,7 +158,7 @@ const questions: Question[] = [
     ],
   },
   {
-    step: 5,
+    step: 6,
     title: "Past Challenges",
     fields: [
       {
@@ -144,7 +171,7 @@ const questions: Question[] = [
     ],
   },
   {
-    step: 6,
+    step: 7,
     title: "Conversion Flow",
     fields: [
       {
@@ -157,7 +184,7 @@ const questions: Question[] = [
     ],
   },
   {
-    step: 7,
+    step: 8,
     title: "Current Challenges",
     fields: [
       {
@@ -177,7 +204,7 @@ const questions: Question[] = [
     ],
   },
   {
-    step: 8,
+    step: 9,
     title: "Differentiation",
     fields: [
       {
@@ -190,7 +217,7 @@ const questions: Question[] = [
     ],
   },
   {
-    step: 9,
+    step: 10,
     title: "Website Traffic",
     fields: [
       {
@@ -208,7 +235,7 @@ const questions: Question[] = [
     ],
   },
   {
-    step: 10,
+    step: 11,
     title: "Contact Information",
     description: "So we can send you your full strategy plan.",
     fields: [
@@ -594,6 +621,31 @@ export default function PlanformPage() {
                 </div>
               ))}
             </div>
+          </div>
+        );
+      case 'dropdown':
+        return (
+          <div key={field.id} className="space-y-1.5">
+            <Label htmlFor={field.id}>{field.label}</Label>
+            <Select
+              value={answers[field.id] as string || ''}
+              onValueChange={(value: string) => handleInputChange(field.id, value)}
+            >
+              <SelectTrigger
+                id={field.id}
+                className="w-full"
+                style={agency?.primaryColor ? { borderColor: agency.primaryColor, '--focus-ring-color': agency.primaryColor } as React.CSSProperties : undefined}
+              >
+                <SelectValue placeholder={field.placeholder || "Select an option"} />
+              </SelectTrigger>
+              <SelectContent>
+                {field.options.map((option) => (
+                  <SelectItem key={`${field.id}-${option.value}`} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         );
       default:
