@@ -49,6 +49,14 @@ export const agencies = pgTable('agencies', {
   teamId: integer('team_id').references(() => teams.id),
 });
 
+export const questionsSets = pgTable('questions_sets', {
+  id: serial('id').primaryKey(),
+  agencyId: integer('agency_id').notNull().references(() => agencies.id).unique(),
+  questions: json('questions').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }),
@@ -175,6 +183,10 @@ export const agenciesRelations = relations(agencies, ({ many, one }) => ({
     references: [teams.id],
   }),
   users: many(users),
+  questionsSet: one(questionsSets, {
+    fields: [agencies.id],
+    references: [questionsSets.agencyId],
+  }),
 }));
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -261,6 +273,13 @@ export const plansRelations = relations(plans, ({ one }) => ({
   }),
 }));
 
+export const questionsSetsRelations = relations(questionsSets, ({ one }) => ({
+  agency: one(agencies, {
+    fields: [questionsSets.agencyId],
+    references: [agencies.id],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Team = typeof teams.$inferSelect;
@@ -300,3 +319,6 @@ export enum ActivityType {
   INVITE_TEAM_MEMBER = 'INVITE_TEAM_MEMBER',
   ACCEPT_INVITATION = 'ACCEPT_INVITATION',
 }
+
+export type QuestionsSets = typeof questionsSets.$inferSelect;
+export type NewQuestionsSets = typeof questionsSets.$inferInsert;

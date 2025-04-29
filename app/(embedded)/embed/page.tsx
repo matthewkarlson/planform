@@ -59,205 +59,6 @@ type Question = {
 
 type Answers = Record<string, string | string[]>;
 
-// Define the questions for the planform questionnaire
-const questions: Question[] = [
-  {
-    step: 1,
-    title: "Website Information",
-    description: "We'll use this to personalize your strategy.",
-    fields: [
-      {
-        id: 'websiteUrl',
-        label: 'What\'s your website URL?',
-        type: 'text',
-        placeholder: 'https://example.com',
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 2,
-    title: "Business Type",
-    fields: [
-      {
-        id: 'businessType',
-        label: 'What type of business do you run?',
-        type: 'radio',
-        options: [
-          { value: 'coaching', label: 'Coaching' },
-          { value: 'agency', label: 'Agency' },
-          { value: 'ecommerce', label: 'E-commerce' },
-          { value: 'saas', label: 'SaaS' },
-          { value: 'service', label: 'Service-based business' },
-          { value: 'other', label: 'Other' },
-        ],
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 3,
-    title: "Business Experience",
-    fields: [
-      {
-        id: 'businessExperience',
-        label: 'How long have you been in business?',
-        type: 'dropdown',
-        placeholder: 'Select your experience level',
-        options: [
-          { value: 'less_than_1', label: 'Less than 1 year' },
-          { value: '1_to_2', label: '1-2 years' },
-          { value: '3_to_5', label: '3-5 years' },
-          { value: '5_to_10', label: '5-10 years' },
-          { value: 'more_than_10', label: 'More than 10 years' },
-        ],
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 4,
-    title: "Primary Goal",
-    description: "What's your #1 goal over the next 3–6 months?",
-    fields: [
-      {
-        id: 'primaryGoal',
-        label: 'Pick one',
-        type: 'radio',
-        options: [
-          { value: 'traffic', label: 'Get more traffic' },
-          { value: 'leads', label: 'Generate more leads' },
-          { value: 'conversions', label: 'Improve conversions' },
-          { value: 'brand', label: 'Clarify brand/message' },
-          { value: 'launch', label: 'Launch a new offer' },
-          { value: 'revenue', label: 'Increase revenue from existing audience' },
-        ],
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 5,
-    title: "Current Marketing Activities",
-    description: "Check all that apply",
-    fields: [
-      {
-        id: 'marketingActivities',
-        label: 'What marketing activities are you currently doing?',
-        type: 'checkbox',
-        options: [
-          { value: 'paid_ads', label: 'Paid ads' },
-          { value: 'seo', label: 'SEO' },
-          { value: 'email', label: 'Email marketing' },
-          { value: 'social', label: 'Social media' },
-          { value: 'content', label: 'Content marketing' },
-          { value: 'referrals', label: 'Referrals only' },
-          { value: 'none', label: 'None yet' },
-        ],
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 6,
-    title: "Past Challenges",
-    fields: [
-      {
-        id: 'pastChallenges',
-        label: 'What\'s one thing that hasn\'t worked for you in the past — and why?',
-        type: 'textarea',
-        placeholder: 'E.g., "We ran ads but got unqualified leads"',
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 7,
-    title: "Conversion Flow",
-    fields: [
-      {
-        id: 'conversionFlow',
-        label: 'Briefly describe your current sales/conversion flow.',
-        type: 'textarea',
-        placeholder: 'How do people go from finding you → becoming a customer?',
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 8,
-    title: "Current Challenges",
-    fields: [
-      {
-        id: 'currentChallenges',
-        label: 'What do you think is holding your business back right now?',
-        type: 'radio',
-        options: [
-          { value: 'visibility', label: 'Not enough visibility' },
-          { value: 'conversion', label: 'Leads not converting' },
-          { value: 'branding', label: 'Website doesn\'t reflect our brand' },
-          { value: 'messaging', label: 'We don\'t have a clear message' },
-          { value: 'tech', label: 'Tech/setup is messy' },
-          { value: 'unsure', label: 'I\'m not sure — that\'s why I\'m here' },
-        ],
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 9,
-    title: "Differentiation",
-    fields: [
-      {
-        id: 'differentiator',
-        label: 'What makes your business different from others in your space?',
-        type: 'textarea',
-        placeholder: 'Why do customers choose you? What\'s your unfair advantage?',
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 10,
-    title: "Website Traffic",
-    fields: [
-      {
-        id: 'websiteTraffic',
-        label: 'What\'s your estimated monthly website traffic?',
-        type: 'radio',
-        options: [
-          { value: 'under1k', label: '< 1,000' },
-          { value: '1k-5k', label: '1,000–5,000' },
-          { value: '5k-10k', label: '5,000–10,000' },
-          { value: 'over10k', label: '10,000+' },
-        ],
-        required: true,
-      },
-    ],
-  },
-  {
-    step: 11,
-    title: "Contact Information",
-    description: "So we can send you your full strategy plan.",
-    fields: [
-      {
-        id: 'name',
-        label: 'What\'s your name?',
-        type: 'text',
-        placeholder: 'Your full name',
-        required: true,
-      },
-      {
-        id: 'email',
-        label: 'What\'s your email?',
-        type: 'text',
-        placeholder: 'you@example.com',
-        required: true,
-      },
-    ],
-  },
-];
-
 // Define new types for the API response
 type ServiceRecommendation = {
   serviceId: string;
@@ -302,41 +103,75 @@ export default function PlanformPage() {
   const [analysisResponse, setAnalysisResponse] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [agency, setAgency] = useState<AgencyData | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
   const router = useRouter();
 
-  // Fetch agency data if an API key is provided
+  // Fetch agency data and questions
   useEffect(() => {
-    const fetchAgencyData = async () => {
+    const fetchData = async () => {
       try {
+        setIsLoadingQuestions(true);
         const url = new URL(window.location.href);
         const apiKey = url.searchParams.get('apiKey');
+        
+        // Fetch agency details
+        let agencyData = null;
         if (apiKey) {
-          // Fetch agency details using API key
           const agencyEndpoint = `/api/planform/agency?apiKey=${apiKey}`;
           const agencyResponse = await fetch(agencyEndpoint);
           
           if (agencyResponse.ok) {
-            const agencyData = await agencyResponse.json();
+            agencyData = await agencyResponse.json();
             setAgency(agencyData);
+            
+            // After fetching agency data, fetch questions with the agency ID
+            if (agencyData?.id) {
+              const questionsEndpoint = `/api/questions?agencyId=${agencyData.id}`;
+              const questionsResponse = await fetch(questionsEndpoint);
+              
+              if (questionsResponse.ok) {
+                const data = await questionsResponse.json();
+                // The API returns the questions in a 'questions' field of the response
+                setQuestions(Array.isArray(data.questions) ? data.questions : []);
+              } else {
+                throw new Error('Failed to fetch questions');
+              }
+            }
           }
         } else {
-          // Fetch demo agency data for preview
           const agencyEndpoint = `/api/planform/agency_demo`;
           const agencyResponse = await fetch(agencyEndpoint);
+          
           if (agencyResponse.ok) {
-            const agencyData = await agencyResponse.json();
+            agencyData = await agencyResponse.json();
             setAgency(agencyData);
+            
+            // For demo mode, use a demo questions endpoint
+            const questionsResponse = await fetch('/api/planform/questions_demo');
+            
+            if (questionsResponse.ok) {
+              const data = await questionsResponse.json();
+              setQuestions(Array.isArray(data) ? data : []);
+            } else {
+              throw new Error('Failed to fetch demo questions');
+            }
           }
         }
       } catch (err) {
-        console.error('Error fetching agency data:', err);
+        console.error('Error fetching data:', err);
+        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      } finally {
+        setIsLoadingQuestions(false);
       }
     };
 
-    fetchAgencyData();
+    fetchData();
   }, []);
-  useAutosizeIframe([currentStep]); 
-  // Handle iframe resizing
+
+  useAutosizeIframe([currentStep]);
+  
+  // Find current question based on current step
   const currentQuestions = questions.find((q) => q.step === currentStep);
   const totalSteps = questions.length;
 
@@ -623,83 +458,123 @@ export default function PlanformPage() {
     }
   };
 
-  return (
-      <Card className="w-full border-0 shadow-none" style={getCardStyle()}>
+  // Show loading state while fetching questions
+  if (isLoadingQuestions) {
+    return (
+      <Card className="w-full border-0 shadow-none">
         <CardHeader className="px-4 sm:px-6">
-          {currentStep === 0 ? (
-            <CardTitle className="text-2xl">Marketing Strategy Planner</CardTitle>
-          ) : (
-            <CardTitle className="text-2xl">{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
-          )}
-          {currentStep === 0 ? (
-            <p className="text-sm text-muted-foreground mt-1">
-              Answer a few questions about your business to get a personalized marketing strategy.
-            </p>
-          ) : currentQuestions?.description && (
-            <p className="text-sm text-muted-foreground mt-1">{currentQuestions.description}</p>
-          )}
-          {currentStep > 0 && (
-            <div className="text-sm text-muted-foreground mt-2">
-              Step {currentStep} of {totalSteps}
-            </div>
-          )}
+          <CardTitle className="text-2xl">Loading...</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6 px-4 sm:px-6 flex justify-center items-center min-h-[200px]">
+          <div className="animate-pulse text-center">
+            <p>Loading questionnaire...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show error state if there was a problem fetching questions
+  if (error && questions.length === 0) {
+    return (
+      <Card className="w-full border-0 shadow-none">
+        <CardHeader className="px-4 sm:px-6">
+          <CardTitle className="text-2xl">Error</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 px-4 sm:px-6">
-          {currentStep === 0 ? (
-            <div className="flex flex-col items-center space-y-6 py-4">
-              {agency?.logoUrl && (
-                <div className="w-48 h-48 flex items-center justify-center">
-                  <img 
-                    src={agency.logoUrl} 
-                    alt={`${agency.name} logo`} 
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
-              )}
-              <div className="text-center space-y-4">
-                <h3 className="text-xl font-semibold">
-                  {agency?.name ? `Welcome to ${agency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner'}
-                </h3>
-                <div className="space-y-2 text-left">
-                  <p>This short questionnaire will help us understand your business and create a personalized marketing strategy for you.</p>
-                  <p>Here's what to expect:</p>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>10 simple questions about your business</li>
-                    <li>Takes about 3-5 minutes to complete</li>
-                    <li>Get instant recommendations based on your answers</li>
-                  </ul>
-                  <p className="mt-4">Your responses will help us tailor our recommendations specifically to your business needs.</p>
-                </div>
+          <div className="text-red-500">
+            <p>Unable to load questions: {error}</p>
+            <Button className="mt-4" onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full border-0 shadow-none" style={getCardStyle()}>
+      <CardHeader className="px-4 sm:px-6">
+        {currentStep === 0 ? (
+          <CardTitle className="text-2xl">Marketing Strategy Planner</CardTitle>
+        ) : (
+          <CardTitle className="text-2xl">{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
+        )}
+        {currentStep === 0 ? (
+          <p className="text-sm text-muted-foreground mt-1">
+            Answer a few questions about your business to get a personalized marketing strategy.
+          </p>
+        ) : currentQuestions?.description && (
+          <p className="text-sm text-muted-foreground mt-1">{currentQuestions.description}</p>
+        )}
+        {currentStep > 0 && (
+          <div className="text-sm text-muted-foreground mt-2">
+            Step {currentStep} of {totalSteps}
+          </div>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-6 px-4 sm:px-6">
+        {currentStep === 0 ? (
+          <div className="flex flex-col items-center space-y-6 py-4">
+            {agency?.logoUrl && (
+              <div className="w-48 h-48 flex items-center justify-center">
+                <img 
+                  src={agency.logoUrl} 
+                  alt={`${agency.name} logo`} 
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+            )}
+            <div className="text-center space-y-4">
+              <h3 className="text-xl font-semibold">
+                {agency?.name ? `Welcome to ${agency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner'}
+              </h3>
+              <div className="space-y-2 text-left">
+                <p>This short questionnaire will help us understand your business and create a personalized marketing strategy for you.</p>
+                <p>Here's what to expect:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>{questions.length} simple questions about your business</li>
+                  <li>Takes about 3-5 minutes to complete</li>
+                  <li>Get instant recommendations based on your answers</li>
+                </ul>
+                <p className="mt-4">Your responses will help us tailor our recommendations specifically to your business needs.</p>
               </div>
             </div>
+          </div>
+        ) : (
+          currentQuestions?.fields.map((field) => renderField(field))
+        )}
+        {error && currentStep > 0 && (
+          <div className="text-red-500 mt-4">
+            <p>{error}</p>
+          </div>
+        )}
+      </CardContent>
+      <CardFooter className="flex justify-between border-t pt-4 px-4 sm:px-6">
+        <Button
+          variant="outline"
+          onClick={handleBack}
+          disabled={currentStep === 0 || isSubmitting}
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" /> Back
+        </Button>
+        <Button
+          onClick={currentStep === totalSteps ? handleSubmit : handleNext}
+          disabled={!isStepValid() || isSubmitting}
+          style={getButtonStyle()}
+        >
+          {isSubmitting ? (
+            <>Processing...</>
+          ) : currentStep === totalSteps ? (
+            <>Submit</>
+          ) : currentStep === 0 ? (
+            <>Get Your Plan <ChevronRight className="ml-2 h-4 w-4" /></>
           ) : (
-            currentQuestions?.fields.map((field) => renderField(field))
+            <>Next <ChevronRight className="ml-2 h-4 w-4" /></>
           )}
-        </CardContent>
-        <CardFooter className="flex justify-between border-t pt-4 px-4 sm:px-6">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentStep === 0 || isSubmitting}
-          >
-            <ChevronLeft className="mr-2 h-4 w-4" /> Back
-          </Button>
-          <Button
-            onClick={currentStep === totalSteps ? handleSubmit : handleNext}
-            disabled={!isStepValid() || isSubmitting}
-            style={getButtonStyle()}
-          >
-            {isSubmitting ? (
-              <>Processing...</>
-            ) : currentStep === totalSteps ? (
-              <>Submit</>
-            ) : currentStep === 0 ? (
-              <>Get Your Plan <ChevronRight className="ml-2 h-4 w-4" /></>
-            ) : (
-              <>Next <ChevronRight className="ml-2 h-4 w-4" /></>
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
