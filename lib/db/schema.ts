@@ -12,6 +12,43 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
+// Forward reference to resolve circular dependency
+const teamsTable = "teams";
+
+export const teams = pgTable('teams', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  stripeCustomerId: text('stripe_customer_id').unique(),
+  stripeSubscriptionId: text('stripe_subscription_id').unique(),
+  stripeProductId: text('stripe_product_id'),
+  planName: varchar('plan_name', { length: 50 }),
+  subscriptionStatus: varchar('subscription_status', { length: 20 }),
+});
+
+export const agencies = pgTable('agencies', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 100 }).notNull().unique(),
+  logoUrl: text('logo_url'),
+  websiteUrl: text('website_url'),
+  contactNumber: text('contact_number'),
+  email: text('email'),
+  bookingLink: text('booking_link'),
+  description: text('description'),
+  primaryColor: varchar('primary_color', { length: 20 }),
+  secondaryColor: varchar('secondary_color', { length: 20 }),
+  backgroundColor: varchar('background_color', { length: 20 }),
+  textColor: varchar('text_color', { length: 20 }),
+  apiKey: text('api_key').unique(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  isActive: boolean('is_active').default(true),
+  currency: varchar('currency', { length: 1 }).default('$'),
+  teamId: integer('team_id').references(() => teams.id),
+});
+
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }),
@@ -24,18 +61,6 @@ export const users = pgTable('users', {
   remainingRuns: integer('remaining_runs').default(1),
   isVerified: boolean('is_verified').default(false),
   agencyId: integer('agency_id').references(() => agencies.id),
-});
-
-export const teams = pgTable('teams', {
-  id: serial('id').primaryKey(),
-  name: varchar('name', { length: 100 }).notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-  stripeCustomerId: text('stripe_customer_id').unique(),
-  stripeSubscriptionId: text('stripe_subscription_id').unique(),
-  stripeProductId: text('stripe_product_id'),
-  planName: varchar('plan_name', { length: 50 }),
-  subscriptionStatus: varchar('subscription_status', { length: 20 }),
 });
 
 export const teamMembers = pgTable('team_members', {
@@ -109,27 +134,6 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
   expiresAt: timestamp('expires_at').notNull(),
 });
 
-export const agencies = pgTable('agencies', {
-  id: serial('id').primaryKey(),
-  name: varchar('name', { length: 255 }).notNull(),
-  slug: varchar('slug', { length: 100 }).notNull().unique(),
-  logoUrl: text('logo_url'),
-  websiteUrl: text('website_url'),
-  contactNumber: text('contact_number'),
-  email: text('email'),
-  bookingLink: text('booking_link'),
-  description: text('description'),
-  primaryColor: varchar('primary_color', { length: 20 }),
-  secondaryColor: varchar('secondary_color', { length: 20 }),
-  backgroundColor: varchar('background_color', { length: 20 }),
-  textColor: varchar('text_color', { length: 20 }),
-  apiKey: text('api_key').unique(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-  isActive: boolean('is_active').default(true),
-  currency: varchar('currency', { length: 1 }).default('$'),
-});
-
 export const services = pgTable('services', {
   id: serial('id').primaryKey(),
   agencyId: integer('agency_id').notNull().references(() => agencies.id),
@@ -160,6 +164,17 @@ export const teamsRelations = relations(teams, ({ many }) => ({
   teamMembers: many(teamMembers),
   activityLogs: many(activityLogs),
   invitations: many(invitations),
+  agencies: many(agencies),
+}));
+
+export const agenciesRelations = relations(agencies, ({ many, one }) => ({
+  clients: many(clients),
+  services: many(services),
+  team: one(teams, {
+    fields: [agencies.teamId],
+    references: [teams.id],
+  }),
+  users: many(users),
 }));
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -218,11 +233,6 @@ export const passwordResetTokensRelations = relations(passwordResetTokens, ({ on
     fields: [passwordResetTokens.userId],
     references: [users.id],
   }),
-}));
-
-export const agenciesRelations = relations(agencies, ({ many }) => ({
-  clients: many(clients),
-  services: many(services),
 }));
 
 export const clientsRelations = relations(clients, ({ one, many }) => ({

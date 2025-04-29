@@ -49,8 +49,6 @@ async function seed() {
     email: 'admin@planform.ai',
     passwordHash: adminPasswordHash,
     agencyId: planformAgency.id,
-    isPremium: true,
-    remainingRuns: 999,
     isVerified: true,
   }).returning();
   
@@ -61,8 +59,6 @@ async function seed() {
     email: 'michael@hayesmedia.co.za',
     passwordHash: testPasswordHash,
     agencyId: hayesAgency.id,
-    isPremium: true,
-    remainingRuns: 50,
     isVerified: true,
   }).returning();
   
@@ -72,8 +68,6 @@ async function seed() {
     email: 'sarah@growthstudio.com',
     passwordHash: testPasswordHash,
     agencyId: growthStudioAgency.id,
-    isPremium: true,
-    remainingRuns: 25,
     isVerified: true,
   }).returning();
   
@@ -82,8 +76,6 @@ async function seed() {
     name: 'Free User',
     email: 'free@example.com',
     passwordHash: testPasswordHash,
-    isPremium: false,
-    remainingRuns: 1,
     isVerified: true,
   }).returning();
   

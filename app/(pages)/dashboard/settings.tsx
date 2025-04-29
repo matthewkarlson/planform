@@ -7,6 +7,7 @@ import { Zap, UserPlus, User as UserIcon, Users } from 'lucide-react';
 import { User, Team, TeamMember } from '@/lib/db/schema';
 import { inviteTeamMember, removeTeamMember } from '@/app/(login)/actions';
 import { useState } from 'react';
+import { createPortalSessionAction } from '@/lib/payments/actions';
 
 type ActionState = {
   error?: string;
@@ -30,7 +31,26 @@ export function Settings({ userData, teamData, teamMembers }: SettingsProps) {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'member' | 'owner'>('member');
   const [inviteMessage, setInviteMessage] = useState<ActionState>({});
+  const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
   
+  const handleSubscriptionManagement = async () => {
+    // If the team has a subscription, go to Stripe portal. Otherwise, go to pricing
+    if (teamData.stripeCustomerId && teamData.planName && teamData.planName.toLowerCase() !== 'free') {
+      try {
+        setIsLoadingSubscription(true);
+        const session = await createPortalSessionAction();
+        window.location.href = session.url;
+      } catch (error) {
+        console.error("Failed to create portal session:", error);
+        window.location.href = '/pricing';
+      } finally {
+        setIsLoadingSubscription(false);
+      }
+    } else {
+      window.location.href = '/pricing';
+    }
+  };
+
   const handleInvite = async () => {
     const result = await inviteTeamMember({ email: inviteEmail, role: inviteRole }, new FormData());
     if (result.error) {
@@ -59,14 +79,21 @@ export function Settings({ userData, teamData, teamMembers }: SettingsProps) {
                 <p className="font-medium">
                   Team: {teamData.name}
                 </p>
+                <p className="font-medium">
+                  Status: {teamData.subscriptionStatus || 'Free'}
+                </p>
                 {teamData.planName && (
                   <p className="text-sm text-muted-foreground">
                     Plan: {teamData.planName}
                   </p>
                 )}
               </div>
-              <Button variant="outline" onClick={() => window.location.href = '/pricing'}>
-              Manage Subscription
+              <Button 
+                variant="outline" 
+                onClick={handleSubscriptionManagement}
+                disabled={isLoadingSubscription}
+              >
+                {isLoadingSubscription ? 'Loading...' : 'Manage Subscription'}
               </Button>
             </div>
           </div>
