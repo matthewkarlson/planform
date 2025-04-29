@@ -328,7 +328,37 @@ export async function POST(request: Request) {
           }
         }
         console.log('Closing browser');
-        await browser.close();
+        
+        // Browser close with timeout to prevent hanging
+        try {
+          // Use Promise.race to implement a timeout
+          const browserClosePromise = browser.close();
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Browser close timed out')), 5000);
+          });
+          
+          await Promise.race([browserClosePromise, timeoutPromise])
+            .catch(async (err) => {
+              console.warn(`Browser close error: ${err.message}. Using fallback method.`);
+              // Force browser close as fallback if standard closing times out
+              try {
+                // Try alternative close method by using process directly
+                // @ts-ignore - Browser has an internal process that can be terminated
+                if (browser.process() && browser.process().kill) {
+                  // @ts-ignore
+                  browser.process().kill('SIGKILL');
+                  console.log('Forced browser process to terminate');
+                }
+              } catch (forceCloseErr) {
+                console.error('Failed to force close browser:', forceCloseErr);
+                // Continue execution even if browser can't be closed
+              }
+            });
+        } catch (closeError) {
+          console.error('Error during browser close:', closeError);
+          // Continue with analysis even if browser closing fails
+        }
+        
         // Analyze website using OpenAI
         console.log('Analyzing website');
         const websiteResponse = await openai.responses.create({
