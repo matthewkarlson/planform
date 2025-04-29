@@ -327,10 +327,10 @@ export async function POST(request: Request) {
             // Continue processing, this is just for debugging
           }
         }
-        
+        console.log('Closing browser');
         await browser.close();
-        
         // Analyze website using OpenAI
+        console.log('Analyzing website');
         const websiteResponse = await openai.responses.create({
           model: "gpt-4.1-mini",
           input: [
@@ -440,6 +440,7 @@ export async function POST(request: Request) {
     `;
 
     // Call OpenAI using the responses API with structured schema
+    console.log('Calling OpenAI for full analysis');
     const aiResponse = await openai.responses.create({
       model: "gpt-4.1-mini",
       input: [
