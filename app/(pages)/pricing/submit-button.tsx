@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 
-export function SubmitButton({ variant = "outline" }: { variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" }) {
+export function SubmitButton({ variant = "default" }: { variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" }) {
   const { pending } = useFormStatus();
 
   return (
@@ -12,16 +12,16 @@ export function SubmitButton({ variant = "outline" }: { variant?: "default" | "d
       type="submit"
       disabled={pending}
       variant={variant}
-      className="w-full rounded-full"
+      className="w-full"
     >
       {pending ? (
         <>
           <Loader2 className="animate-spin mr-2 h-4 w-4" />
-          Loading...
+          Processing...
         </>
       ) : (
         <>
-          Get Started
+          Start Free Trial
           <ArrowRight className="ml-2 h-4 w-4" />
         </>
       )}

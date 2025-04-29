@@ -1,54 +1,27 @@
 import Stripe from 'stripe';
 import { redirect } from 'next/navigation';
-import { User, users } from '@/lib/db/schema';
+import { Team } from '@/lib/db/schema';
 import {
-  getUserByStripeCustomerId,
+  getTeamByStripeCustomerId,
   getUser,
-  updateUserSubscription
+  updateTeamSubscription
 } from '@/lib/db/queries';
-import { db } from '@/lib/db/drizzle';
-import { eq } from 'drizzle-orm';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-03-31.basil'
 });
 
 export async function createCheckoutSession({
-  user,
+  team,
   priceId
 }: {
-  user: User | null;
+  team: Team | null;
   priceId: string;
 }) {
-  if (!user) {
-    redirect(`/sign-up?redirect=checkout&priceId=${priceId}`);
-  }
+  const user = await getUser();
 
-  // If user doesn't have a Stripe customer ID, create one
-  let customerId = user.stripeCustomerId;
-  
-  if (!customerId) {
-    console.log('Creating new Stripe customer for user:', user.id);
-    const customer = await stripe.customers.create({
-      email: user.email,
-      name: user.name || undefined,
-      metadata: {
-        userId: user.id.toString()
-      }
-    });
-    
-    customerId = customer.id;
-    
-    // Update the user with the new Stripe customer ID
-    await db
-      .update(users)
-      .set({
-        stripeCustomerId: customerId,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, user.id));
-      
-    console.log('Updated user with new Stripe customer ID:', customerId);
+  if (!team || !user) {
+    redirect(`/sign-up?redirect=checkout&priceId=${priceId}`);
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -59,22 +32,88 @@ export async function createCheckoutSession({
         quantity: 1
       }
     ],
-    mode: 'payment',
+    mode: 'subscription',
     success_url: `${process.env.BASE_URL}/api/stripe/checkout?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.BASE_URL}/pricing`,
-    customer: customerId,
+    customer: team.stripeCustomerId || undefined,
     client_reference_id: user.id.toString(),
-    allow_promotion_codes: true
-  });
-
-  console.log('Created checkout session:', {
-    id: session.id,
-    customerId,
-    clientReferenceId: user.id.toString()
+    allow_promotion_codes: true,
+    subscription_data: {
+      trial_period_days: 14
+    }
   });
 
   redirect(session.url!);
 }
+
+export async function createCustomerPortalSession(team: Team) {
+  if (!team.stripeCustomerId || !team.stripeProductId) {
+    redirect('/pricing');
+  }
+
+  let configuration: Stripe.BillingPortal.Configuration;
+  const configurations = await stripe.billingPortal.configurations.list();
+
+  if (configurations.data.length > 0) {
+    configuration = configurations.data[0];
+  } else {
+    const product = await stripe.products.retrieve(team.stripeProductId);
+    if (!product.active) {
+      throw new Error("Team's product is not active in Stripe");
+    }
+
+    const prices = await stripe.prices.list({
+      product: product.id,
+      active: true
+    });
+    if (prices.data.length === 0) {
+      throw new Error("No active prices found for the team's product");
+    }
+
+    configuration = await stripe.billingPortal.configurations.create({
+      business_profile: {
+        headline: 'Manage your subscription'
+      },
+      features: {
+        subscription_update: {
+          enabled: true,
+          default_allowed_updates: ['price', 'quantity', 'promotion_code'],
+          proration_behavior: 'create_prorations',
+          products: [
+            {
+              product: product.id,
+              prices: prices.data.map((price) => price.id)
+            }
+          ]
+        },
+        subscription_cancel: {
+          enabled: true,
+          mode: 'at_period_end',
+          cancellation_reason: {
+            enabled: true,
+            options: [
+              'too_expensive',
+              'missing_features',
+              'switched_service',
+              'unused',
+              'other',
+            ],
+          },
+        },
+        payment_method_update: {
+          enabled: true,
+        },
+      },
+    });
+  }
+
+  return stripe.billingPortal.sessions.create({
+    customer: team.stripeCustomerId,
+    return_url: `${process.env.BASE_URL}/dashboard`,
+    configuration: configuration.id
+  });
+}
+
 export async function handleSubscriptionChange(
   subscription: Stripe.Subscription
 ) {
@@ -82,23 +121,23 @@ export async function handleSubscriptionChange(
   const subscriptionId = subscription.id;
   const status = subscription.status;
 
-  const user = await getUserByStripeCustomerId(customerId);
+  const team = await getTeamByStripeCustomerId(customerId);
 
-  if (!user) {
-    console.error('User not found for Stripe customer:', customerId);
+  if (!team) {
+    console.error('Team not found for Stripe customer:', customerId);
     return;
   }
 
   if (status === 'active' || status === 'trialing') {
     const plan = subscription.items.data[0]?.plan;
-    await updateUserSubscription(user.id, {
+    await updateTeamSubscription(team.id, {
       stripeSubscriptionId: subscriptionId,
       stripeProductId: plan?.product as string,
       planName: (plan?.product as Stripe.Product).name,
       subscriptionStatus: status
     });
   } else if (status === 'canceled' || status === 'unpaid') {
-    await updateUserSubscription(user.id, {
+    await updateTeamSubscription(team.id, {
       stripeSubscriptionId: null,
       stripeProductId: null,
       planName: null,
@@ -110,7 +149,8 @@ export async function handleSubscriptionChange(
 export async function getStripePrices() {
   const prices = await stripe.prices.list({
     expand: ['data.product'],
-    active: true
+    active: true,
+    type: 'recurring'
   });
 
   return prices.data.map((price) => ({

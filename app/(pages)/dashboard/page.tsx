@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { Settings } from './settings';
-import { getUser } from '@/lib/db/queries';
+import { getUser, getTeamForUser, getTeamMembers } from '@/lib/db/queries';
 
 export default async function SettingsPage() {
   const user = await getUser();
@@ -9,5 +9,12 @@ export default async function SettingsPage() {
     redirect('/sign-in');
   }
 
-  return <Settings userData={user} />;
+  const team = await getTeamForUser();
+  if (!team) {
+    redirect('/sign-in');
+  }
+
+  const teamMembers = await getTeamMembers(team.id);
+
+  return <Settings userData={user} teamData={team} teamMembers={teamMembers} />;
 }

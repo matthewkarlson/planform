@@ -7,6 +7,8 @@ import {
   UserCog,
   AlertCircle,
   UserMinus,
+  Users,
+  User,
   type LucideIcon,
 } from 'lucide-react';
 import { ActivityType } from '@/lib/db/schema';
@@ -20,6 +22,10 @@ const iconMap: Record<ActivityType, LucideIcon> = {
   [ActivityType.RESET_PASSWORD]: Lock,
   [ActivityType.DELETE_ACCOUNT]: UserMinus,
   [ActivityType.UPDATE_ACCOUNT]: Settings,
+  [ActivityType.CREATE_TEAM]: Users,
+  [ActivityType.REMOVE_TEAM_MEMBER]: UserMinus,
+  [ActivityType.INVITE_TEAM_MEMBER]: UserPlus,
+  [ActivityType.ACCEPT_INVITATION]: User,
 };
 
 function getRelativeTime(date: Date) {
@@ -39,19 +45,27 @@ function getRelativeTime(date: Date) {
 function formatAction(action: ActivityType): string {
   switch (action) {
     case ActivityType.SIGN_UP:
-      return 'You signed up';
+      return 'Signed up';
     case ActivityType.SIGN_IN:
-      return 'You signed in';
+      return 'Signed in';
     case ActivityType.SIGN_OUT:
-      return 'You signed out';
+      return 'Signed out';
     case ActivityType.UPDATE_PASSWORD:
-      return 'You changed your password';
+      return 'Changed password';
     case ActivityType.RESET_PASSWORD:
-      return 'You reset your password';
+      return 'Reset password';
     case ActivityType.DELETE_ACCOUNT:
-      return 'You deleted your account';
+      return 'Deleted account';
     case ActivityType.UPDATE_ACCOUNT:
-      return 'You updated your account';
+      return 'Updated account';
+    case ActivityType.CREATE_TEAM:
+      return 'Created team';
+    case ActivityType.REMOVE_TEAM_MEMBER:
+      return 'Removed team member';
+    case ActivityType.INVITE_TEAM_MEMBER:
+      return 'Invited team member';
+    case ActivityType.ACCEPT_INVITATION:
+      return 'Accepted invitation';
     default:
       return 'Unknown action occurred';
   }
@@ -67,7 +81,7 @@ export default async function ActivityPage() {
       </h1>
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle>Team Activity</CardTitle>
         </CardHeader>
         <CardContent>
           {logs.length > 0 ? (
@@ -85,6 +99,7 @@ export default async function ActivityPage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">
+                        {log.userName && <span className="font-semibold">{log.userName} </span>}
                         {formattedAction}
                         {log.ipAddress && ` from IP ${log.ipAddress}`}
                       </p>
@@ -103,8 +118,8 @@ export default async function ActivityPage() {
                 No activity yet
               </h3>
               <p className="text-sm text-gray-500 max-w-sm">
-                When you perform actions like signing in or updating your
-                account, they'll appear here.
+                When your team performs actions like signing in or updating accounts,
+                they'll appear here.
               </p>
             </div>
           )}

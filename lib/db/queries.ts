@@ -1,12 +1,25 @@
 import { desc, and, eq, isNull } from 'drizzle-orm';
 import { db } from './drizzle';
-import { activityLogs, users } from './schema';
+import { activityLogs, teamMembers, teams, users } from './schema';
 import { cookies } from 'next/headers';
-import { verifyToken, getSession } from '@/lib/auth/session';
+import { verifyToken } from '@/lib/auth/session';
 
 export async function getUser() {
-  const sessionData = await getSession();
-  if (!sessionData?.user?.id) {
+  const sessionCookie = (await cookies()).get('session');
+  if (!sessionCookie || !sessionCookie.value) {
+    return null;
+  }
+
+  const sessionData = await verifyToken(sessionCookie.value);
+  if (
+    !sessionData ||
+    !sessionData.user ||
+    typeof sessionData.user.id !== 'number'
+  ) {
+    return null;
+  }
+
+  if (new Date(sessionData.expires) < new Date()) {
     return null;
   }
 
@@ -23,32 +36,52 @@ export async function getUser() {
   return user[0];
 }
 
-export async function getUserByStripeCustomerId(customerId: string) {
+export async function getTeamByStripeCustomerId(customerId: string) {
   const result = await db
     .select()
-    .from(users)
-    .where(eq(users.stripeCustomerId, customerId))
+    .from(teams)
+    .where(eq(teams.stripeCustomerId, customerId))
     .limit(1);
 
   return result.length > 0 ? result[0] : null;
 }
 
-export async function updateUserSubscription(
-  userId: number,
+export async function updateTeamSubscription(
+  teamId: number,
   subscriptionData: {
     stripeSubscriptionId: string | null;
     stripeProductId: string | null;
     planName: string | null;
     subscriptionStatus: string;
+    isPremium?: boolean;
   }
 ) {
+  // Set isPremium to true for active/trialing subscriptions if not explicitly provided
+  if (subscriptionData.isPremium === undefined) {
+    subscriptionData.isPremium = ['active', 'trialing'].includes(subscriptionData.subscriptionStatus);
+  }
+
   await db
-    .update(users)
+    .update(teams)
     .set({
       ...subscriptionData,
-      updatedAt: new Date(),
+      updatedAt: new Date()
     })
-    .where(eq(users.id, userId));
+    .where(eq(teams.id, teamId));
+}
+
+export async function getUserWithTeam(userId: number) {
+  const result = await db
+    .select({
+      user: users,
+      teamId: teamMembers.teamId
+    })
+    .from(users)
+    .leftJoin(teamMembers, eq(users.id, teamMembers.userId))
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  return result[0];
 }
 
 export async function getActivityLogs() {
@@ -57,17 +90,67 @@ export async function getActivityLogs() {
     throw new Error('User not authenticated');
   }
 
+  const userWithTeam = await getUserWithTeam(user.id);
+  if (!userWithTeam?.teamId) {
+    return [];
+  }
+
   return await db
     .select({
       id: activityLogs.id,
       action: activityLogs.action,
       timestamp: activityLogs.timestamp,
       ipAddress: activityLogs.ipAddress,
-      userName: users.name,
+      userName: users.name
     })
     .from(activityLogs)
     .leftJoin(users, eq(activityLogs.userId, users.id))
-    .where(eq(activityLogs.userId, user.id))
+    .where(eq(activityLogs.teamId, userWithTeam.teamId))
     .orderBy(desc(activityLogs.timestamp))
     .limit(10);
+}
+
+export async function getTeamForUser() {
+  const user = await getUser();
+  if (!user) {
+    return null;
+  }
+
+  const result = await db.query.teamMembers.findFirst({
+    where: eq(teamMembers.userId, user.id),
+    with: {
+      team: {
+        with: {
+          teamMembers: {
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  name: true,
+                  email: true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return result?.team || null;
+}
+
+export async function getTeamMembers(teamId: number) {
+  return await db
+    .select({
+      member: teamMembers,
+      user: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+      },
+    })
+    .from(teamMembers)
+    .innerJoin(users, eq(teamMembers.userId, users.id))
+    .where(eq(teamMembers.teamId, teamId));
 }
