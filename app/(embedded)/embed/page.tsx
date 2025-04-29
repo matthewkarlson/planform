@@ -11,6 +11,7 @@ import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import useAutosizeIframe from '@/lib/useAutosizeIframe';
 
 // Define type for different field types
 type BaseField = {
@@ -334,39 +335,8 @@ export default function PlanformPage() {
 
     fetchAgencyData();
   }, []);
-
+  useAutosizeIframe([currentStep]); 
   // Handle iframe resizing
-  useEffect(() => {
-    // Function to notify parent about height changes
-    const updateHeight = () => {
-      const height = document.body.scrollHeight;
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: 'resize', height }, '*');
-      }
-    };
-
-    // Initial height update
-    updateHeight();
-
-    // Update height on window resize
-    window.addEventListener('resize', updateHeight);
-
-    // Update height on content changes
-    const observer = new MutationObserver(updateHeight);
-    observer.observe(document.body, { 
-      childList: true, 
-      subtree: true,
-      attributes: true,
-      characterData: true 
-    });
-
-    // Cleanup
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', updateHeight);
-    };
-  }, [currentStep]);
-
   const currentQuestions = questions.find((q) => q.step === currentStep);
   const totalSteps = questions.length;
 

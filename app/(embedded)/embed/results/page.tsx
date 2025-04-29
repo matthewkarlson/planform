@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import useAutosizeIframe from '@/lib/useAutosizeIframe';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,7 +71,7 @@ function Results() {
   const [services, setServices] = useState<Record<string, ServiceData>>({});
   const [clientName, setClientName] = useState<string>('');
   const [agency, setAgency] = useState<AgencyData | null>(null);
-
+  useAutosizeIframe([loading, analysis, services]);
   // Fetch the analysis results
   useEffect(() => {
     if (!recommendationId) {
