@@ -53,14 +53,8 @@ export async function updateTeamSubscription(
     stripeProductId: string | null;
     planName: string | null;
     subscriptionStatus: string;
-    isPremium?: boolean;
   }
 ) {
-  // Set isPremium to true for active/trialing subscriptions if not explicitly provided
-  if (subscriptionData.isPremium === undefined) {
-    subscriptionData.isPremium = ['active', 'trialing'].includes(subscriptionData.subscriptionStatus);
-  }
-
   await db
     .update(teams)
     .set({

@@ -14,7 +14,6 @@ export async function GET() {
       email: user.email,
       name: user.name,
       isVerified: user.isVerified,
-      isPremium: user.isPremium,
       remainingRuns: user.remainingRuns,
     });
   } catch (error) {

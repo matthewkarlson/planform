@@ -59,47 +59,20 @@ export function Settings({ userData, teamData, teamMembers }: SettingsProps) {
                 <p className="font-medium">
                   Team: {teamData.name}
                 </p>
-                <p className="font-medium">
-                  Tier: {teamData.isPremium ? 'Premium' : 'Free'}
-                </p>
                 {teamData.planName && (
                   <p className="text-sm text-muted-foreground">
                     Plan: {teamData.planName}
                   </p>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
-                Purchase runs to unlock premium tier insights and deeper analysis.
-              </p>
               <Button variant="outline" onClick={() => window.location.href = '/pricing'}>
-                Purchase Runs
+              Manage Subscription
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Arena Runs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-orange-100 rounded-full p-2">
-                <Zap className="h-5 w-5 text-orange-500" />
-              </div>
-              <div>
-                <p className="font-medium">Remaining Runs</p>
-                <p className="text-2xl font-bold">{userData.remainingRuns || 0}</p>
-              </div>
-            </div>
-            <Button variant="outline" className="rounded-full" onClick={() => window.location.href = '/planform/'}>
-              Start New Run
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       <Card className="mb-8">
         <CardHeader>

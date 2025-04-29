@@ -35,7 +35,6 @@ export const teams = pgTable('teams', {
   stripeSubscriptionId: text('stripe_subscription_id').unique(),
   stripeProductId: text('stripe_product_id'),
   planName: varchar('plan_name', { length: 50 }),
-  isPremium: boolean('is_premium').default(false),
   subscriptionStatus: varchar('subscription_status', { length: 20 }),
 });
 
