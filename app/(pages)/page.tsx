@@ -1,12 +1,16 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
-import { Download, ArrowRight, BarChart2, Target, Users, RefreshCw, CheckCircle } from 'lucide-react';
+import { Download, ArrowRight, Target, Users, RefreshCw, CheckCircle, DraftingCompass } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import bg from '@/public/planform_hero_bg.png'; 
+import ClientHeader from '@/app/components/layout/ClientHeader';
 
 export default function HomePage() {
   return (
     <main className="bg-black text-white">
+      <ClientHeader />
       {/* Hero Section */}
       <section className="relative h-screen w-full flex items-center overflow-hidden">
         {/* Background Image */}
@@ -100,7 +104,7 @@ export default function HomePage() {
             </p>
           </div>
           <div className="mt-8 flex justify-center lg:justify-end">
-            <Link href="/planform">
+            <Link href="/pricing">
               <Button
                 size="lg"
                 className="text-lg rounded-full bg-blue-500 hover:bg-blue-600 text-white"
@@ -113,7 +117,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-900 w-full">
+      <section id="features" className="py-16 bg-gray-900 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-3 lg:gap-8">
             <div>
@@ -161,7 +165,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 bg-black">
+      <section id="testimonials" className="py-16 bg-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gray-900 p-8 rounded-lg shadow-lg">
             <p className="text-xl italic text-gray-200 mb-4">
@@ -249,7 +253,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-black">
+      <section id="faq" className="py-16 bg-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white">Frequently Asked Questions</h2>
@@ -337,7 +341,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-900">
+
+      <section id="cta" className="py-16 bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Be One of the First Agencies to Use This</h2>
           <p className="text-xl text-gray-300 mb-2">

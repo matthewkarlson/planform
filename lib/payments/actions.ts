@@ -8,7 +8,7 @@ export const checkoutAction = async (formData: FormData) => {
   const user = await getUser();
 
   if (!user) {
-    redirect('/sign-in');
+    redirect('/sign-up?redirect=pricing');
   }
 
   const team = await getTeamForUser();
