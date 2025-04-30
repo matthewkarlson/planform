@@ -56,6 +56,14 @@ type Question = {
   title: string;
   description?: string;
   fields: Field[];
+  welcomeContent?: {
+    heading?: string;
+    subheading?: string;
+    bulletPoints?: string[];
+    footerText?: string;
+    buttonText?: string;
+  };
+  isWelcomeStep?: boolean;
 };
 
 type Answers = Record<string, string | string[]>;
@@ -198,6 +206,7 @@ export default function PlanformPage() {
   
   // Find current question based on current step
   const currentQuestions = questions.find((q) => q.step === currentStep);
+  const welcomeStep = questions.find(q => q.isWelcomeStep === true);
   const totalSteps = questions.length;
 
   const handleInputChange = (fieldId: string, value: string) => {
@@ -532,13 +541,13 @@ export default function PlanformPage() {
     <Card className="w-full border-0 shadow-none" style={getCardStyle()}>
       <CardHeader className="px-4 sm:px-6">
         {currentStep === 0 ? (
-          <CardTitle className="text-2xl" style={getHeaderStyle()}>Marketing Strategy Planner</CardTitle>
+          <CardTitle className="text-2xl" style={getHeaderStyle()}>{welcomeStep?.title || 'Marketing Strategy Planner'}</CardTitle>
         ) : (
           <CardTitle className="text-2xl" style={getHeaderStyle()}>{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
         )}
         {currentStep === 0 ? (
           <p className="text-sm text-muted-foreground mt-1" style={agency?.textColor ? { color: agency.textColor } : undefined}>
-            Answer a few questions about your business to get a personalized marketing strategy.
+            {welcomeStep?.description || 'Answer a few questions about your business to get a personalized marketing strategy.'}
           </p>
         ) : currentQuestions?.description && (
           <p className="text-sm text-muted-foreground mt-1" style={agency?.textColor ? { color: agency.textColor } : undefined}>{currentQuestions.description}</p>
@@ -563,17 +572,30 @@ export default function PlanformPage() {
             )}
             <div className="text-center space-y-4">
               <h3 className="text-xl font-semibold" style={getHeaderStyle()}>
-                {agency?.name ? `Welcome to ${agency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner'}
+                {welcomeStep?.welcomeContent?.heading || (agency?.name ? `Welcome to ${agency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner')}
               </h3>
               <div className="space-y-2 text-left" style={agency?.textColor ? { color: agency.textColor } : undefined}>
-                <p>This short questionnaire will help us understand your business and create a personalized marketing strategy for you.</p>
-                <p>Here's what to expect:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>{questions.length} simple questions about your business</li>
-                  <li>Takes about 3-5 minutes to complete</li>
-                  <li>Get instant recommendations based on your answers</li>
-                </ul>
-                <p className="mt-4">Your responses will help us tailor our recommendations specifically to your business needs.</p>
+                <p>{welcomeStep?.welcomeContent?.subheading || 'This short questionnaire will help us understand your business and create a personalized marketing strategy for you.'}</p>
+                {(welcomeStep?.welcomeContent?.bulletPoints && welcomeStep.welcomeContent.bulletPoints.length > 0) ? (
+                  <>
+                    <p>Here's what to expect:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      {welcomeStep.welcomeContent.bulletPoints.map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <p>Here's what to expect:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>{questions.length} simple questions about your business</li>
+                      <li>Takes about 3-5 minutes to complete</li>
+                      <li>Get instant recommendations based on your answers</li>
+                    </ul>
+                  </>
+                )}
+                <p className="mt-4">{welcomeStep?.welcomeContent?.footerText || 'Your responses will help us tailor our recommendations specifically to your business needs.'}</p>
               </div>
             </div>
           </div>
@@ -607,7 +629,7 @@ export default function PlanformPage() {
           ) : currentStep === totalSteps ? (
             <>Submit</>
           ) : currentStep === 0 ? (
-            <>Get Your Plan <ChevronRight className="ml-2 h-4 w-4" /></>
+            <>{welcomeStep?.welcomeContent?.buttonText || 'Get Your Plan'} <ChevronRight className="ml-2 h-4 w-4" /></>
           ) : (
             <>Next <ChevronRight className="ml-2 h-4 w-4" /></>
           )}

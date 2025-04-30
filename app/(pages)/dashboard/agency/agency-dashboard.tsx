@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useRouter } from 'next/navigation';
 import QuestionEditor from './components/QuestionEditor';
 import ServiceEditor from './components/ServiceEditor';
+import WelcomeStepEditor from './components/WelcomeStepEditor';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EmbedPreview from './components/EmbedPreview';
 
@@ -146,6 +147,7 @@ export default function AgencyDashboard({ user, team, agencies }: AgencyDashboar
         <TabsList className="mb-6">
           <TabsTrigger value="details">Agency Details</TabsTrigger>
           <TabsTrigger value="questions">Questionnaire</TabsTrigger>
+          <TabsTrigger value="welcomeStep">Welcome Step</TabsTrigger>
           <TabsTrigger value="services">Services</TabsTrigger>
         </TabsList>
         
@@ -401,6 +403,16 @@ export default function AgencyDashboard({ user, team, agencies }: AgencyDashboar
           ) : (
             <div className="text-center p-8 bg-gray-50 rounded-md">
               Please select an agency first to manage its questionnaire.
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="welcomeStep">
+          {selectedAgencyId ? (
+            <WelcomeStepEditor agencyId={selectedAgencyId} />
+          ) : (
+            <div className="text-center p-8 bg-gray-50 rounded-md">
+              Please select an agency first to manage its welcome step.
             </div>
           )}
         </TabsContent>

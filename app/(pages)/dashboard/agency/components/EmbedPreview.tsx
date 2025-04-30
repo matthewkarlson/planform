@@ -44,14 +44,71 @@ type Question = {
   fields: Field[];
 };
 
+// Add welcome step type definition
+type WelcomeStep = {
+  title: string;
+  description?: string;
+  isWelcomeStep: boolean;
+  welcomeContent?: {
+    heading?: string;
+    subheading?: string;
+    bulletPoints?: string[];
+    footerText?: string;
+    buttonText?: string;
+  };
+};
+
 interface EmbedPreviewProps {
   agency: Agency;
   formData?: Partial<Agency>; // Add formData prop for live updates
+  customWelcomeStep?: WelcomeStep | null; // Add custom welcome step for live preview
 }
 
-export default function EmbedPreview({ agency, formData }: EmbedPreviewProps) {
+export default function EmbedPreview({ agency, formData, customWelcomeStep }: EmbedPreviewProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [welcomeStep, setWelcomeStep] = useState<WelcomeStep | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Fetch welcome step for the agency
+  useEffect(() => {
+    // Skip fetching if a custom welcome step was provided
+    if (customWelcomeStep) {
+      setWelcomeStep(customWelcomeStep);
+      return;
+    }
+    
+    const fetchWelcomeStep = async () => {
+      if (!agency?.id) return;
+      
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/questions?agencyId=${agency.id}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Find the welcome step
+          const welcomeStepData = data.questions?.find((q: any) => q.isWelcomeStep === true);
+          if (welcomeStepData) {
+            setWelcomeStep(welcomeStepData);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching welcome step:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchWelcomeStep();
+  }, [agency?.id, customWelcomeStep]);
+  
+  // Update welcome step when customWelcomeStep changes
+  useEffect(() => {
+    if (customWelcomeStep) {
+      setWelcomeStep(customWelcomeStep);
+    }
+  }, [customWelcomeStep]);
   
   // Sample questions for preview
   const questions: Question[] = [
@@ -264,13 +321,17 @@ export default function EmbedPreview({ agency, formData }: EmbedPreviewProps) {
     <Card className="w-full border shadow-sm" style={getCardStyle()}>
       <CardHeader className="px-4 sm:px-6">
         {currentStep === 0 ? (
-          <CardTitle className="text-2xl" style={getHeaderStyle()}>Marketing Strategy Planner</CardTitle>
+          <CardTitle className="text-2xl" style={getHeaderStyle()}>
+            {welcomeStep?.title || 'Marketing Strategy Planner'}
+          </CardTitle>
         ) : (
-          <CardTitle className="text-2xl" style={getHeaderStyle()}>{currentQuestions?.title || 'Questionnaire'}</CardTitle>
+          <CardTitle className="text-2xl" style={getHeaderStyle()}>
+            {currentQuestions?.title || 'Questionnaire'}
+          </CardTitle>
         )}
         {currentStep === 0 ? (
           <p className="text-sm text-muted-foreground mt-1" style={currentAgency?.textColor ? { color: currentAgency.textColor } : undefined}>
-            Answer a few questions about your business to get a personalized marketing strategy.
+            {welcomeStep?.description || 'Answer a few questions about your business to get a personalized marketing strategy.'}
           </p>
         ) : currentQuestions?.description && (
           <p className="text-sm text-muted-foreground mt-1" style={currentAgency?.textColor ? { color: currentAgency.textColor } : undefined}>
@@ -297,16 +358,36 @@ export default function EmbedPreview({ agency, formData }: EmbedPreviewProps) {
             )}
             <div className="text-center space-y-4">
               <h3 className="text-xl font-semibold" style={getHeaderStyle()}>
-                {currentAgency?.name ? `Welcome to ${currentAgency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner'}
+                {welcomeStep?.welcomeContent?.heading || 
+                 (currentAgency?.name ? `Welcome to ${currentAgency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner')}
               </h3>
               <div className="space-y-2 text-left" style={currentAgency?.textColor ? { color: currentAgency.textColor } : undefined}>
-                <p>This short questionnaire will help us understand your business and create a personalized marketing strategy for you.</p>
-                <p>Here's what to expect:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>{questions.length} simple questions about your business</li>
-                  <li>Takes about 3-5 minutes to complete</li>
-                  <li>Get instant recommendations based on your answers</li>
-                </ul>
+                <p>{welcomeStep?.welcomeContent?.subheading || 
+                    'This short questionnaire will help us understand your business and create a personalized marketing strategy for you.'}</p>
+                
+                {welcomeStep?.welcomeContent?.bulletPoints && welcomeStep.welcomeContent.bulletPoints.length > 0 ? (
+                  <>
+                    <p>Here's what to expect:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      {welcomeStep.welcomeContent.bulletPoints.map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <p>Here's what to expect:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>{questions.length} simple questions about your business</li>
+                      <li>Takes about 3-5 minutes to complete</li>
+                      <li>Get instant recommendations based on your answers</li>
+                    </ul>
+                  </>
+                )}
+                
+                {welcomeStep?.welcomeContent?.footerText && (
+                  <p className="mt-4">{welcomeStep.welcomeContent.footerText}</p>
+                )}
               </div>
             </div>
           </div>
@@ -330,7 +411,7 @@ export default function EmbedPreview({ agency, formData }: EmbedPreviewProps) {
           style={getButtonStyle()}
         >
           {currentStep === 0 ? (
-            <>Get Your Plan <ChevronRight className="ml-2 h-4 w-4" /></>
+            <>{welcomeStep?.welcomeContent?.buttonText || 'Get Your Plan'} <ChevronRight className="ml-2 h-4 w-4" /></>
           ) : (
             <>Next <ChevronRight className="ml-2 h-4 w-4" /></>
           )}

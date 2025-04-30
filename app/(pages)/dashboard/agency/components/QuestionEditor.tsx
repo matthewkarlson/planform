@@ -224,7 +224,7 @@ export default function QuestionEditor({ agencyId }: QuestionEditorProps) {
         ) : (
           <div className="space-y-6">
             {sortedQuestions.map((question, index) => (
-              <div key={question.questionNumber} className="bg-gray-50 p-4 rounded-md">
+              <div key={`question-${question.questionNumber}-${index}`} className="bg-gray-50 p-4 rounded-md">
                 <div className="flex justify-between items-center mb-4">
                   <div className="font-semibold text-lg">
                     Question {index + 1}
