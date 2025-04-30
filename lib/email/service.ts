@@ -76,7 +76,7 @@ export async function sendVerificationEmail(userId: number, email: string) {
   const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken.token}`;
   
   // Email content
-  const fromEmail = process.env.EMAIL_FROM || '"SaaS Starter" <noreply@saas-starter.com>';
+  const fromEmail = process.env.EMAIL_FROM || '"Planform.AI" <app@planform.ai>';
   const subject = "Verify your email address";
   const text = `Please verify your email address by clicking on the following link: ${verificationUrl}`;
   const html = `
@@ -193,7 +193,7 @@ export async function sendPasswordResetEmail(userId: number, email: string) {
   const resetUrl = `${baseUrl}/reset-password?token=${resetToken.token}`;
   
   // Email content
-  const fromEmail = process.env.EMAIL_FROM || '"SaaS Starter" <noreply@saas-starter.com>';
+  const fromEmail = process.env.EMAIL_FROM || '"Planform.AI" <app@planform.ai>';
   const subject = "Reset your password";
   const text = `You requested to reset your password. Please click on the following link to reset your password: ${resetUrl}. This link will expire in 1 hour.`;
   const html = `
@@ -260,7 +260,7 @@ export async function sendInvitationEmail(email: string, teamName: string, role:
   const invitationUrl = `${baseUrl}/sign-up?inviteId=${invitationId}`;
   
   // Email content
-  const fromEmail = process.env.EMAIL_FROM || '"SaaS Starter" <noreply@saas-starter.com>';
+  const fromEmail = process.env.EMAIL_FROM || '"Planform.AI" <app@planform.ai>';
   const subject = `You've been invited to join ${teamName}`;
   const text = `You've been invited to join ${teamName} as a ${role}. Please click on the following link to accept the invitation: ${invitationUrl}`;
   const html = `
