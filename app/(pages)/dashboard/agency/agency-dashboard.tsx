@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRouter } from 'next/navigation';
 import QuestionEditor from './components/QuestionEditor';
+import ServiceEditor from './components/ServiceEditor';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface AgencyDashboardProps {
@@ -144,6 +145,7 @@ export default function AgencyDashboard({ user, team, agencies }: AgencyDashboar
         <TabsList className="mb-6">
           <TabsTrigger value="details">Agency Details</TabsTrigger>
           <TabsTrigger value="questions">Questionnaire</TabsTrigger>
+          <TabsTrigger value="services">Services</TabsTrigger>
         </TabsList>
         
         <TabsContent value="details">
@@ -398,6 +400,16 @@ export default function AgencyDashboard({ user, team, agencies }: AgencyDashboar
           ) : (
             <div className="text-center p-8 bg-gray-50 rounded-md">
               Please select an agency first to manage its questionnaire.
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="services">
+          {selectedAgencyId ? (
+            <ServiceEditor agencyId={selectedAgencyId} />
+          ) : (
+            <div className="text-center p-8 bg-gray-50 rounded-md">
+              Please select an agency first to manage its services.
             </div>
           )}
         </TabsContent>

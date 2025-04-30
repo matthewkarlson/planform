@@ -38,7 +38,7 @@ function UserMenu() {
     return (
       <>
         <Link
-          href="/waitlist"
+          href="/pricing"
           className="text-sm font-medium text-gray-700 hover:text-gray-900"
         >
           Pricing
@@ -80,12 +80,6 @@ function UserMenu() {
           <Link href="/dashboard" className="flex w-full items-center">
             <Home className="mr-2 h-4 w-4" />
             <span>Dashboard</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
-          <Link href="/waitlist" className="flex w-full items-center">
-            <Sword className="mr-2 h-4 w-4" />
-            <span>Planform.ai</span>
           </Link>
         </DropdownMenuItem>
         <form action={handleSignOut} className="w-full">
