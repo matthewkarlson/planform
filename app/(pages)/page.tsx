@@ -2,57 +2,23 @@ import { Button } from '@/components/ui/button';
 import { Download, ArrowRight, BarChart2, Target, Users, RefreshCw, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import bg from '@/public/planform_hero_bg.png'; 
 
 export default function HomePage() {
   return (
     <main className="bg-black text-white">
-      {/* Navigation Bar */}
-      <nav className="py-4 px-8 flex justify-between items-center max-w-7xl mx-auto">
-        <div className="flex items-center">
-          <Link href="/" className="text-xl font-bold text-white">
-            PLANFORM.AI
-          </Link>
-        </div>
-        <div className="hidden md:flex items-center space-x-8">
-          <Link href="/features" className="text-white hover:text-blue-400">
-            Features
-          </Link>
-          <Link href="/testimonials" className="text-white hover:text-blue-400">
-            Testimonials
-          </Link>
-          <Link href="/pricing" className="text-white hover:text-blue-400">
-            Pricing
-          </Link>
-          <Link href="/faq" className="text-white hover:text-blue-400">
-            FAQ
-          </Link>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Link href="/login">
-            <Button variant="ghost" className="text-white hover:text-blue-400 border border-transparent hover:border-blue-400">
-              Login
-            </Button>
-          </Link>
-          <Link href="/signup">
-            <Button className="bg-blue-500 hover:bg-blue-600 text-white">
-              Sign Up
-            </Button>
-          </Link>
-        </div>
-      </nav>
-
       {/* Hero Section */}
-      <section className="relative h-screen w-full flex items-center">
+      <section className="relative h-screen w-full flex items-center overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src="/planform_hero_bg.png"
+            src={bg}
             alt="Hero Background"
-            width={1920}
-            height={1080}
+            fill
             priority
-            className="w-full h-full object-cover"
-            style={{ position: 'absolute' }}
+            quality={100}
+            className="object-cover"
+            sizes="100vw"
           />
         </div>
 
