@@ -10,9 +10,47 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const agencyId = searchParams.get('agencyId');
+    const apiKey = searchParams.get('apiKey');
     
+    // If API key is provided, use it to get the agency and its questions
+    if (apiKey) {
+      // Find the agency by API key
+      const agency = await db.query.agencies.findFirst({
+        where: eq(agencies.apiKey, apiKey),
+        columns: {
+          id: true,
+          isActive: true
+        }
+      });
+
+      if (!agency) {
+        return NextResponse.json({ error: 'Agency not found' }, { status: 404 });
+      }
+      
+      if (!agency.isActive) {
+        return NextResponse.json({ error: 'Agency is inactive' }, { status: 403 });
+      }
+
+      // Get questions for this agency
+      const questionsSet = await db.query.questionsSets.findFirst({
+        where: eq(questionsSets.agencyId, agency.id)
+      });
+
+      if (!questionsSet) {
+        // Return empty questions array if no set exists yet
+        return NextResponse.json({ 
+          id: null,
+          agencyId: agency.id,
+          questions: []
+        });
+      }
+
+      return NextResponse.json(questionsSet);
+    }
+    
+    // If no API key, fall back to using agencyId with authentication
     if (!agencyId) {
-      return NextResponse.json({ error: 'Agency ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Agency ID or API key is required' }, { status: 400 });
     }
     
     const user = await getUser();

@@ -116,46 +116,43 @@ export default function PlanformPage() {
         const url = new URL(window.location.href);
         const apiKey = url.searchParams.get('apiKey');
         
-        // Fetch agency details
-        let agencyData = null;
         if (apiKey) {
+          // Fetch agency details
           const agencyEndpoint = `/api/planform/agency?apiKey=${apiKey}`;
           const agencyResponse = await fetch(agencyEndpoint);
           
           if (agencyResponse.ok) {
-            agencyData = await agencyResponse.json();
+            const agencyData = await agencyResponse.json();
             setAgency(agencyData);
             
-            // After fetching agency data, fetch questions with the agency ID
-            if (agencyData?.id) {
-              const questionsEndpoint = `/api/questions?agencyId=${agencyData.id}`;
-              const questionsResponse = await fetch(questionsEndpoint);
+            // Directly fetch questions using API key
+            const questionsEndpoint = `/api/questions?apiKey=${apiKey}`;
+            const questionsResponse = await fetch(questionsEndpoint);
+            
+            if (questionsResponse.ok) {
+              const data = await questionsResponse.json();
               
-              if (questionsResponse.ok) {
-                const data = await questionsResponse.json();
+              // Process the questions data structure
+              // API returns { agencyId, questions: [...] }
+              if (data && data.questions) {
+                // Format questions to match the expected structure with step numbers
+                const formattedQuestions = data.questions.map((q: Question, index: number) => ({
+                  ...q,
+                  step: q.questionNumber || index + 1
+                }));
                 
-                // Process the questions data structure
-                // API returns { agencyId, questions: [...] }
-                if (data && data.questions) {
-                  // Format questions to match the expected structure with step numbers
-                  const formattedQuestions = data.questions.map((q: Question, index: number) => ({
-                    ...q,
-                    step: q.questionNumber || index + 1
-                  }));
-                  
-                  // Sort by step/questionNumber
-                  const sortedQuestions = formattedQuestions.sort((a: Question, b: Question) => 
-                    (a.step || 0) - (b.step || 0)
-                  );
-                  
-                  setQuestions(sortedQuestions);
-                } else {
-                  // Fallback if questions field is missing
-                  setQuestions([]);
-                }
+                // Sort by step/questionNumber
+                const sortedQuestions = formattedQuestions.sort((a: Question, b: Question) => 
+                  (a.step || 0) - (b.step || 0)
+                );
+                
+                setQuestions(sortedQuestions);
               } else {
-                throw new Error('Failed to fetch questions');
+                // Fallback if questions field is missing
+                setQuestions([]);
               }
+            } else {
+              throw new Error('Failed to fetch questions');
             }
           }
         } else {
@@ -163,7 +160,7 @@ export default function PlanformPage() {
           const agencyResponse = await fetch(agencyEndpoint);
           
           if (agencyResponse.ok) {
-            agencyData = await agencyResponse.json();
+            const agencyData = await agencyResponse.json();
             setAgency(agencyData);
             
             // For demo mode, use a demo questions endpoint
