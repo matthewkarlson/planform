@@ -30,7 +30,6 @@ export const teams = pgTable('teams', {
 export const agencies = pgTable('agencies', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
-  slug: varchar('slug', { length: 100 }).notNull().unique(),
   logoUrl: text('logo_url'),
   websiteUrl: text('website_url'),
   contactNumber: text('contact_number'),

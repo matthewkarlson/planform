@@ -219,6 +219,12 @@ export default function ServiceEditor({ agencyId }: ServiceEditorProps) {
           Add Service
         </Button>
       </div>
+      <div className="flex justify-between items-center mb-6">
+        <p className="text-sm text-gray-500">
+          Define the services that your agency offers. These will be used to generate recommendations and quotes.
+          The more detailed you are, the better the AI will be able to recommend services to your clients.
+        </p>
+      </div>
       
       {message && (
         <Alert className={message.type === 'error' ? 'bg-red-50' : 'bg-green-50'}>

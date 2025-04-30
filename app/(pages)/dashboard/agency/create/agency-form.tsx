@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { generateSlug } from '@/lib/utils';
 
 interface AgencyCreationFormProps {
   teamId: number;
@@ -21,7 +20,6 @@ export default function AgencyCreationForm({ teamId, userId }: AgencyCreationFor
   
   const [formData, setFormData] = useState({
     name: '',
-    slug: '',
     description: '',
     websiteUrl: '',
     email: '',
@@ -37,13 +35,7 @@ export default function AgencyCreationForm({ teamId, userId }: AgencyCreationFor
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    // If changing the name, auto-generate the slug
-    if (name === 'name' && !formData.slug) {
-      const generatedSlug = generateSlug(value);
-      setFormData(prev => ({ ...prev, [name]: value, slug: generatedSlug }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
   
   // Handle form submission
@@ -105,20 +97,7 @@ export default function AgencyCreationForm({ teamId, userId }: AgencyCreationFor
               />
             </div>
             
-            <div>
-              <Label htmlFor="slug">Agency Slug *</Label>
-              <Input
-                id="slug"
-                name="slug"
-                value={formData.slug}
-                onChange={handleInputChange}
-                required
-                placeholder="your-agency-name"
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                Used in URLs and API references
-              </p>
-            </div>
+
             
             <div className="md:col-span-2">
               <Label htmlFor="description">Description</Label>

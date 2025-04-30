@@ -437,7 +437,11 @@ function Results() {
           <a href={agency.bookingLink} target="_blank" rel="noopener noreferrer" className="block">
             <Button 
               className="w-full py-8 text-xl shadow-lg transition-transform hover:scale-105"
-              style={agency.primaryColor ? {backgroundColor: agency.primaryColor} : {}}
+              style={agency?.primaryColor ? 
+                { 
+                  backgroundColor: agency.primaryColor || undefined,
+                  borderColor: agency.primaryColor || undefined 
+                } : undefined}
             >
               <Calendar className="mr-3 h-6 w-6" />
               Book This Plan Now

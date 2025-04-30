@@ -12,7 +12,6 @@ async function seed() {
   
   const [planformAgency] = await db.insert(agencies).values({
     name: 'Planform.ai',
-    slug: 'planform',
     description: 'AI-powered marketing strategy platform',
     websiteUrl: 'https://planform.ai',
     primaryColor: '#3b82f6',
@@ -21,7 +20,6 @@ async function seed() {
   
   const [hayesAgency] = await db.insert(agencies).values({
     name: 'Hayes Media',
-    slug: 'hayes-media',
     description: 'Boutique digital marketing agency',
     websiteUrl: 'https://hayesmedia.co.za',
     primaryColor: '#10b981',
@@ -30,7 +28,6 @@ async function seed() {
   
   const [growthStudioAgency] = await db.insert(agencies).values({
     name: 'Growth Studio',
-    slug: 'growth-studio',
     description: 'Growth marketing and conversion optimization',
     websiteUrl: 'https://growthstudio.com',
     primaryColor: '#8b5cf6',

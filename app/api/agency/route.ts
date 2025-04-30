@@ -62,22 +62,13 @@ export async function POST(request: Request) {
     const data = await request.json();
     
     // Validate required fields
-    if (!data.name || !data.slug) {
+    if (!data.name) {
       return NextResponse.json({ 
-        error: 'Name and slug are required fields' 
+        error: 'Name is a required field' 
       }, { status: 400 });
     }
     
-    // Check if slug is already taken
-    const existingAgency = await db.query.agencies.findFirst({
-      where: eq(agencies.slug, data.slug)
-    });
-    
-    if (existingAgency) {
-      return NextResponse.json({ 
-        error: 'An agency with this slug already exists' 
-      }, { status: 409 });
-    }
+
     
     // Generate an API key
     const apiKey = uuidv4();
@@ -85,7 +76,6 @@ export async function POST(request: Request) {
     // Prepare data for insertion
     const newAgency = {
       name: data.name,
-      slug: data.slug,
       description: data.description || null,
       websiteUrl: data.websiteUrl || null,
       contactNumber: data.contactNumber || null,
@@ -154,7 +144,7 @@ export async function PUT(request: Request) {
 
     // Fields that can be updated
     const updateableFields = [
-      'name', 'slug', 'logoUrl', 'websiteUrl', 'contactNumber', 
+      'name', 'logoUrl', 'websiteUrl', 'contactNumber', 
       'email', 'bookingLink', 'description', 'primaryColor', 
       'secondaryColor', 'backgroundColor', 'textColor', 'currency'
     ];

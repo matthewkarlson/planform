@@ -95,6 +95,7 @@ type AgencyData = {
   primaryColor: string | null;
   secondaryColor: string | null;
   backgroundColor: string | null;
+  textColor?: string;
 };
 
 export default function PlanformPage() {
@@ -344,6 +345,7 @@ export default function PlanformPage() {
       '--primary-color': agency.primaryColor || undefined,
       '--secondary-color': agency.secondaryColor || undefined,
       '--background-color': agency.backgroundColor || undefined,
+      '--text-color': agency.textColor || undefined,
     };
   };
 
@@ -361,6 +363,15 @@ export default function PlanformPage() {
     
     return {
       backgroundColor: agency.backgroundColor,
+    };
+  };
+
+  // Get header style for titles and section headers
+  const getHeaderStyle = () => {
+    if (!agency?.secondaryColor) return {};
+    
+    return {
+      color: agency.secondaryColor,
     };
   };
 
@@ -521,19 +532,19 @@ export default function PlanformPage() {
     <Card className="w-full border-0 shadow-none" style={getCardStyle()}>
       <CardHeader className="px-4 sm:px-6">
         {currentStep === 0 ? (
-          <CardTitle className="text-2xl">Marketing Strategy Planner</CardTitle>
+          <CardTitle className="text-2xl" style={getHeaderStyle()}>Marketing Strategy Planner</CardTitle>
         ) : (
-          <CardTitle className="text-2xl">{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
+          <CardTitle className="text-2xl" style={getHeaderStyle()}>{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
         )}
         {currentStep === 0 ? (
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1" style={agency?.textColor ? { color: agency.textColor } : undefined}>
             Answer a few questions about your business to get a personalized marketing strategy.
           </p>
         ) : currentQuestions?.description && (
-          <p className="text-sm text-muted-foreground mt-1">{currentQuestions.description}</p>
+          <p className="text-sm text-muted-foreground mt-1" style={agency?.textColor ? { color: agency.textColor } : undefined}>{currentQuestions.description}</p>
         )}
         {currentStep > 0 && (
-          <div className="text-sm text-muted-foreground mt-2">
+          <div className="text-sm text-muted-foreground mt-2" style={{ color: agency?.secondaryColor || undefined }}>
             Step {currentStep} of {totalSteps}
           </div>
         )}
@@ -551,10 +562,10 @@ export default function PlanformPage() {
               </div>
             )}
             <div className="text-center space-y-4">
-              <h3 className="text-xl font-semibold">
+              <h3 className="text-xl font-semibold" style={getHeaderStyle()}>
                 {agency?.name ? `Welcome to ${agency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner'}
               </h3>
-              <div className="space-y-2 text-left">
+              <div className="space-y-2 text-left" style={agency?.textColor ? { color: agency.textColor } : undefined}>
                 <p>This short questionnaire will help us understand your business and create a personalized marketing strategy for you.</p>
                 <p>Here's what to expect:</p>
                 <ul className="list-disc list-inside space-y-1">
@@ -580,6 +591,9 @@ export default function PlanformPage() {
           variant="outline"
           onClick={handleBack}
           disabled={currentStep === 0 || isSubmitting}
+          style={agency?.secondaryColor ? 
+            { borderColor: agency.secondaryColor || undefined, color: agency.secondaryColor || undefined } 
+            : undefined}
         >
           <ChevronLeft className="mr-2 h-4 w-4" /> Back
         </Button>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Agency, Team, User } from '@/lib/db/schema';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import QuestionEditor from './components/QuestionEditor';
 import ServiceEditor from './components/ServiceEditor';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import EmbedPreview from './components/EmbedPreview';
 
 interface AgencyDashboardProps {
   user: User;
@@ -168,16 +169,7 @@ export default function AgencyDashboard({ user, team, agencies }: AgencyDashboar
                     />
                   </div>
                   
-                  <div>
-                    <Label htmlFor="slug">Agency Slug</Label>
-                    <Input
-                      id="slug"
-                      name="slug"
-                      value={formData.slug || ''}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
+
                   
                   <div>
                     <Label htmlFor="email">Email</Label>
@@ -335,7 +327,16 @@ export default function AgencyDashboard({ user, team, agencies }: AgencyDashboar
                 </div>
               </CardContent>
             </Card>
-            
+
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Live Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmbedPreview agency={selectedAgency} formData={formData} />
+              </CardContent>
+            </Card>
+
             <Card className="mb-8">
               <CardHeader>
                 <CardTitle>API Settings</CardTitle>
