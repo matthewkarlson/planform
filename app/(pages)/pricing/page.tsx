@@ -75,7 +75,7 @@ function PricingCard({
     <div className="rounded-lg border border-gray-200 p-6 relative flex flex-col h-full">
       <h2 className="text-2xl font-medium text-gray-900 mb-2">{name}</h2>
       <p className="text-4xl font-bold text-gray-900 mb-2">
-        ${price / 100}
+        £{price / 100}
         <span className="text-xl font-normal text-gray-600">
           /{interval}
         </span>
