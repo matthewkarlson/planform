@@ -27,7 +27,7 @@ import {
   validatedAction,
   validatedActionWithUser,
 } from '@/lib/auth/middleware';
-import { sendVerificationEmail, sendPasswordResetEmail, verifyPasswordResetToken } from '@/lib/email/service';
+import { sendVerificationEmail, sendPasswordResetEmail, verifyPasswordResetToken, sendInvitationEmail } from '@/lib/email/service';
 
 // Helper function to get user with team
 export async function getUserWithTeam(userId: number) {
@@ -35,9 +35,11 @@ export async function getUserWithTeam(userId: number) {
     .select({
       user: users,
       teamId: teamMembers.teamId,
+      team: teams
     })
     .from(users)
     .leftJoin(teamMembers, eq(users.id, teamMembers.userId))
+    .leftJoin(teams, eq(teamMembers.teamId, teams.id))
     .where(eq(users.id, userId))
     .limit(1);
 
@@ -509,18 +511,27 @@ export const inviteTeamMember = validatedActionWithUser(
     }
 
     // Create a new invitation
-    await db.insert(invitations).values({
-      teamId: userWithTeam.teamId,
-      email,
-      role,
-      invitedBy: user.id,
-      status: 'pending'
-    });
+    const [invitation] = await db.insert(invitations)
+      .values({
+        teamId: userWithTeam.teamId,
+        email,
+        role,
+        invitedBy: user.id,
+        status: 'pending'
+      })
+      .returning();
 
     await logActivity(user.id, ActivityType.INVITE_TEAM_MEMBER);
 
-    // TODO: Send invitation email and include ?inviteId={id} to sign-up URL
-    // await sendInvitationEmail(email, userWithTeam.team.name, role)
+    // Send the invitation email with the invitation ID
+    if (invitation) {
+      await sendInvitationEmail(
+        email, 
+        userWithTeam.team?.name || 'Team', 
+        role, 
+        invitation.id
+      );
+    }
 
     return { success: 'Invitation sent successfully' };
   }

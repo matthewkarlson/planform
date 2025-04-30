@@ -8,6 +8,10 @@ import { User, Team, TeamMember } from '@/lib/db/schema';
 import { inviteTeamMember, removeTeamMember } from '@/app/(login)/actions';
 import { useState } from 'react';
 import { createPortalSessionAction } from '@/lib/payments/actions';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type ActionState = {
   error?: string;
@@ -32,6 +36,8 @@ export function Settings({ userData, teamData, teamMembers }: SettingsProps) {
   const [inviteRole, setInviteRole] = useState<'member' | 'owner'>('member');
   const [inviteMessage, setInviteMessage] = useState<ActionState>({});
   const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
+  const [formErrors, setFormErrors] = useState<{email?: string}>({});
   
   const handleSubscriptionManagement = async () => {
     // If the team has a subscription, go to Stripe portal. Otherwise, go to pricing
@@ -52,12 +58,50 @@ export function Settings({ userData, teamData, teamMembers }: SettingsProps) {
   };
 
   const handleInvite = async () => {
-    const result = await inviteTeamMember({ email: inviteEmail, role: inviteRole }, new FormData());
-    if (result.error) {
-      setInviteMessage({ error: result.error });
-    } else if (result.success) {
-      setInviteMessage({ success: result.success });
-      setInviteEmail('');
+    // Reset errors and messages
+    setFormErrors({});
+    setInviteMessage({});
+    
+    // Validate email
+    if (!inviteEmail) {
+      setFormErrors({ email: 'Email is required' });
+      return;
+    }
+    
+    if (!/^\S+@\S+\.\S+$/.test(inviteEmail)) {
+      setFormErrors({ email: 'Please enter a valid email address' });
+      return;
+    }
+    
+    try {
+      setIsInviting(true);
+      
+      // Create FormData object properly
+      const formData = new FormData();
+      formData.append('email', inviteEmail);
+      formData.append('role', inviteRole);
+      
+      const result = await inviteTeamMember({ email: inviteEmail, role: inviteRole }, formData);
+      
+      // Clear form on success
+      if (result.success) {
+        setInviteMessage({ success: result.success });
+        setInviteEmail('');
+        setInviteRole('member');
+      } 
+      // Handle specific errors
+      else if (result.error) {
+        if (result.error.includes('required')) {
+          setFormErrors({ email: 'Email is required' });
+        } else {
+          setInviteMessage({ error: result.error });
+        }
+      }
+    } catch (error) {
+      console.error('Invitation error:', error);
+      setInviteMessage({ error: 'Failed to send invitation. Please try again.' });
+    } finally {
+      setIsInviting(false);
     }
   };
   
@@ -129,43 +173,70 @@ export function Settings({ userData, teamData, teamMembers }: SettingsProps) {
       </Card>
 
       <Card className="mb-8">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader>
           <CardTitle>Team Members</CardTitle>
-          <div className="flex items-center space-x-2">
-            <input
-              type="email"
-              placeholder="Email address"
-              className="px-2 py-1 border rounded"
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-            />
-            <select 
-              className="px-2 py-1 border rounded"
-              value={inviteRole}
-              onChange={(e) => setInviteRole(e.target.value as 'member' | 'owner')}
-            >
-              <option value="member">Member</option>
-              <option value="owner">Owner</option>
-            </select>
-            <Button size="sm" onClick={handleInvite}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              Invite
-            </Button>
-          </div>
         </CardHeader>
         <CardContent>
-          {inviteMessage.success && (
-            <div className="mb-4 p-2 bg-green-100 text-green-800 rounded">
-              {inviteMessage.success}
+          <div className="space-y-6">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="invite-email">Invite a Team Member</Label>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <div className="md:col-span-2">
+                    <Input
+                      id="invite-email"
+                      type="email"
+                      placeholder="Email address"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      className={formErrors.email ? "border-red-500" : ""}
+                    />
+                    {formErrors.email && (
+                      <p className="text-sm text-red-500 mt-1">{formErrors.email}</p>
+                    )}
+                  </div>
+                  <div className="md:col-span-1">
+                    <Select value={inviteRole} onValueChange={(value) => setInviteRole(value as 'member' | 'owner')}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="member">Member</SelectItem>
+                        <SelectItem value="owner">Owner</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="md:col-span-1">
+                    <Button className="w-full" onClick={handleInvite} disabled={isInviting}>
+                      {isInviting ? "Inviting..." : (
+                        <>
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Invite
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
-          {inviteMessage.error && (
-            <div className="mb-4 p-2 bg-red-100 text-red-800 rounded">
-              {inviteMessage.error}
-            </div>
-          )}
+
+            {inviteMessage.success && (
+              <Alert variant="default" className="bg-green-50 border-green-200">
+                <AlertDescription className="text-green-800">
+                  {inviteMessage.success}
+                </AlertDescription>
+              </Alert>
+            )}
+            {inviteMessage.error && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {inviteMessage.error}
+                </AlertDescription>
+              </Alert>
+            )}
           
-          <div className="space-y-4">
+          <div className="space-y-4 mt-6">
+            <h3 className="text-sm font-medium">Current Team Members</h3>
             {teamMembers.map(({ member, user }) => (
               <div key={member.id} className="flex items-center justify-between border-b pb-2">
                 <div className="flex items-center space-x-3">
@@ -190,6 +261,7 @@ export function Settings({ userData, teamData, teamMembers }: SettingsProps) {
                 )}
               </div>
             ))}
+          </div>
           </div>
         </CardContent>
       </Card>

@@ -254,6 +254,73 @@ export async function sendPasswordResetEmail(userId: number, email: string) {
   }
 }
 
+export async function sendInvitationEmail(email: string, teamName: string, role: string, invitationId: number) {
+  // Generate invitation URL
+  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const invitationUrl = `${baseUrl}/sign-up?inviteId=${invitationId}`;
+  
+  // Email content
+  const fromEmail = process.env.EMAIL_FROM || '"SaaS Starter" <noreply@saas-starter.com>';
+  const subject = `You've been invited to join ${teamName}`;
+  const text = `You've been invited to join ${teamName} as a ${role}. Please click on the following link to accept the invitation: ${invitationUrl}`;
+  const html = `
+    <div>
+      <h1>Team Invitation</h1>
+      <p>You've been invited to join <strong>${teamName}</strong> as a <strong>${role}</strong>.</p>
+      <p>Click the button below to accept the invitation and create your account:</p>
+      <a href="${invitationUrl}" style="
+        display: inline-block;
+        background-color: #f97316;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 20px 0;
+      ">
+        Accept Invitation
+      </a>
+      <p>Or copy and paste the following link in your browser:</p>
+      <p>${invitationUrl}</p>
+      <p>If you don't know why you received this invitation, you can safely ignore this email.</p>
+    </div>
+  `;
+  
+  // If SendGrid API key is available and we're in production, use SendGrid API
+  if (process.env.SENDGRID_API_KEY) {
+    const msg = {
+      to: email,
+      from: fromEmail,
+      subject,
+      text,
+      html,
+    };
+    
+    await sgMail.send(msg);
+    console.log(`Team invitation email sent to ${email} using SendGrid API`);
+    return { sent: true };
+  } 
+  // Otherwise use SMTP
+  else {
+    // Send the email
+    const transporter = await getEmailTransporter();
+    
+    const info = await transporter.sendMail({
+      from: fromEmail,
+      to: email,
+      subject,
+      text,
+      html,
+    });
+    
+    // For testing, log the URL where the email can be viewed
+    if (testAccount) {
+      console.log("Team invitation email sent: %s", nodemailer.getTestMessageUrl(info));
+    }
+    
+    return info;
+  }
+}
+
 export async function sendWaitlistVerificationEmail(email: string, token: string) {
   // Generate verification URL
   const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
