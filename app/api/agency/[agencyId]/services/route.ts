@@ -4,10 +4,12 @@ import { services } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getUser } from '@/lib/db/queries';
 
+type Params = Promise<{ agencyId: string }>;
+
 // GET /api/agency/[agencyId]/services
 export async function GET(
   request: Request,
-  { params }: { params: { agencyId: string } }
+  { params }: { params: Params }
 ) {
   try {
     const user = await getUser();
@@ -16,15 +18,16 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const agencyId = parseInt(params.agencyId);
+    const { agencyId } = await params;
+    const agencyIdNum = parseInt(agencyId);
     
-    if (isNaN(agencyId)) {
+    if (isNaN(agencyIdNum)) {
       return NextResponse.json({ error: 'Invalid agency ID' }, { status: 400 });
     }
     
     // Get all services for this agency
     const agencyServices = await db.query.services.findMany({
-      where: eq(services.agencyId, agencyId),
+      where: eq(services.agencyId, agencyIdNum),
       orderBy: (services, { asc }) => [asc(services.name)]
     });
     
@@ -41,7 +44,7 @@ export async function GET(
 // POST /api/agency/[agencyId]/services
 export async function POST(
   request: Request,
-  { params }: { params: { agencyId: string } }
+  { params }: { params: Params }
 ) {
   try {
     const user = await getUser();
@@ -50,9 +53,10 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const agencyId = parseInt(params.agencyId);
+    const { agencyId } = await params;
+    const agencyIdNum = parseInt(agencyId);
     
-    if (isNaN(agencyId)) {
+    if (isNaN(agencyIdNum)) {
       return NextResponse.json({ error: 'Invalid agency ID' }, { status: 400 });
     }
     
@@ -68,7 +72,7 @@ export async function POST(
     
     // Create the service
     const newService = await db.insert(services).values({
-      agencyId,
+      agencyId: agencyIdNum,
       serviceId: data.serviceId,
       name: data.name,
       description: data.description,

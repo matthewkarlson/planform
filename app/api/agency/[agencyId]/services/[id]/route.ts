@@ -4,10 +4,12 @@ import { services } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getUser } from '@/lib/db/queries';
 
+type Params = Promise<{ agencyId: string; id: string }>;
+
 // GET /api/agency/[agencyId]/services/[id]
 export async function GET(
   request: Request,
-  { params }: { params: { agencyId: string; id: string } }
+  { params }: { params: Params }
 ) {
   try {
     const user = await getUser();
@@ -16,10 +18,11 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const agencyId = parseInt(params.agencyId);
-    const serviceId = parseInt(params.id);
+    const { agencyId, id } = await params;
+    const agencyIdNum = parseInt(agencyId);
+    const serviceId = parseInt(id);
     
-    if (isNaN(agencyId) || isNaN(serviceId)) {
+    if (isNaN(agencyIdNum) || isNaN(serviceId)) {
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
     
@@ -27,7 +30,7 @@ export async function GET(
     const service = await db.query.services.findFirst({
       where: and(
         eq(services.id, serviceId),
-        eq(services.agencyId, agencyId)
+        eq(services.agencyId, agencyIdNum)
       )
     });
     
@@ -48,7 +51,7 @@ export async function GET(
 // PUT /api/agency/[agencyId]/services/[id]
 export async function PUT(
   request: Request,
-  { params }: { params: { agencyId: string; id: string } }
+  { params }: { params: Params }
 ) {
   try {
     const user = await getUser();
@@ -57,10 +60,11 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const agencyId = parseInt(params.agencyId);
-    const serviceId = parseInt(params.id);
+    const { agencyId, id } = await params;
+    const agencyIdNum = parseInt(agencyId);
+    const serviceId = parseInt(id);
     
-    if (isNaN(agencyId) || isNaN(serviceId)) {
+    if (isNaN(agencyIdNum) || isNaN(serviceId)) {
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
     
@@ -78,7 +82,7 @@ export async function PUT(
     const existingService = await db.query.services.findFirst({
       where: and(
         eq(services.id, serviceId),
-        eq(services.agencyId, agencyId)
+        eq(services.agencyId, agencyIdNum)
       )
     });
     
@@ -102,7 +106,7 @@ export async function PUT(
       })
       .where(and(
         eq(services.id, serviceId),
-        eq(services.agencyId, agencyId)
+        eq(services.agencyId, agencyIdNum)
       ))
       .returning();
     
@@ -128,7 +132,7 @@ export async function PUT(
 // DELETE /api/agency/[agencyId]/services/[id]
 export async function DELETE(
   request: Request,
-  { params }: { params: { agencyId: string; id: string } }
+  { params }: { params: Params }
 ) {
   try {
     const user = await getUser();
@@ -137,10 +141,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const agencyId = parseInt(params.agencyId);
-    const serviceId = parseInt(params.id);
+    const { agencyId, id } = await params;
+    const agencyIdNum = parseInt(agencyId);
+    const serviceId = parseInt(id);
     
-    if (isNaN(agencyId) || isNaN(serviceId)) {
+    if (isNaN(agencyIdNum) || isNaN(serviceId)) {
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
     
@@ -148,7 +153,7 @@ export async function DELETE(
     const existingService = await db.query.services.findFirst({
       where: and(
         eq(services.id, serviceId),
-        eq(services.agencyId, agencyId)
+        eq(services.agencyId, agencyIdNum)
       )
     });
     
@@ -161,7 +166,7 @@ export async function DELETE(
       .delete(services)
       .where(and(
         eq(services.id, serviceId),
-        eq(services.agencyId, agencyId)
+        eq(services.agencyId, agencyIdNum)
       ));
     
     return NextResponse.json({ success: true });
