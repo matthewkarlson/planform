@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Question, QuestionSet, createEmptyQuestion } from '@/lib/types/questions';
 import QuestionItem from './QuestionItem';
 import { ArrowUpIcon, ArrowDownIcon, PlusIcon, SaveIcon } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface QuestionEditorProps {
   agencyId: number;
@@ -69,12 +70,28 @@ export default function QuestionEditor({ agencyId }: QuestionEditorProps) {
 
   // Update a question
   const handleUpdateQuestion = (updatedQuestion: Question) => {
+    // Validate that all fields are of the same type
+    if (updatedQuestion.fields.length > 1) {
+      const fieldType = updatedQuestion.fields[0].type;
+      const hasDifferentTypes = updatedQuestion.fields.some(field => field.type !== fieldType);
+      
+      if (hasDifferentTypes) {
+        setError('All fields within a question must be of the same type.');
+        return;
+      }
+    }
+    
     setQuestionSet(prev => ({
       ...prev,
       questions: prev.questions.map(q => 
         q.questionNumber === updatedQuestion.questionNumber ? updatedQuestion : q
       )
     }));
+    
+    // Clear any error that might have been set
+    if (error === 'All fields within a question must be of the same type.') {
+      setError(null);
+    }
   };
 
   // Move question up or down in order
@@ -103,6 +120,19 @@ export default function QuestionEditor({ agencyId }: QuestionEditorProps) {
   // Save the question set
   const handleSave = async () => {
     try {
+      // Validate all questions before saving
+      for (const question of questionSet.questions) {
+        if (question.fields.length > 1) {
+          const fieldType = question.fields[0].type;
+          const hasDifferentTypes = question.fields.some(field => field.type !== fieldType);
+          
+          if (hasDifferentTypes) {
+            setError('All fields within a question must be of the same type. Please fix before saving.');
+            return;
+          }
+        }
+      }
+      
       setIsSaving(true);
       setError(null);
       setSuccess(null);
@@ -169,6 +199,12 @@ export default function QuestionEditor({ agencyId }: QuestionEditorProps) {
         </div>
       </CardHeader>
       <CardContent>
+        <Alert className="mb-4">
+          <AlertDescription>
+            Note: Each question must have fields of the same type only. For example, you cannot mix text fields with radio buttons in the same question.
+          </AlertDescription>
+        </Alert>
+        
         {error && (
           <div className="bg-red-50 text-red-800 p-4 mb-4 rounded-md">
             {error}

@@ -51,7 +51,8 @@ type DropdownField = BaseField & {
 type Field = TextField | TextareaField | RadioField | CheckboxField | DropdownField;
 
 type Question = {
-  step: number;
+  questionNumber?: number;
+  step?: number;
   title: string;
   description?: string;
   fields: Field[];
@@ -132,8 +133,26 @@ export default function PlanformPage() {
               
               if (questionsResponse.ok) {
                 const data = await questionsResponse.json();
-                // The API returns the questions in a 'questions' field of the response
-                setQuestions(Array.isArray(data.questions) ? data.questions : []);
+                
+                // Process the questions data structure
+                // API returns { agencyId, questions: [...] }
+                if (data && data.questions) {
+                  // Format questions to match the expected structure with step numbers
+                  const formattedQuestions = data.questions.map((q: Question, index: number) => ({
+                    ...q,
+                    step: q.questionNumber || index + 1
+                  }));
+                  
+                  // Sort by step/questionNumber
+                  const sortedQuestions = formattedQuestions.sort((a: Question, b: Question) => 
+                    (a.step || 0) - (b.step || 0)
+                  );
+                  
+                  setQuestions(sortedQuestions);
+                } else {
+                  // Fallback if questions field is missing
+                  setQuestions([]);
+                }
               } else {
                 throw new Error('Failed to fetch questions');
               }
@@ -152,7 +171,15 @@ export default function PlanformPage() {
             
             if (questionsResponse.ok) {
               const data = await questionsResponse.json();
-              setQuestions(Array.isArray(data) ? data : []);
+              
+              // Ensure data is properly formatted for demo
+              if (Array.isArray(data)) {
+                setQuestions(data);
+              } else if (data && data.questions && Array.isArray(data.questions)) {
+                setQuestions(data.questions);
+              } else {
+                setQuestions([]);
+              }
             } else {
               throw new Error('Failed to fetch demo questions');
             }
