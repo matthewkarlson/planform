@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import QuestionEditor from './components/QuestionEditor';
 import ServiceEditor from './components/ServiceEditor';
 import WelcomeStepEditor from './components/WelcomeStepEditor';
+import ClientsViewer from './components/ClientsViewer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EmbedPreview from './components/EmbedPreview';
 
@@ -145,6 +146,7 @@ export default function AgencyDashboard({ user, team, agencies }: AgencyDashboar
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
         <TabsList className="mb-6">
+          <TabsTrigger value="clients">Clients</TabsTrigger>
           <TabsTrigger value="details">Agency Details</TabsTrigger>
           <TabsTrigger value="questions">Questionnaire</TabsTrigger>
           <TabsTrigger value="welcomeStep">Welcome Step</TabsTrigger>
@@ -423,6 +425,16 @@ export default function AgencyDashboard({ user, team, agencies }: AgencyDashboar
           ) : (
             <div className="text-center p-8 bg-gray-50 rounded-md">
               Please select an agency first to manage its services.
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="clients">
+          {selectedAgencyId ? (
+            <ClientsViewer agencyId={selectedAgencyId} />
+          ) : (
+            <div className="text-center p-8 bg-gray-50 rounded-md">
+              Please select an agency first to view its clients.
             </div>
           )}
         </TabsContent>
