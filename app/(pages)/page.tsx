@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Download, ArrowRight, Target, Users, RefreshCw, CheckCircle, DraftingCompass } from 'lucide-react';
+import { Download, ArrowRight, Target, Users, RefreshCw, CheckCircle, DraftingCompass, Camera, FileSpreadsheet, Award } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import bg from '@/public/planform_hero_bg.png'; 
@@ -55,7 +55,71 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Rest of the sections with updated styling */}
+      {/* How It Works Section - New Design */}
+      <section className="py-20 bg-black text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-5xl font-bold">How It Works</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* Left Column - Text */}
+            <div>
+              <h3 className="text-4xl font-bold mb-6">
+                Capture, Craft, Close 
+                <span className="block mt-2">your growth engine in</span>
+                <span className="block mt-2">three easy clicks</span>
+              </h3>
+              
+              {/* This is where the placeholder for the image would be */}
+              <div className="h-64 w-full mt-8 rounded-lg bg-gray-800 hidden md:block"></div>
+            </div>
+            
+            {/* Right Column - Steps */}
+            <div className="space-y-12">
+              {/* Step 1 */}
+              <div className="flex gap-6 items-start">
+                <div className="w-16 h-16 rounded-lg bg-blue-500 flex-shrink-0 flex items-center justify-center">
+                  <Camera className="h-10 w-10 text-white" />
+                </div>
+                <div>
+                  <h4 className="text-2xl font-bold mb-3">Capture Lead Information</h4>
+                  <p className="text-gray-300">
+                    Your prospects answer a few key questions about their business needs and goals through our streamlined questionnaire.
+                  </p>
+                </div>
+              </div>
+              
+              {/* Step 2 */}
+              <div className="flex gap-6 items-start">
+                <div className="w-16 h-16 rounded-lg bg-gray-800 flex-shrink-0 flex items-center justify-center">
+                  <FileSpreadsheet className="h-10 w-10 text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="text-2xl font-bold mb-3">Generate Custom Plans</h4>
+                  <p className="text-gray-300">
+                    Our AI instantly creates a tailored growth plan using your actual services, matching their needs with your specific offerings.
+                  </p>
+                </div>
+              </div>
+              
+              {/* Step 3 */}
+              <div className="flex gap-6 items-start">
+                <div className="w-16 h-16 rounded-lg bg-blue-900 flex-shrink-0 flex items-center justify-center">
+                  <Award className="h-10 w-10 text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="text-2xl font-bold mb-3">Convert</h4>
+                  <p className="text-gray-300">
+                    Leads receive their professional growth plan immediately, priming them for a successful sales conversation when they book their call.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 bg-gray-900 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-white mb-6">Why Your Current Funnel Is Losing You Leads</h2>
@@ -169,85 +233,14 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gray-900 p-8 rounded-lg shadow-lg">
             <p className="text-xl italic text-gray-200 mb-4">
-              "We replaced our old contact form with Planform and saw 3x more qualified leads in the first two weeks."
+              "We added a Growth Plan CTA to our site with Planform and saw 3x more qualified leads in the first two weeks."
             </p>
             <div className="flex items-center">
-              <div className="h-12 w-12 rounded-full bg-gray-700 mr-4"></div>
               <div>
                 <p className="font-medium text-white">Jordan M.</p>
                 <p className="text-sm text-gray-400">Founder at Lightbridge Studio</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How Planform Works Section */}
-      <section className="py-20 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-white sm:text-4xl">
-              How Planform.ai Works
-            </h2>
-            <p className="mt-4 max-w-3xl mx-auto text-xl text-gray-300">
-              Transform your website visitors into qualified leads and paying clients with 
-              our AI-powered personalized growth plans.
-            </p>
-          </div>
-          
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-gray-700"></div>
-            </div>
-            
-            <div className="relative flex justify-center">
-              <span className="bg-gray-900 px-4 text-lg font-medium text-gray-300">The Growth Plan Process</span>
-            </div>
-          </div>
-          
-          <div className="mt-12 lg:grid lg:grid-cols-3 lg:gap-8">
-            <div className="relative">
-              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-900 text-blue-400 mb-4 mx-auto">
-                <span className="text-xl font-bold">1</span>
-              </div>
-              <h3 className="text-xl font-medium text-white text-center mb-4">Capture Lead Information</h3>
-              <p className="text-base text-gray-300 text-center mb-4">
-                Your prospects answer a few key questions about their business needs and goals through our streamlined questionnaire.
-              </p>
-              <div className="hidden lg:block absolute top-6 right-0 w-16 h-1 bg-blue-900"></div>
-            </div>
-            
-            <div className="relative mt-10 lg:mt-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-900 text-blue-400 mb-4 mx-auto">
-                <span className="text-xl font-bold">2</span>
-              </div>
-              <h3 className="text-xl font-medium text-white text-center mb-4">Generate Custom Plans</h3>
-              <p className="text-base text-gray-300 text-center mb-4">
-                Our AI instantly creates a tailored growth plan using your actual services, matching their needs with your specific offerings.
-              </p>
-              <div className="hidden lg:block absolute top-6 right-0 w-16 h-1 bg-blue-900"></div>
-            </div>
-            
-            <div className="relative mt-10 lg:mt-0">
-              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-900 text-blue-400 mb-4 mx-auto">
-                <div className="flex items-center justify-center">
-                  <RefreshCw className="h-6 w-6" />
-                </div>
-              </div>
-              <h3 className="text-xl font-medium text-white text-center mb-4">Convert More Clients</h3>
-              <p className="text-base text-gray-300 text-center mb-4">
-                Leads receive their professional growth plan immediately, priming them for a successful sales conversation when they book their call.
-              </p>
-            </div>
-          </div>
-          
-          <div className="mt-16 text-center">
-            <Link href="/pricing">
-              <Button className="text-lg rounded-full bg-blue-500 hover:bg-blue-600 text-white px-8 py-6">
-              Convert More Clients
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
           </div>
         </div>
       </section>
@@ -283,8 +276,8 @@ export default function HomePage() {
               </h3>
               <p className="mt-2 text-gray-300 ml-8">
                 Setup is quick and straightforward. After you add your services and customize your questionnaire, 
-                you can embed Planform.ai on your website in minutes. Our team also offers optional assistance 
-                with integration to ensure a seamless experience for your visitors.
+                you can embed Planform.ai on your website in minutes. We'll help you get up and running so you can 
+                start converting more leads - fast. 
               </p>
             </div>
             
