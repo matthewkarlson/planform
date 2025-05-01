@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Download, ArrowRight, Target, Users, RefreshCw, CheckCircle, DraftingCompass, Camera, FileSpreadsheet, Award } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import bg from '@/public/planform_hero_bg.png'; 
+import bg from '@/public/planform_hero_bg.png';
+import demopn from '@/public/website_analysis_demo.png';
 import ClientHeader from '@/app/components/layout/ClientHeader';
 
 export default function HomePage() {
@@ -72,7 +73,7 @@ export default function HomePage() {
               </h3>
               
               {/* This is where the placeholder for the image would be */}
-              <div className="h-64 w-full mt-8 rounded-lg bg-gray-800 hidden md:block"></div>
+              <Image src={demopn} alt="Hero Background" className="rounded-lg" />
             </div>
             
             {/* Right Column - Steps */}
@@ -96,9 +97,9 @@ export default function HomePage() {
                   <FileSpreadsheet className="h-10 w-10 text-blue-400" />
                 </div>
                 <div>
-                  <h4 className="text-2xl font-bold mb-3">Generate Custom Plans</h4>
+                  <h4 className="text-2xl font-bold mb-3">Delight Your Clients</h4>
                   <p className="text-gray-300">
-                    Our AI instantly creates a tailored growth plan using your actual services, matching their needs with your specific offerings.
+                    Our AI instantly creates a tailored growth plan and a personalised website analysis for your site visitors, matching their needs with your specific offerings.
                   </p>
                 </div>
               </div>
