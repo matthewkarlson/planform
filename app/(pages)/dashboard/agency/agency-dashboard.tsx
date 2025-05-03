@@ -27,7 +27,7 @@ export default function AgencyDashboard({ user, team, agencies }: AgencyDashboar
   const [selectedAgencyId, setSelectedAgencyId] = useState<number>(agencies[0]?.id || 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [activeTab, setActiveTab] = useState('details');
+  const [activeTab, setActiveTab] = useState('clients');
   
   // Find the currently selected agency
   const selectedAgency = agencies.find(agency => agency.id === selectedAgencyId) || agencies[0];

@@ -19,23 +19,18 @@ interface PlanViewerProps {
   onClose: () => void;
 }
 
+// Define a type for any client responses
+type ClientResponses = {
+  websiteUrl?: string;
+  name?: string;
+  email?: string;
+  apiKey?: string;
+  agencyId?: number;
+  [key: string]: any; // Allow any additional properties
+};
+
 interface PlanData {
-  clientResponses: {
-    websiteUrl: string;
-    businessType: string;
-    businessExperience: string;
-    primaryGoal: string;
-    marketingActivities: string[];
-    pastChallenges: string;
-    conversionFlow: string;
-    currentChallenges: string;
-    differentiator: string;
-    websiteTraffic: string;
-    name: string;
-    email: string;
-    apiKey: string;
-    agencyId: number;
-  };
+  clientResponses: ClientResponses;
   recommendations: {
     serviceId: string;
     reason: string;
@@ -83,28 +78,129 @@ export default function PlanViewer({ planId, isOpen, onClose }: PlanViewerProps)
     fetchPlan();
   }, [planId, isOpen]);
 
-  // Format business experience
-  const formatBusinessExperience = (exp: string) => {
-    const mapping: Record<string, string> = {
-      'less_than_1': 'Less than 1 year',
-      '1_to_3': '1-3 years',
-      '3_to_5': '3-5 years',
-      '5_to_10': '5-10 years',
-      'more_than_10': 'More than 10 years'
-    };
-    return mapping[exp] || exp;
+  // Helper function to format values based on known formats
+  const formatValue = (key: string, value: any): string => {
+    // Handle business experience formatting
+    if (key.includes('experience') || key.includes('years')) {
+      const experienceMap: Record<string, string> = {
+        'less_than_1': 'Less than 1 year',
+        '1_to_3': '1-3 years',
+        '3_to_5': '3-5 years',
+        '5_to_10': '5-10 years',
+        'more_than_10': 'More than 10 years'
+      };
+      return experienceMap[value] || value;
+    }
+
+    // Handle traffic formatting
+    if (key.includes('traffic') || key.includes('visitors')) {
+      const trafficMap: Record<string, string> = {
+        'under_1k': 'Under 1,000 monthly visitors',
+        '1k-5k': '1,000-5,000 monthly visitors',
+        '5k-20k': '5,000-20,000 monthly visitors',
+        '20k-100k': '20,000-100,000 monthly visitors',
+        'over_100k': 'Over 100,000 monthly visitors'
+      };
+      return trafficMap[value] || value;
+    }
+
+    // For other string values
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    // For array values
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+
+    // For other values
+    return JSON.stringify(value);
   };
 
-  // Format website traffic
-  const formatWebsiteTraffic = (traffic: string) => {
-    const mapping: Record<string, string> = {
-      'under_1k': 'Under 1,000 monthly visitors',
-      '1k-5k': '1,000-5,000 monthly visitors',
-      '5k-20k': '5,000-20,000 monthly visitors',
-      '20k-100k': '20,000-100,000 monthly visitors',
-      'over_100k': 'Over 100,000 monthly visitors'
-    };
-    return mapping[traffic] || traffic;
+  // Function to render client response fields
+  const renderClientResponses = () => {
+    if (!plan?.clientResponses) return null;
+
+    // Guaranteed fields to show first
+    const guaranteedFields = ['name', 'email', 'websiteUrl'];
+    
+    // Display all other fields except apiKey and agencyId
+    const otherFields = Object.keys(plan.clientResponses)
+      .filter(key => !guaranteedFields.includes(key) && key !== 'apiKey' && key !== 'agencyId');
+
+    return (
+      <div className="space-y-4">
+        {/* Display guaranteed fields first */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {guaranteedFields.map(field => {
+            if (!plan.clientResponses[field]) return null;
+            
+            if (field === 'websiteUrl') {
+              return (
+                <div key={field}>
+                  <h3 className="text-sm font-medium text-gray-500">Website</h3>
+                  <a 
+                    href={plan.clientResponses[field]} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center text-blue-600 hover:underline"
+                  >
+                    {plan.clientResponses[field]}
+                    <ExternalLink className="ml-1 h-3 w-3" />
+                  </a>
+                </div>
+              );
+            }
+            
+            return (
+              <div key={field}>
+                <h3 className="text-sm font-medium text-gray-500">
+                  {field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}
+                </h3>
+                <p>{plan.clientResponses[field]}</p>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Display all other fields */}
+        {otherFields.map(field => {
+          const value = plan.clientResponses[field];
+          if (value === undefined || value === null || value === '') return null;
+          
+          // Format the display name of the field
+          const displayName = field
+            .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+            .split('_').join(' ') // Replace underscores with spaces
+            .replace(/^\w/, c => c.toUpperCase()); // Capitalize first letter
+          
+          if (Array.isArray(value)) {
+            return (
+              <div key={field}>
+                <h3 className="text-sm font-medium text-gray-500">{displayName}</h3>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {value.map((item, index) => (
+                    <Badge key={index} variant="outline" className="capitalize">
+                      {typeof item === 'string' ? item : JSON.stringify(item)}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+          
+          return (
+            <div key={field}>
+              <h3 className="text-sm font-medium text-gray-500">{displayName}</h3>
+              <p className={typeof value === 'string' && value.length > 100 ? "whitespace-pre-wrap" : ""}>
+                {formatValue(field, value)}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
   
   return (
@@ -176,80 +272,7 @@ export default function PlanViewer({ planId, isOpen, onClose }: PlanViewerProps)
                   <CardTitle>Client Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500">Name</h3>
-                        <p>{plan.clientResponses.name}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                        <p>{plan.clientResponses.email}</p>
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500">Website</h3>
-                        <a 
-                          href={plan.clientResponses.websiteUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:underline"
-                        >
-                          {plan.clientResponses.websiteUrl}
-                          <ExternalLink className="ml-1 h-3 w-3" />
-                        </a>
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500">Business Type</h3>
-                        <p className="capitalize">{plan.clientResponses.businessType}</p>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Business Experience</h3>
-                      <p>{formatBusinessExperience(plan.clientResponses.businessExperience)}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Primary Goal</h3>
-                      <p className="capitalize">{plan.clientResponses.primaryGoal}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Website Traffic</h3>
-                      <p>{formatWebsiteTraffic(plan.clientResponses.websiteTraffic)}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Marketing Activities</h3>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {plan.clientResponses.marketingActivities.map((activity, index) => (
-                          <Badge key={index} variant="outline" className="capitalize">
-                            {activity}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Current Challenges</h3>
-                      <p className="capitalize">{plan.clientResponses.currentChallenges}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Differentiator</h3>
-                      <p>{plan.clientResponses.differentiator}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Past Challenges</h3>
-                      <p>{plan.clientResponses.pastChallenges}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-500">Conversion Flow</h3>
-                      <p>{plan.clientResponses.conversionFlow}</p>
-                    </div>
-                  </div>
+                  {renderClientResponses()}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -273,12 +296,49 @@ export default function PlanViewer({ planId, isOpen, onClose }: PlanViewerProps)
                     
                     {plan.websiteAnalysis && typeof plan.websiteAnalysis === 'string' ? (
                       <p className="whitespace-pre-wrap">{plan.websiteAnalysis}</p>
-                    ) : (
+                    ) : plan.websiteAnalysis ? (
                       <div className="space-y-4">
-                        {/* Render structured analysis if it's an object */}
-                        <pre>{JSON.stringify(plan.websiteAnalysis, null, 2)}</pre>
+                        {plan.websiteAnalysis.strengths && (
+                          <div>
+                            <h3 className="text-md font-semibold">Strengths</h3>
+                            <ul className="list-disc pl-5 mt-2">
+                              {plan.websiteAnalysis.strengths.map((item: string, i: number) => (
+                                <li key={i}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {plan.websiteAnalysis.weaknesses && (
+                          <div>
+                            <h3 className="text-md font-semibold">Areas for Improvement</h3>
+                            <ul className="list-disc pl-5 mt-2">
+                              {plan.websiteAnalysis.weaknesses.map((item: string, i: number) => (
+                                <li key={i}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {plan.websiteAnalysis.recommendations && (
+                          <div>
+                            <h3 className="text-md font-semibold">Recommendations</h3>
+                            <ul className="list-disc pl-5 mt-2">
+                              {plan.websiteAnalysis.recommendations.map((item: string, i: number) => (
+                                <li key={i}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        
+                        {plan.websiteAnalysis.overallImpression && (
+                          <div>
+                            <h3 className="text-md font-semibold">Overall Impression</h3>
+                            <p className="mt-2">{plan.websiteAnalysis.overallImpression}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    ) : null}
                   </CardContent>
                 </Card>
               </TabsContent>

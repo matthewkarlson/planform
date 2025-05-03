@@ -10,25 +10,7 @@ import { PlusCircle, Trash2, Save, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import EmbedPreview from './EmbedPreview';
 import { Agency } from '@/lib/db/schema';
-
-// Define welcome step structure
-interface WelcomeStep {
-  id?: number;
-  agencyId: number;
-  title: string;
-  description?: string;
-  questionNumber?: number;
-  step?: number;
-  isWelcomeStep: boolean;
-  fields: any[];
-  welcomeContent: {
-    heading?: string;
-    subheading?: string;
-    bulletPoints?: string[];
-    footerText?: string;
-    buttonText?: string;
-  };
-}
+import { WelcomeStep } from '@/lib/types/welcomeStep';
 
 interface WelcomeStepEditorProps {
   agencyId: number;
@@ -48,25 +30,11 @@ export default function WelcomeStepEditor({ agencyId }: WelcomeStepEditorProps) 
     const fetchWelcomeStep = async () => {
       setIsLoading(true);
       try {
-        // Fetch agency data from the agency dashboard data that already exists
-        // The agency data is already available in the parent component
-        const agencyResponse = await fetch(`/api/planform/agency_demo`);
-        if (agencyResponse.ok) {
-          const agencyData = await agencyResponse.json();
-          setAgency(agencyData);
-        }
-        
-        // Fetch all questions for the agency
-        const response = await fetch(`/api/questions?agencyId=${agencyId}`);
-        
+        const response = await fetch(`/api/welcomestep?agencyId=${agencyId}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch questions');
+          throw new Error('Failed to fetch welcome step');
         }
-        
-        const data = await response.json();
-        
-        // Find the question marked as welcome step
-        let welcomeStep = data.questions?.find((q: any) => q.isWelcomeStep === true);
+        let welcomeStep = await response.json();
         
         // If no welcome step exists, create a default one
         if (!welcomeStep) {
@@ -168,48 +136,15 @@ export default function WelcomeStepEditor({ agencyId }: WelcomeStepEditorProps) 
       // Ensure isWelcomeStep is true
       updatedWelcomeStep.isWelcomeStep = true;
       
-      // Format for questions_sets table - we need to send it as part of a questions array
-      // to comply with the schema
-      const response = await fetch(`/api/questions?agencyId=${agencyId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch existing questions');
-      }
-      
-      // Get existing questions, if any
-      const data = await response.json();
-      const questions = data.questions || [];
       
       // Replace or add the welcome step
-      let updatedQuestions;
-      const welcomeStepIndex = questions.findIndex((q: any) => q.isWelcomeStep === true);
-      
-      if (welcomeStepIndex >= 0) {
-        // Update existing welcome step
-        updatedQuestions = [...questions];
-        updatedQuestions[welcomeStepIndex] = updatedWelcomeStep;
-      } else {
-        // Add new welcome step
-        updatedQuestions = [...questions, updatedWelcomeStep];
-      }
-      
-      // Save the entire questions set
-      const saveResponse = await fetch('/api/questions', {
+      const saveResponse = await fetch('/api/welcomestep', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          agencyId,
-          questions: updatedQuestions
-        }),
+        body: JSON.stringify({ agencyId, step: updatedWelcomeStep }),
       });
-      
       if (!saveResponse.ok) {
         const errorData = await saveResponse.json();
         throw new Error(errorData.error || 'Failed to save welcome step');

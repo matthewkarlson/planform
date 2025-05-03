@@ -41,7 +41,6 @@ export type Question = {
   description?: string;
   fields: Field[];
 };
-
 export type QuestionSet = {
   id?: number;
   agencyId: number;

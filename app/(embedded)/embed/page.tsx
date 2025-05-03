@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import useAutosizeIframe from '@/lib/useAutosizeIframe';
+import { WelcomeStep } from '@/lib/types/welcomeStep';
 
 // Define type for different field types
 type BaseField = {
@@ -115,6 +116,8 @@ export default function PlanformPage() {
   const [agency, setAgency] = useState<AgencyData | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [welcomeStep, setWelcomeStep] = useState<WelcomeStep | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const router = useRouter();
 
   // Fetch agency data and questions
@@ -133,7 +136,14 @@ export default function PlanformPage() {
           if (agencyResponse.ok) {
             const agencyData = await agencyResponse.json();
             setAgency(agencyData);
-            
+            const welcomeStepEndpoint = `/api/welcomestep?agencyId=${agencyData.id}`;
+            const welcomeStepResponse = await fetch(welcomeStepEndpoint);
+            if (welcomeStepResponse.ok) {
+              const welcomeStepData = await welcomeStepResponse.json();
+              setWelcomeStep(welcomeStepData);
+            } else {
+              throw new Error('Failed to fetch welcome step');
+            }
             // Directly fetch questions using API key
             const questionsEndpoint = `/api/questions?apiKey=${apiKey}`;
             const questionsResponse = await fetch(questionsEndpoint);
@@ -155,7 +165,9 @@ export default function PlanformPage() {
                   (a.step || 0) - (b.step || 0)
                 );
                 
-                setQuestions(sortedQuestions);
+                // Add contact information question
+                const questionsWithContact = appendContactQuestion(sortedQuestions);
+                setQuestions(questionsWithContact);
               } else {
                 // Fallback if questions field is missing
                 setQuestions([]);
@@ -179,13 +191,16 @@ export default function PlanformPage() {
               const data = await questionsResponse.json();
               
               // Ensure data is properly formatted for demo
+              let formattedQuestions: Question[] = [];
               if (Array.isArray(data)) {
-                setQuestions(data);
+                formattedQuestions = data;
               } else if (data && data.questions && Array.isArray(data.questions)) {
-                setQuestions(data.questions);
-              } else {
-                setQuestions([]);
+                formattedQuestions = data.questions;
               }
+              
+              // Add contact information question
+              const questionsWithContact = appendContactQuestion(formattedQuestions);
+              setQuestions(questionsWithContact);
             } else {
               throw new Error('Failed to fetch demo questions');
             }
@@ -202,11 +217,53 @@ export default function PlanformPage() {
     fetchData();
   }, []);
 
+  // Function to append a contact information question
+  const appendContactQuestion = (questions: Question[]): Question[] => {
+    // Check if contact question already exists
+    const hasContactQuestion = questions.some(q => 
+      q.fields.some(field => field.id === 'email' || field.id === 'name')
+    );
+    
+    if (hasContactQuestion) {
+      return questions;
+    }
+    
+    // Get the highest step/questionNumber
+    const highestStepNumber = questions.length > 0 
+      ? Math.max(...questions.map(q => q.step || 0), ...questions.map(q => q.questionNumber || 0))
+      : 0;
+    
+    // Create contact question as the last step
+    const contactQuestion: Question = {
+      step: highestStepNumber + 1,
+      questionNumber: highestStepNumber + 1,
+      title: "Your Contact Information",
+      description: "Please provide your contact details so we can send you your personalized plan.",
+      fields: [
+        {
+          id: "name",
+          label: "Your Name",
+          type: "text",
+          placeholder: "Enter your full name",
+          required: true
+        },
+        {
+          id: "email",
+          label: "Your Email Address",
+          type: "text",
+          placeholder: "Enter your email address",
+          required: true
+        }
+      ]
+    };
+    
+    return [...questions, contactQuestion];
+  };
+
   useAutosizeIframe([currentStep]);
   
   // Find current question based on current step
   const currentQuestions = questions.find((q) => q.step === currentStep);
-  const welcomeStep = questions.find(q => q.isWelcomeStep === true);
   const totalSteps = questions.length;
 
   const handleInputChange = (fieldId: string, value: string) => {
@@ -214,6 +271,24 @@ export default function PlanformPage() {
       ...prev,
       [fieldId]: value,
     }));
+
+    // Clear validation errors when user types
+    if (fieldErrors[fieldId]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [fieldId]: ''
+      }));
+    }
+
+    // Validate email as user types
+    if (fieldId === 'email') {
+      if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        setFieldErrors(prev => ({
+          ...prev,
+          [fieldId]: 'Please enter a valid email address'
+        }));
+      }
+    }
   };
 
   const handleCheckboxChange = (fieldId: string, value: string, checked: boolean) => {
@@ -235,6 +310,34 @@ export default function PlanformPage() {
   };
 
   const handleNext = () => {
+    // Validate fields before proceeding
+    if (currentStep > 0 && currentQuestions) {
+      const errors: Record<string, string> = {};
+      let hasErrors = false;
+
+      currentQuestions.fields.forEach(field => {
+        if (field.required) {
+          const value = answers[field.id];
+          
+          if (!value) {
+            errors[field.id] = `${field.label} is required`;
+            hasErrors = true;
+          } else if (field.id === 'email' && typeof value === 'string') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+              errors[field.id] = 'Please enter a valid email address';
+              hasErrors = true;
+            }
+          }
+        }
+      });
+
+      if (hasErrors) {
+        setFieldErrors(errors);
+        return;
+      }
+    }
+
     if (currentStep === 0) {
       setCurrentStep(1);
     } else if (currentStep < totalSteps) {
@@ -328,6 +431,13 @@ export default function PlanformPage() {
         return Array.isArray(value) && value.length > 0;
       }
       
+      // Special validation for email field
+      if (field.id === 'email' && typeof value === 'string') {
+        // Basic email validation regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value);
+      }
+      
       return !!value;
     });
   };
@@ -407,9 +517,15 @@ export default function PlanformPage() {
               value={answers[field.id] as string || ''}
               onChange={(e) => handleInputChange(field.id, e.target.value)}
               required={field.required}
-              className="w-full"
-              style={agency?.primaryColor ? { borderColor: agency.primaryColor, '--focus-ring-color': agency.primaryColor } as React.CSSProperties : undefined}
+              className={`w-full ${fieldErrors[field.id] ? 'border-red-500' : ''}`}
+              style={agency?.primaryColor && !fieldErrors[field.id] ? 
+                { borderColor: agency.primaryColor, '--focus-ring-color': agency.primaryColor } as React.CSSProperties : 
+                undefined}
+              type={field.id === 'email' ? 'email' : 'text'}
             />
+            {fieldErrors[field.id] && (
+              <p className="text-red-500 text-sm mt-1">{fieldErrors[field.id]}</p>
+            )}
           </div>
         );
       case 'textarea':

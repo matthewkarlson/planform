@@ -56,6 +56,14 @@ export const questionsSets = pgTable('questions_sets', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
+export const welcomeSteps = pgTable('welcome_steps', {
+  id: serial('id').primaryKey(),
+  agencyId: integer('agency_id').notNull().references(() => agencies.id).unique(),
+  welcomeStep: json('welcome_step').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }),
@@ -186,6 +194,10 @@ export const agenciesRelations = relations(agencies, ({ many, one }) => ({
     fields: [agencies.id],
     references: [questionsSets.agencyId],
   }),
+  welcomeStep: one(welcomeSteps, {
+    fields: [agencies.id],
+    references: [welcomeSteps.agencyId],
+  }),
 }));
 
 export const usersRelations = relations(users, ({ many, one }) => ({
@@ -275,6 +287,13 @@ export const plansRelations = relations(plans, ({ one }) => ({
 export const questionsSetsRelations = relations(questionsSets, ({ one }) => ({
   agency: one(agencies, {
     fields: [questionsSets.agencyId],
+    references: [agencies.id],
+  }),
+}));
+
+export const welcomeStepsRelations = relations(welcomeSteps, ({ one }) => ({
+  agency: one(agencies, {
+    fields: [welcomeSteps.agencyId],
     references: [agencies.id],
   }),
 }));
