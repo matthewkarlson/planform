@@ -52,6 +52,7 @@ export const questionsSets = pgTable('questions_sets', {
   id: serial('id').primaryKey(),
   agencyId: integer('agency_id').notNull().references(() => agencies.id).unique(),
   questions: json('questions').notNull(),
+  includeWebsiteQuestion: boolean('include_website_question').default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

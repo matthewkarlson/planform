@@ -13,59 +13,7 @@ import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import useAutosizeIframe from '@/lib/useAutosizeIframe';
 import { WelcomeStep } from '@/lib/types/welcomeStep';
-
-// Define type for different field types
-type BaseField = {
-  id: string;
-  label: string;
-  type: string;
-  required: boolean;
-  conditionalShow?: (answers: Record<string, string>) => boolean;
-};
-
-type TextField = BaseField & {
-  type: 'text';
-  placeholder: string;
-};
-
-type TextareaField = BaseField & {
-  type: 'textarea';
-  placeholder: string;
-};
-
-type RadioField = BaseField & {
-  type: 'radio';
-  options: Array<{ value: string; label: string }>;
-};
-
-type CheckboxField = BaseField & {
-  type: 'checkbox';
-  options: Array<{ value: string; label: string }>;
-};
-
-type DropdownField = BaseField & {
-  type: 'dropdown';
-  options: Array<{ value: string; label: string }>;
-  placeholder?: string;
-};
-
-type Field = TextField | TextareaField | RadioField | CheckboxField | DropdownField;
-
-type Question = {
-  questionNumber?: number;
-  step?: number;
-  title: string;
-  description?: string;
-  fields: Field[];
-  welcomeContent?: {
-    heading?: string;
-    subheading?: string;
-    bulletPoints?: string[];
-    footerText?: string;
-    buttonText?: string;
-  };
-  isWelcomeStep?: boolean;
-};
+import { Question, Field } from '@/lib/types/questions';
 
 type Answers = Record<string, string | string[]>;
 
@@ -108,7 +56,7 @@ type AgencyData = {
 };
 
 export default function PlanformPage() {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(-1);
   const [answers, setAnswers] = useState<Answers>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [analysisResponse, setAnalysisResponse] = useState<AnalysisResponse | null>(null);
@@ -151,6 +99,34 @@ export default function PlanformPage() {
             if (questionsResponse.ok) {
               const data = await questionsResponse.json();
               
+              // Create website question with questionNumber 0 to ensure it's shown first
+              const websiteQuestion: Question = {
+                questionNumber: 0,
+                title: 'Website URL',
+                description: 'Please enter your website URL',
+                fields: [
+                  {
+                    id: 'websiteUrl',
+                    label: 'Website URL',
+                    type: 'text',
+                    placeholder: 'Enter your website URL',
+                    required: true
+                  }
+                ]
+              };
+
+              // Only add the website question if includeWebsiteQuestion flag is true
+              if (data.includeWebsiteQuestion) {
+                // Add as the first question
+                data.questions.unshift(websiteQuestion);
+                
+                // Renumber all questions to ensure they are sequential
+                // This ensures we won't skip any during navigation
+                data.questions.forEach((q: Question, i: number) => {
+                  q.questionNumber = i;
+                });
+              }
+
               // Process the questions data structure
               // API returns { agencyId, questions: [...] }
               if (data && data.questions) {
@@ -162,7 +138,7 @@ export default function PlanformPage() {
                 
                 // Sort by step/questionNumber
                 const sortedQuestions = formattedQuestions.sort((a: Question, b: Question) => 
-                  (a.step || 0) - (b.step || 0)
+                  (a.questionNumber || 0) - (b.questionNumber || 0)
                 );
                 
                 // Add contact information question
@@ -198,6 +174,37 @@ export default function PlanformPage() {
                 formattedQuestions = data.questions;
               }
               
+              // Create website question for demos too
+              const websiteQuestion: Question = {
+                questionNumber: 0,
+                title: 'Website URL',
+                description: 'Please enter your website URL',
+                fields: [
+                  {
+                    id: 'websiteUrl',
+                    label: 'Website URL',
+                    type: 'text',
+                    placeholder: 'Enter your website URL',
+                    required: true
+                  }
+                ]
+              };
+
+              // For demo, assume includeWebsiteQuestion is true unless explicitly set to false
+              // Try to access the includeWebsiteQuestion flag if possible
+              const shouldIncludeWebsite = data.includeWebsiteQuestion !== false;
+              
+              if (shouldIncludeWebsite) {
+                if (Array.isArray(formattedQuestions)) {
+                  formattedQuestions.unshift(websiteQuestion);
+                  
+                  // Renumber all questions to ensure they are sequential
+                  formattedQuestions.forEach((q: Question, i: number) => {
+                    q.questionNumber = i;
+                  });
+                }
+              }
+              
               // Add contact information question
               const questionsWithContact = appendContactQuestion(formattedQuestions);
               setQuestions(questionsWithContact);
@@ -230,12 +237,11 @@ export default function PlanformPage() {
     
     // Get the highest step/questionNumber
     const highestStepNumber = questions.length > 0 
-      ? Math.max(...questions.map(q => q.step || 0), ...questions.map(q => q.questionNumber || 0))
+      ? Math.max(...questions.map(q => q.questionNumber || 0), ...questions.map(q => q.questionNumber || 0))
       : 0;
     
     // Create contact question as the last step
     const contactQuestion: Question = {
-      step: highestStepNumber + 1,
       questionNumber: highestStepNumber + 1,
       title: "Your Contact Information",
       description: "Please provide your contact details so we can send you your personalized plan.",
@@ -263,9 +269,9 @@ export default function PlanformPage() {
   useAutosizeIframe([currentStep]);
   
   // Find current question based on current step
-  const currentQuestions = questions.find((q) => q.step === currentStep);
+  const currentQuestions = questions.find((q) => q.questionNumber === currentStep);
   const totalSteps = questions.length;
-
+  
   const handleInputChange = (fieldId: string, value: string) => {
     setAnswers((prev) => ({
       ...prev,
@@ -311,7 +317,7 @@ export default function PlanformPage() {
 
   const handleNext = () => {
     // Validate fields before proceeding
-    if (currentStep > 0 && currentQuestions) {
+    if (currentStep > -1 && currentQuestions) {
       const errors: Record<string, string> = {};
       let hasErrors = false;
 
@@ -338,18 +344,42 @@ export default function PlanformPage() {
       }
     }
 
-    if (currentStep === 0) {
-      setCurrentStep(1);
-    } else if (currentStep < totalSteps) {
-      setCurrentStep((prev) => prev + 1);
+    // Get unique sorted question numbers for navigation
+    const uniqueSortedNumbers = [...new Set(questions.map(q => q.questionNumber))].sort((a, b) => a - b);
+    
+    if (currentStep === -1) {
+      // From welcome screen, go to first question (whatever its number is)
+      if (uniqueSortedNumbers.length > 0) {
+        setCurrentStep(uniqueSortedNumbers[0]);
+      }
+    } else {
+      // Find the current index in sorted numbers
+      const currentIndex = uniqueSortedNumbers.indexOf(currentStep);
+      
+      // If there's a next question, go to it
+      if (currentIndex >= 0 && currentIndex < uniqueSortedNumbers.length - 1) {
+        const nextStep = uniqueSortedNumbers[currentIndex + 1];
+        setCurrentStep(nextStep);
+      }
     }
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
-    } else if (currentStep === 1) {
-      setCurrentStep(0);
+    // Get unique sorted question numbers for navigation
+    const uniqueSortedNumbers = [...new Set(questions.map(q => q.questionNumber))].sort((a, b) => a - b);
+    
+    if (currentStep === uniqueSortedNumbers[0]) {
+      // If we're on the first question, go back to welcome
+      setCurrentStep(-1);
+    } else if (currentStep > -1) {
+      // Find the current index in sorted numbers
+      const currentIndex = uniqueSortedNumbers.indexOf(currentStep);
+      
+      // If there's a previous question, go to it
+      if (currentIndex > 0) {
+        const prevStep = uniqueSortedNumbers[currentIndex - 1];
+        setCurrentStep(prevStep);
+      }
     }
   };
 
@@ -412,7 +442,8 @@ export default function PlanformPage() {
   };
 
   const isStepValid = () => {
-    if (currentStep === 0) return true;
+    // Always allow moving from welcome screen
+    if (currentStep === -1) return true;
     
     if (!currentQuestions) return false;
     
@@ -618,6 +649,26 @@ export default function PlanformPage() {
     }
   };
 
+  // Function to check if we're on the last question
+  const isLastQuestion = () => {
+    if (questions.length === 0) return false;
+    
+    const sortedQuestionNumbers = [...new Set(questions.map(q => q.questionNumber))]
+      .sort((a, b) => a - b);
+    
+    return currentStep === sortedQuestionNumbers[sortedQuestionNumbers.length - 1];
+  };
+
+  // Create a dedicated function for the welcome screen button
+  const handleStartQuestionnaire = () => {
+    const sortedQuestionNumbers = [...new Set(questions.map(q => q.questionNumber))]
+      .sort((a, b) => a - b);
+    
+    if (sortedQuestionNumbers.length > 0) {
+      setCurrentStep(sortedQuestionNumbers[0]);
+    }
+  };
+
   // Show loading state while fetching questions
   if (isLoadingQuestions) {
     return (
@@ -656,26 +707,26 @@ export default function PlanformPage() {
   return (
     <Card className="w-full border-0 shadow-none" style={getCardStyle()}>
       <CardHeader className="px-4 sm:px-6">
-        {currentStep === 0 ? (
+        {currentStep === -1 ? (
           <CardTitle className="text-2xl" style={getHeaderStyle()}>{welcomeStep?.title || 'Marketing Strategy Planner'}</CardTitle>
         ) : (
           <CardTitle className="text-2xl" style={getHeaderStyle()}>{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
         )}
-        {currentStep === 0 ? (
+        {currentStep === -1 ? (
           <p className="text-sm text-muted-foreground mt-1" style={agency?.textColor ? { color: agency.textColor } : undefined}>
             {welcomeStep?.description || 'Answer a few questions about your business to get a personalized marketing strategy.'}
           </p>
         ) : currentQuestions?.description && (
           <p className="text-sm text-muted-foreground mt-1" style={agency?.textColor ? { color: agency.textColor } : undefined}>{currentQuestions.description}</p>
         )}
-        {currentStep > 0 && (
+        {currentStep >= 0 && (
           <div className="text-sm text-muted-foreground mt-2" style={{ color: agency?.secondaryColor || undefined }}>
-            Step {currentStep} of {totalSteps}
+            Step {currentStep + 1} of {totalSteps}
           </div>
         )}
       </CardHeader>
       <CardContent className="space-y-6 px-4 sm:px-6">
-        {currentStep === 0 ? (
+        {currentStep === -1 ? (
           <div className="flex flex-col items-center space-y-6 py-4">
             {agency?.logoUrl && (
               <div className="w-48 h-48 flex items-center justify-center">
@@ -728,28 +779,40 @@ export default function PlanformPage() {
         <Button
           variant="outline"
           onClick={handleBack}
-          disabled={currentStep === 0 || isSubmitting}
+          disabled={currentStep === -1 || isSubmitting}
           style={agency?.secondaryColor ? 
             { borderColor: agency.secondaryColor || undefined, color: agency.secondaryColor || undefined } 
             : undefined}
         >
           <ChevronLeft className="mr-2 h-4 w-4" /> Back
         </Button>
-        <Button
-          onClick={currentStep === totalSteps ? handleSubmit : handleNext}
-          disabled={!isStepValid() || isSubmitting}
-          style={getButtonStyle()}
-        >
-          {isSubmitting ? (
-            <>Processing...</>
-          ) : currentStep === totalSteps ? (
-            <>Submit</>
-          ) : currentStep === 0 ? (
-            <>{welcomeStep?.welcomeContent?.buttonText || 'Get Your Plan'} <ChevronRight className="ml-2 h-4 w-4" /></>
-          ) : (
-            <>Next <ChevronRight className="ml-2 h-4 w-4" /></>
-          )}
-        </Button>
+        {currentStep === -1 ? (
+          // On welcome screen, use dedicated handler
+          <Button
+            onClick={handleStartQuestionnaire}
+            style={getButtonStyle()}
+          >
+            {welcomeStep?.welcomeContent?.buttonText || 'Get Your Plan'} <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        ) : isLastQuestion() ? (
+          // On last question, use submit handler
+          <Button
+            onClick={handleSubmit}
+            disabled={!isStepValid() || isSubmitting}
+            style={getButtonStyle()}
+          >
+            {isSubmitting ? 'Processing...' : 'Submit'}
+          </Button>
+        ) : (
+          // On middle questions, use next handler
+          <Button
+            onClick={handleNext}
+            disabled={!isStepValid() || isSubmitting}
+            style={getButtonStyle()}
+          >
+            Next <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

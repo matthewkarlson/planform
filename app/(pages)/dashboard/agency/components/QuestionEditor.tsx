@@ -8,6 +8,8 @@ import { Question, QuestionSet, createEmptyQuestion } from '@/lib/types/question
 import QuestionItem from './QuestionItem';
 import { ArrowUpIcon, ArrowDownIcon, PlusIcon, SaveIcon } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 interface QuestionEditorProps {
   agencyId: number;
@@ -21,7 +23,8 @@ export default function QuestionEditor({ agencyId }: QuestionEditorProps) {
   const [success, setSuccess] = useState<string | null>(null);
   const [questionSet, setQuestionSet] = useState<QuestionSet>({
     agencyId,
-    questions: []
+    questions: [],
+    includeWebsiteQuestion: true
   });
 
   // Fetch existing question set
@@ -117,6 +120,14 @@ export default function QuestionEditor({ agencyId }: QuestionEditorProps) {
     }));
   };
 
+  // Toggle includeWebsiteQuestion
+  const handleWebsiteQuestionToggle = (checked: boolean) => {
+    setQuestionSet(prev => ({
+      ...prev,
+      includeWebsiteQuestion: checked
+    }));
+  };
+
   // Save the question set
   const handleSave = async () => {
     try {
@@ -204,6 +215,15 @@ export default function QuestionEditor({ agencyId }: QuestionEditorProps) {
             Note: Each question must have fields of the same type only. For example, you cannot mix text fields with radio buttons in the same question.
           </AlertDescription>
         </Alert>
+        
+        <div className="flex items-center gap-2 mb-4">
+          <Checkbox
+            id="include-website-question" 
+            checked={questionSet.includeWebsiteQuestion}
+            onCheckedChange={handleWebsiteQuestionToggle}
+          />
+          <Label htmlFor="include-website-question">Include website question</Label>
+        </div>
         
         {error && (
           <div className="bg-red-50 text-red-800 p-4 mb-4 rounded-md">

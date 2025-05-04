@@ -156,6 +156,7 @@ export async function POST(request: Request) {
         .update(questionsSets)
         .set({
           questions: data.questions,
+          includeWebsiteQuestion: data.includeWebsiteQuestion,
           updatedAt: new Date()
         })
         .where(eq(questionsSets.id, existingSet.id))
@@ -167,6 +168,7 @@ export async function POST(request: Request) {
         .values({
           agencyId: data.agencyId,
           questions: data.questions,
+          includeWebsiteQuestion: data.includeWebsiteQuestion,
           createdAt: new Date(),
           updatedAt: new Date()
         })

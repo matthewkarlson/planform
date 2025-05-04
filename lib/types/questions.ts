@@ -45,6 +45,7 @@ export type QuestionSet = {
   id?: number;
   agencyId: number;
   questions: Question[];
+  includeWebsiteQuestion: boolean;
 };
 
 export type Answers = Record<string, string | string[]>;
