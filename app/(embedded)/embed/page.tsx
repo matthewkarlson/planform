@@ -119,13 +119,12 @@ export default function PlanformPage() {
               if (data.includeWebsiteQuestion) {
                 // Add as the first question
                 data.questions.unshift(websiteQuestion);
-                
-                // Renumber all questions to ensure they are sequential
-                // This ensures we won't skip any during navigation
-                data.questions.forEach((q: Question, i: number) => {
-                  q.questionNumber = i;
-                });
               }
+              
+              // Ensure all questions have sequential numbers starting from 0
+              data.questions.forEach((q: Question, i: number) => {
+                q.questionNumber = i;
+              });
 
               // Process the questions data structure
               // API returns { agencyId, questions: [...] }
@@ -197,12 +196,14 @@ export default function PlanformPage() {
               if (shouldIncludeWebsite) {
                 if (Array.isArray(formattedQuestions)) {
                   formattedQuestions.unshift(websiteQuestion);
-                  
-                  // Renumber all questions to ensure they are sequential
-                  formattedQuestions.forEach((q: Question, i: number) => {
-                    q.questionNumber = i;
-                  });
                 }
+              }
+              
+              // Always renumber questions to ensure they are sequential
+              if (Array.isArray(formattedQuestions)) {
+                formattedQuestions.forEach((q: Question, i: number) => {
+                  q.questionNumber = i;
+                });
               }
               
               // Add contact information question
