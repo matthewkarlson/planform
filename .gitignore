@@ -42,3 +42,4 @@ postgres_data/
 
 # Screenshots
 screenshots/
+.env.local

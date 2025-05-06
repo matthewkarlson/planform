@@ -7,58 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, ArrowLeft, Calendar } from 'lucide-react';
 import Link from 'next/link';
-
-type ServiceRecommendation = {
-  serviceId: string;
-  reason: string;
-};
-
-type ServiceData = {
-  id: number;
-  serviceId: string;
-  name: string;
-  description: string;
-  outcomes: string[];
-  priceLower: number | null;
-  priceUpper: number | null;
-  whenToRecommend: string[];
-};
-
-type AgencyData = {
-  id: number;
-  name: string;
-  contactNumber: string | null;
-  email: string | null;
-  bookingLink: string | null;
-  logoUrl: string | null;
-  primaryColor: string | null;
-  backgroundColor?: string;
-  secondaryColor?: string;
-  currency: string;
-};
-
-// Define website analysis type
-type WebsiteAnalysis = {
-  companyName: string;
-  strengths: string[];
-  weaknesses: string[];
-  recommendations: string[];
-  overallImpression: string;
-};
-
-type AnalysisResponse = {
-  clientResponses: Record<string, string | string[]>;
-  recommendations: ServiceRecommendation[];
-  executiveSummary: string;
-  totalEstimatedCost: {
-    minTotal: number;
-    maxTotal: number;
-    formattedRange: string;
-  };
-  websiteAnalysis?: WebsiteAnalysis;
-  screenshotUrl?: string;
-  screenshotBase64?: string;
-};
+import { ServiceRecommendation, ServiceData, AgencyData, WebsiteAnalysis, AnalysisResponse } from '@/lib/types/embed';
 
 // Component that uses useSearchParams, to be wrapped in Suspense
 function Results() {

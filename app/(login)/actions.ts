@@ -28,6 +28,7 @@ import {
   validatedActionWithUser,
 } from '@/lib/auth/middleware';
 import { sendVerificationEmail, sendPasswordResetEmail, verifyPasswordResetToken, sendInvitationEmail } from '@/lib/email/service';
+import posthog from 'posthog-js';
 
 // Helper function to get user with team
 export async function getUserWithTeam(userId: number) {
@@ -118,7 +119,10 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
     const priceId = formData.get('priceId') as string;
     return createCheckoutSession({ team: foundTeam, priceId });
   }
-
+  posthog.capture('sign_in', {
+    email: foundUser.email,
+    team: foundTeam?.name,
+  });
   redirect('/dashboard');
 });
 

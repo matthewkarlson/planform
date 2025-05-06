@@ -163,9 +163,7 @@ export const services = pgTable('services', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   isActive: boolean('is_active').default(true),
-}, (table) => [
-  unique().on(table.serviceId, table.agencyId),
-]);
+});
 
 export const plans = pgTable('plans', {
   id: serial('id').primaryKey(),

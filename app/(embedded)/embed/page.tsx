@@ -14,46 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import useAutosizeIframe from '@/lib/useAutosizeIframe';
 import { WelcomeStep } from '@/lib/types/welcomeStep';
 import { Question, Field } from '@/lib/types/questions';
-
-type Answers = Record<string, string | string[]>;
-
-// Define new types for the API response
-type ServiceRecommendation = {
-  serviceId: string;
-  reason: string;
-};
-
-type AnalysisResponse = {
-  clientResponses: Answers;
-  recommendations: ServiceRecommendation[];
-  totalEstimatedCost: {
-    minTotal: number;
-    maxTotal: number;
-    formattedRange: string;
-  };
-  websiteAnalysis?: {
-    strengths: string[];
-    weaknesses: string[];
-    recommendations: string[];
-    overallImpression: string;
-  };
-  screenshotUrl?: string;
-  screenshotBase64?: string;
-};
-
-// Define agency data type
-type AgencyData = {
-  id: number;
-  name: string;
-  contactNumber: string | null;
-  email: string | null;
-  bookingLink: string | null;
-  logoUrl: string | null;
-  primaryColor: string | null;
-  secondaryColor: string | null;
-  backgroundColor: string | null;
-  textColor?: string;
-};
+import { Answers, AnalysisResponse, AgencyData, ServiceRecommendation } from '@/lib/types/embed';
 
 export default function PlanformPage() {
   const [currentStep, setCurrentStep] = useState(-1);
