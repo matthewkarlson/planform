@@ -685,7 +685,7 @@ export default function PlanformPage() {
           <CardTitle className="text-2xl text-center" style={getHeaderStyle()}>{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
         )}
         {currentStep === -1 ? (
-          <p className="text-sm text-muted-foreground mt-1" style={agency?.textColor ? { color: agency.textColor } : undefined}>
+          <p className="text-sm text-muted-foreground mt-1 text-center" style={agency?.textColor ? { color: agency.textColor } : undefined}>
             {welcomeStep?.description || 'Answer a few questions about your business to get a personalized marketing strategy.'}
           </p>
         ) : currentQuestions?.description && (
