@@ -16,6 +16,10 @@ import { WelcomeStep } from '@/lib/types/welcomeStep';
 import { Question, Field } from '@/lib/types/questions';
 import { Answers, AnalysisResponse, AgencyData, ServiceRecommendation } from '@/lib/types/embed';
 import posthog from 'posthog-js';
+
+
+
+
 export default function PlanformPage() {
   const [currentStep, setCurrentStep] = useState(-1);
   const [answers, setAnswers] = useState<Answers>({});
@@ -676,9 +680,9 @@ export default function PlanformPage() {
     <Card className="w-full border-0 shadow-none" style={getCardStyle()}>
       <CardHeader className="px-4 sm:px-6">
         {currentStep === -1 ? (
-          <CardTitle className="text-2xl" style={getHeaderStyle()}>{welcomeStep?.title || 'Marketing Strategy Planner'}</CardTitle>
+          <CardTitle className="text-2xl text-center" style={getHeaderStyle()}>{welcomeStep?.title || 'Marketing Strategy Planner'}</CardTitle>
         ) : (
-          <CardTitle className="text-2xl" style={getHeaderStyle()}>{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
+          <CardTitle className="text-2xl text-center" style={getHeaderStyle()}>{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
         )}
         {currentStep === -1 ? (
           <p className="text-sm text-muted-foreground mt-1" style={agency?.textColor ? { color: agency.textColor } : undefined}>
