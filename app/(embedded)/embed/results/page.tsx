@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Download, ArrowLeft, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { ServiceRecommendation, ServiceData, AgencyData, WebsiteAnalysis, AnalysisResponse } from '@/lib/types/embed';
+import posthog from 'posthog-js';
 
 // Component that uses useSearchParams, to be wrapped in Suspense
 function Results() {
@@ -433,6 +434,14 @@ function Results() {
           <a href={agency.bookingLink} target="_blank" rel="noopener noreferrer" className="block">
             <Button 
               className="w-full py-8 text-xl shadow-lg transition-transform hover:scale-105"
+              onClick={() => {
+                posthog.capture('book_plan', {
+                  agency_id: agency?.id,
+                  agency_name: agency?.name,
+                  customer_name: clientName,
+                  customer_email: analysis.clientResponses.email,
+                });
+              }}
               style={agency?.primaryColor ? 
                 { 
                   backgroundColor: agency.primaryColor || undefined,
