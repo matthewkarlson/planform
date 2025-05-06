@@ -11,22 +11,13 @@ interface PostHogProviderProps {
 
 export function PostHogProvider({ children }: PostHogProviderProps) {
   useEffect(() => {
-    if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-      posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-        api_host: 'https://eu.i.posthog.com',
-        ui_host: 'https://eu.posthog.com',
-        capture_pageview: false,
-        capture_pageleave: true,
-        debug: process.env.NODE_ENV === 'development',
-        persistence: 'localStorage',
-        loaded: (posthog) => {
-          if (process.env.NODE_ENV === 'development') {
-            // eslint-disable-next-line no-console
-            console.log('PostHog loaded', posthog);
-          }
-        },
-      })
-    }
+    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+      api_host: '/ingest',
+      ui_host: 'https://eu.posthog.com',
+      capture_pageview: false, // We capture pageviews manually
+      capture_pageleave: true, // Enable pageleave capture
+      debug: process.env.NODE_ENV === 'development',
+    })
   }, [])
 
   return (
@@ -43,26 +34,13 @@ function PostHogPageView() {
   const posthogClient = usePostHog()
 
   useEffect(() => {
-    if (pathname && posthogClient && typeof window !== 'undefined') {
+    if (pathname && posthogClient) {
       let url = window.origin + pathname
       const search = searchParams.toString()
       if (search) {
         url += '?' + search
       }
-      
-      // Add a small delay to ensure PostHog is fully loaded
-      setTimeout(() => {
-        posthogClient.capture('$pageview', { 
-          '$current_url': url,
-          path: pathname,
-          referrer: document.referrer || '',
-          environment: process.env.NODE_ENV
-        })
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log('PostHog pageview captured:', url)
-        }
-      }, 300)
+      posthogClient.capture('$pageview', { '$current_url': url })
     }
   }, [pathname, searchParams, posthogClient])
 
