@@ -12,7 +12,7 @@ interface PostHogProviderProps {
 export function PostHogProvider({ children }: PostHogProviderProps) {
   useEffect(() => {
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-      api_host: '/ingest',
+      api_host: process.env.NODE_ENV === 'production' ? 'https://eu.i.posthog.com' : '/ingest',
       ui_host: 'https://eu.posthog.com',
       capture_pageview: false, // We capture pageviews manually
       capture_pageleave: true, // Enable pageleave capture
