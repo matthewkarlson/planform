@@ -15,7 +15,7 @@ import useAutosizeIframe from '@/lib/useAutosizeIframe';
 import { WelcomeStep } from '@/lib/types/welcomeStep';
 import { Question, Field } from '@/lib/types/questions';
 import { Answers, AnalysisResponse, AgencyData, ServiceRecommendation } from '@/lib/types/embed';
-
+import posthog from 'posthog-js';
 export default function PlanformPage() {
   const [currentStep, setCurrentStep] = useState(-1);
   const [answers, setAnswers] = useState<Answers>({});
@@ -348,7 +348,13 @@ export default function PlanformPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
-    
+    posthog.identify(answers.email as string);
+    posthog.capture('planform_submitted', {
+      agency_id: agency?.id,
+      agency_name: agency?.name,
+      customer_email: answers.email,
+      customer_name: answers.name,
+    });
     try {
       // Format website URL to ensure it has https:// prefix if provided
       let formattedAnswers = { ...answers };
