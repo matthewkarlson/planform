@@ -52,6 +52,6 @@ export type AgencyData = {
   primaryColor: string | null;
   secondaryColor: string | null;
   backgroundColor: string | null;
-  textColor?: string;
+  textColor: string;
   currency: string;
 }; 

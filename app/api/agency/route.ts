@@ -6,35 +6,42 @@ import { getUser, getTeamForUser } from '@/lib/db/queries';
 import { v4 as uuidv4 } from 'uuid';
 
 // Get all agencies for the current user's team
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const user = await getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Get the API key from the request
+    const { searchParams } = new URL(request.url);
+    const apiKey = searchParams.get('apiKey');
+
+    if (!apiKey) {
+      return NextResponse.json({ error: 'API key is required' }, { status: 400 });
     }
 
-    const team = await getTeamForUser();
-    if (!team) {
-      return NextResponse.json({ error: 'No team found' }, { status: 404 });
-    }
-
-    // Check if the team has a paid subscription
-    const hasPaidSubscription = team.subscriptionStatus === 'active' || 
-                              team.subscriptionStatus === 'trialing';
-    
-    if (!hasPaidSubscription) {
-      return NextResponse.json({ error: 'Subscription required' }, { status: 403 });
-    }
-
-    const teamAgencies = await db.query.agencies.findMany({
-      where: eq(agencies.teamId, team.id),
-      orderBy: (agencies, { asc }) => [asc(agencies.name)]
+    // Find agency by API key
+    const agency = await db.query.agencies.findFirst({
+      where: eq(agencies.apiKey, apiKey),
+      columns: {
+        id: true,
+        name: true,
+        logoUrl: true,
+        contactNumber: true,
+        email: true,
+        bookingLink: true,
+        primaryColor: true,
+        secondaryColor: true,
+        backgroundColor: true,
+        textColor: true,
+        currency: true
+      }
     });
 
-    return NextResponse.json(teamAgencies);
+    if (!agency) {
+      return NextResponse.json({ error: 'Agency not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(agency);
   } catch (error) {
-    console.error('Error fetching agencies:', error);
-    return NextResponse.json({ error: 'Failed to fetch agencies' }, { status: 500 });
+    console.error('Error fetching agency:', error);
+    return NextResponse.json({ error: 'Failed to fetch agency' }, { status: 500 });
   }
 }
 

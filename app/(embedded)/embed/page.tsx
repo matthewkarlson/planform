@@ -43,11 +43,11 @@ export default function PlanformPage() {
         
         if (apiKey) {
           // Fetch agency details
-          const agencyEndpoint = `/api/planform/agency?apiKey=${apiKey}`;
+          const agencyEndpoint = `/api/agency?apiKey=${apiKey}`;
           const agencyResponse = await fetch(agencyEndpoint);
-          
           if (agencyResponse.ok) {
             const agencyData = await agencyResponse.json();
+            console.log("agencyData", agencyData);
             setAgency(agencyData);
             const welcomeStepEndpoint = `/api/welcomestep?agencyId=${agencyData.id}`;
             const welcomeStepResponse = await fetch(welcomeStepEndpoint);
@@ -459,18 +459,6 @@ export default function PlanformPage() {
     return false;
   };
 
-  // Get style variables based on agency colors
-  const getStyleVariables = () => {
-    if (!agency) return {};
-    
-    return {
-      '--primary-color': agency.primaryColor || undefined,
-      '--secondary-color': agency.secondaryColor || undefined,
-      '--background-color': agency.backgroundColor || undefined,
-      '--text-color': agency.textColor || undefined,
-    };
-  };
-
   const getButtonStyle = () => {
     if (!agency?.primaryColor) return {};
     
@@ -497,6 +485,15 @@ export default function PlanformPage() {
     };
   };
 
+  // Get text style for regular content
+  const getTextStyle = () => {
+    if (!agency?.textColor) return {};
+    
+    return {
+      color: agency.textColor,
+    };
+  };
+
   // Get radio and checkbox styles to match agency branding
   const getRadioStyle = () => {
     if (!agency?.primaryColor) return {};
@@ -513,7 +510,7 @@ export default function PlanformPage() {
       case 'text':
         return (
           <div key={field.id} className="space-y-1.5">
-            <Label htmlFor={field.id}>{field.label}</Label>
+            <Label htmlFor={field.id} style={getTextStyle()}>{field.label}</Label>
             <Input
               id={field.id}
               placeholder={field.placeholder}
@@ -534,7 +531,7 @@ export default function PlanformPage() {
       case 'textarea':
         return (
           <div key={field.id} className="space-y-1.5">
-            <Label htmlFor={field.id}>{field.label}</Label>
+            <Label htmlFor={field.id} style={getTextStyle()}>{field.label}</Label>
             <Textarea
               id={field.id}
               placeholder={field.placeholder}
@@ -549,7 +546,7 @@ export default function PlanformPage() {
       case 'radio':
         return (
           <div key={field.id} className="space-y-2">
-            <Label>{field.label}</Label>
+            <Label style={getTextStyle()}>{field.label}</Label>
             <RadioGroup
               value={answers[field.id] as string || ''}
               onValueChange={(value) => handleInputChange(field.id, value)}
@@ -563,7 +560,7 @@ export default function PlanformPage() {
                       id={`${field.id}-${option.value}`}
                       style={agency?.primaryColor ? { '--radio-color': agency.primaryColor } as React.CSSProperties : undefined}
                     />
-                    <Label htmlFor={`${field.id}-${option.value}`} className="text-sm">{option.label}</Label>
+                    <Label htmlFor={`${field.id}-${option.value}`} className="text-sm" style={getTextStyle()}>{option.label}</Label>
                   </div>
                 ))}
               </div>
@@ -573,7 +570,7 @@ export default function PlanformPage() {
       case 'checkbox':
         return (
           <div key={field.id} className="space-y-2">
-            <Label>{field.label}</Label>
+            <Label style={getTextStyle()}>{field.label}</Label>
             <div className="space-y-1.5">
               {field.options.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
@@ -585,7 +582,7 @@ export default function PlanformPage() {
                     }
                     style={agency?.primaryColor ? { '--checkbox-color': agency.primaryColor } as React.CSSProperties : undefined}
                   />
-                  <Label htmlFor={`${field.id}-${option.value}`} className="text-sm">{option.label}</Label>
+                  <Label htmlFor={`${field.id}-${option.value}`} className="text-sm" style={getTextStyle()}>{option.label}</Label>
                 </div>
               ))}
             </div>
@@ -594,7 +591,7 @@ export default function PlanformPage() {
       case 'dropdown':
         return (
           <div key={field.id} className="space-y-1.5">
-            <Label htmlFor={field.id}>{field.label}</Label>
+            <Label htmlFor={field.id} style={getTextStyle()}>{field.label}</Label>
             <Select
               value={answers[field.id] as string || ''}
               onValueChange={(value: string) => handleInputChange(field.id, value)}
@@ -685,11 +682,11 @@ export default function PlanformPage() {
           <CardTitle className="text-2xl text-center" style={getHeaderStyle()}>{currentQuestions?.title || 'Planform Questionnaire'}</CardTitle>
         )}
         {currentStep === -1 ? (
-          <p className="text-sm text-muted-foreground mt-1 text-center" style={agency?.textColor ? { color: agency.textColor } : undefined}>
+          <p className="text-sm text-muted-foreground mt-1 text-center" style={getTextStyle()}>
             {welcomeStep?.description || 'Answer a few questions about your business to get a personalized marketing strategy.'}
           </p>
         ) : currentQuestions?.description && (
-          <p className="text-sm text-muted-foreground mt-1" style={agency?.textColor ? { color: agency.textColor } : undefined}>{currentQuestions.description}</p>
+          <p className="text-sm text-muted-foreground mt-1" style={getTextStyle()}>{currentQuestions.description}</p>
         )}
         {currentStep >= 0 && (
           <div className="text-sm text-muted-foreground mt-2" style={{ color: agency?.secondaryColor || undefined }}>
@@ -713,7 +710,7 @@ export default function PlanformPage() {
               <h3 className="text-xl font-semibold" style={getHeaderStyle()}>
                 {welcomeStep?.welcomeContent?.heading || (agency?.name ? `Welcome to ${agency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner')}
               </h3>
-              <div className="space-y-2 text-left" style={agency?.textColor ? { color: agency.textColor } : undefined}>
+              <div className="space-y-2 text-left" style={getTextStyle()}>
                 <p>{welcomeStep?.welcomeContent?.subheading || 'This short questionnaire will help us understand your business and create a personalized marketing strategy for you.'}</p>
                 {(welcomeStep?.welcomeContent?.bulletPoints && welcomeStep.welcomeContent.bulletPoints.length > 0) ? (
                   <>
@@ -742,7 +739,7 @@ export default function PlanformPage() {
           currentQuestions?.fields.map((field) => renderField(field))
         )}
         {error && currentStep > 0 && (
-          <div className="text-red-500 mt-4">
+          <div className="text-red-500 mt-4" style={getTextStyle()}>
             <p>{error}</p>
           </div>
         )}
