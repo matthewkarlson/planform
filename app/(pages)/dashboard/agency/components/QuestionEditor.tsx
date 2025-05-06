@@ -73,28 +73,12 @@ export default function QuestionEditor({ agencyId }: QuestionEditorProps) {
 
   // Update a question
   const handleUpdateQuestion = (updatedQuestion: Question) => {
-    // Validate that all fields are of the same type
-    if (updatedQuestion.fields.length > 1) {
-      const fieldType = updatedQuestion.fields[0].type;
-      const hasDifferentTypes = updatedQuestion.fields.some(field => field.type !== fieldType);
-      
-      if (hasDifferentTypes) {
-        setError('All fields within a question must be of the same type.');
-        return;
-      }
-    }
-    
     setQuestionSet(prev => ({
       ...prev,
       questions: prev.questions.map(q => 
         q.questionNumber === updatedQuestion.questionNumber ? updatedQuestion : q
       )
     }));
-    
-    // Clear any error that might have been set
-    if (error === 'All fields within a question must be of the same type.') {
-      setError(null);
-    }
   };
 
   // Move question up or down in order
