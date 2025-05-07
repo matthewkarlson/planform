@@ -114,15 +114,14 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
     logActivity(foundUser.id, ActivityType.SIGN_IN),
   ]);
 
+  posthog.identify(foundUser.email);
+
   const redirectTo = formData.get('redirect') as string | null;
   if (redirectTo === 'checkout') {
     const priceId = formData.get('priceId') as string;
     return createCheckoutSession({ team: foundTeam, priceId });
   }
-  posthog.capture('sign_in', {
-    email: foundUser.email,
-    team: foundTeam?.name,
-  });
+
   redirect('/dashboard');
 });
 
@@ -241,7 +240,12 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
     await logActivity(createdUser.id, ActivityType.CREATE_TEAM);
   }
   await logActivity(createdUser.id, ActivityType.SIGN_UP);
-
+  posthog.capture('sign_up', {
+    email: createdUser.email,
+    team: createdTeam?.name,
+  });
+  posthog.identify(createdUser.email);
+  
   const redirectTo = formData.get('redirect') as string | null;
   if (redirectTo === 'checkout') {
     const priceId = formData.get('priceId') as string;
