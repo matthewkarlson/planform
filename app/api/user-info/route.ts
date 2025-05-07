@@ -14,7 +14,6 @@ export async function GET() {
       email: user.email,
       name: user.name,
       isVerified: user.isVerified,
-      remainingRuns: user.remainingRuns,
     });
   } catch (error) {
     console.error('Error fetching user info:', error);

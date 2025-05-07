@@ -17,9 +17,6 @@ import { Question, Field } from '@/lib/types/questions';
 import { Answers, AnalysisResponse, AgencyData, ServiceRecommendation } from '@/lib/types/embed';
 import posthog from 'posthog-js';
 
-
-
-
 export default function PlanformPage() {
   const [currentStep, setCurrentStep] = useState(-1);
   const [answers, setAnswers] = useState<Answers>({});
