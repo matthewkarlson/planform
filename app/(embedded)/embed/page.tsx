@@ -116,70 +116,8 @@ export default function PlanformPage() {
               throw new Error('Failed to fetch questions');
             }
           }
-        } else {
-          const agencyEndpoint = `/api/planform/agency_demo`;
-          const agencyResponse = await fetch(agencyEndpoint);
-          
-          if (agencyResponse.ok) {
-            const agencyData = await agencyResponse.json();
-            setAgency(agencyData);
-            
-            // For demo mode, use a demo questions endpoint
-            const questionsResponse = await fetch('/api/planform/questions_demo');
-            
-            if (questionsResponse.ok) {
-              const data = await questionsResponse.json();
-              
-              // Ensure data is properly formatted for demo
-              let formattedQuestions: Question[] = [];
-              if (Array.isArray(data)) {
-                formattedQuestions = data;
-              } else if (data && data.questions && Array.isArray(data.questions)) {
-                formattedQuestions = data.questions;
-              }
-              
-              // Create website question for demos too
-              const websiteQuestion: Question = {
-                questionNumber: 0,
-                title: 'Website URL',
-                description: 'Please enter your website URL',
-                fields: [
-                  {
-                    id: 'websiteUrl',
-                    label: 'Website URL',
-                    type: 'text',
-                    placeholder: 'Enter your website URL',
-                    required: true
-                  }
-                ]
-              };
-
-              // For demo, assume includeWebsiteQuestion is true unless explicitly set to false
-              // Try to access the includeWebsiteQuestion flag if possible
-              const shouldIncludeWebsite = data.includeWebsiteQuestion !== false;
-              
-              if (shouldIncludeWebsite) {
-                if (Array.isArray(formattedQuestions)) {
-                  formattedQuestions.unshift(websiteQuestion);
-                }
-              }
-              
-              // Always renumber questions to ensure they are sequential
-              if (Array.isArray(formattedQuestions)) {
-                formattedQuestions.forEach((q: Question, i: number) => {
-                  q.questionNumber = i;
-                });
-              }
-              
-              // Add contact information question
-              const questionsWithContact = appendContactQuestion(formattedQuestions);
-              setQuestions(questionsWithContact);
-            } else {
-              throw new Error('Failed to fetch demo questions');
-            }
-          }
-        }
-      } catch (err) {
+      }
+    } catch (err) {
         console.error('Error fetching data:', err);
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
       } finally {
@@ -374,7 +312,7 @@ export default function PlanformPage() {
       const apiKey = url.searchParams.get('apiKey');
       
       // Send answers to our API endpoint
-      const response = await fetch('/api/planform/analyze', {
+      const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

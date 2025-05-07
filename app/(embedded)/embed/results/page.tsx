@@ -48,7 +48,7 @@ function Results() {
         // Fetch agency data first using API key
         if (apiKey) {
           // Fetch agency details using API key
-          const agencyEndpoint = `/api/planform/agency?apiKey=${apiKey}`;
+          const agencyEndpoint = `/api/agency?apiKey=${apiKey}`;
           const agencyResponse = await fetch(agencyEndpoint);
           
           if (agencyResponse.ok) {
@@ -56,7 +56,7 @@ function Results() {
             setAgency(agencyData);
             
             // Now fetch services with the agency ID from the retrieved agency data
-            const servicesEndpoint = `/api/planform/services?apiKey=${apiKey}`;
+            const servicesEndpoint = `/api/services?apiKey=${apiKey}`;
             const servicesResponse = await fetch(servicesEndpoint);
             
             if (servicesResponse.ok) {
@@ -70,32 +70,7 @@ function Results() {
               setServices(servicesMap);
             }
           }
-        } else {
-          // Demo mode - fetch demo agency and services
-          const agencyEndpoint = `/api/planform/agency_demo`;
-          const agencyResponse = await fetch(agencyEndpoint);
-          
-          if (agencyResponse.ok) {
-            const agencyData = await agencyResponse.json();
-            setAgency(agencyData);
-            
-            // Fetch demo services
-            const servicesEndpoint = `/api/planform/services_demo`;
-            const servicesResponse = await fetch(servicesEndpoint);
-            
-            if (servicesResponse.ok) {
-              const allServices = await servicesResponse.json();
-              const servicesMap: Record<string, ServiceData> = {};
-              
-              for (const service of allServices) {
-                servicesMap[service.serviceId] = service;
-              }
-              
-              setServices(servicesMap);
-            }
-          }
-        }
-        
+        }        
         // Set client name if available
         if (parsedAnalysis.clientResponses && parsedAnalysis.clientResponses.name) {
           setClientName(parsedAnalysis.clientResponses.name as string);
