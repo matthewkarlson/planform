@@ -39,82 +39,90 @@ export default function PlanformPage() {
         const apiKey = url.searchParams.get('apiKey');
         
         if (apiKey) {
-          // Fetch agency details
+          // Fetch all data in parallel using Promise.all
           const agencyEndpoint = `/api/agency?apiKey=${apiKey}`;
-          const agencyResponse = await fetch(agencyEndpoint);
+          const questionsEndpoint = `/api/questions?apiKey=${apiKey}`;
+          const welcomeStepEndpoint = `/api/welcomestep?apiKey=${apiKey}`;
+          
+          const [agencyResponse, questionsResponse, welcomeStepResponse] = await Promise.all([
+            fetch(agencyEndpoint),
+            fetch(questionsEndpoint),
+            fetch(welcomeStepEndpoint)
+          ]);
+          
+          // Handle agency data
           if (agencyResponse.ok) {
             const agencyData = await agencyResponse.json();
-            console.log("agencyData", agencyData);
             setAgency(agencyData);
-            const welcomeStepEndpoint = `/api/welcomestep?agencyId=${agencyData.id}`;
-            const welcomeStepResponse = await fetch(welcomeStepEndpoint);
-            if (welcomeStepResponse.ok) {
-              const welcomeStepData = await welcomeStepResponse.json();
-              setWelcomeStep(welcomeStepData);
-            } else {
-              throw new Error('Failed to fetch welcome step');
-            }
-            // Directly fetch questions using API key
-            const questionsEndpoint = `/api/questions?apiKey=${apiKey}`;
-            const questionsResponse = await fetch(questionsEndpoint);
-            
-            if (questionsResponse.ok) {
-              const data = await questionsResponse.json();
-              
-              // Create website question with questionNumber 0 to ensure it's shown first
-              const websiteQuestion: Question = {
-                questionNumber: 0,
-                title: 'Website URL',
-                description: 'Please enter your website URL',
-                fields: [
-                  {
-                    id: 'websiteUrl',
-                    label: 'Website URL',
-                    type: 'text',
-                    placeholder: 'Enter your website URL',
-                    required: true
-                  }
-                ]
-              };
-
-              // Only add the website question if includeWebsiteQuestion flag is true
-              if (data.includeWebsiteQuestion) {
-                // Add as the first question
-                data.questions.unshift(websiteQuestion);
-              }
-              
-              // Ensure all questions have sequential numbers starting from 0
-              data.questions.forEach((q: Question, i: number) => {
-                q.questionNumber = i;
-              });
-
-              // Process the questions data structure
-              // API returns { agencyId, questions: [...] }
-              if (data && data.questions) {
-                // Format questions to match the expected structure with step numbers
-                const formattedQuestions = data.questions.map((q: Question, index: number) => ({
-                  ...q,
-                  step: q.questionNumber || index + 1
-                }));
-                
-                // Sort by step/questionNumber
-                const sortedQuestions = formattedQuestions.sort((a: Question, b: Question) => 
-                  (a.questionNumber || 0) - (b.questionNumber || 0)
-                );
-                
-                // Add contact information question
-                const questionsWithContact = appendContactQuestion(sortedQuestions);
-                setQuestions(questionsWithContact);
-              } else {
-                // Fallback if questions field is missing
-                setQuestions([]);
-              }
-            } else {
-              throw new Error('Failed to fetch questions');
-            }
+          } else {
+            throw new Error('Failed to fetch agency data');
           }
-      }
-    } catch (err) {
+          
+          // Handle welcome step data
+          if (welcomeStepResponse.ok) {
+            const welcomeStepData = await welcomeStepResponse.json();
+            setWelcomeStep(welcomeStepData);
+          } else {
+            console.error('Failed to fetch welcome step');
+            // Don't throw error here to avoid blocking other parts from loading
+          }
+          
+          // Handle questions data
+          if (questionsResponse.ok) {
+            const data = await questionsResponse.json();
+            
+            // Create website question with questionNumber 0 to ensure it's shown first
+            const websiteQuestion: Question = {
+              questionNumber: 0,
+              title: 'Website URL',
+              description: 'Please enter your website URL',
+              fields: [
+                {
+                  id: 'websiteUrl',
+                  label: 'Website URL',
+                  type: 'text',
+                  placeholder: 'Enter your website URL',
+                  required: true
+                }
+              ]
+            };
+
+            // Only add the website question if includeWebsiteQuestion flag is true
+            if (data.includeWebsiteQuestion) {
+              // Add as the first question
+              data.questions.unshift(websiteQuestion);
+            }
+            
+            // Ensure all questions have sequential numbers starting from 0
+            data.questions.forEach((q: Question, i: number) => {
+              q.questionNumber = i;
+            });
+
+            // Process the questions data structure
+            if (data && data.questions) {
+              // Format questions to match the expected structure with step numbers
+              const formattedQuestions = data.questions.map((q: Question, index: number) => ({
+                ...q,
+                step: q.questionNumber || index + 1
+              }));
+              
+              // Sort by step/questionNumber
+              const sortedQuestions = formattedQuestions.sort((a: Question, b: Question) => 
+                (a.questionNumber || 0) - (b.questionNumber || 0)
+              );
+              
+              // Add contact information question
+              const questionsWithContact = appendContactQuestion(sortedQuestions);
+              setQuestions(questionsWithContact);
+            } else {
+              // Fallback if questions field is missing
+              setQuestions([]);
+            }
+          } else {
+            throw new Error('Failed to fetch questions');
+          }
+        }
+      } catch (err) {
         console.error('Error fetching data:', err);
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
       } finally {
