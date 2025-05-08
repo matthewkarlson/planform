@@ -28,6 +28,7 @@ export default function PlanformPage() {
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
   const [welcomeStep, setWelcomeStep] = useState<WelcomeStep | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isWelcomeStepLoaded, setIsWelcomeStepLoaded] = useState(false);
   const router = useRouter();
 
   // Fetch agency data and questions
@@ -39,15 +40,36 @@ export default function PlanformPage() {
         const apiKey = url.searchParams.get('apiKey');
         
         if (apiKey) {
-          // Fetch all data in parallel using Promise.all
+          // Create endpoints for all resources
           const agencyEndpoint = `/api/agency?apiKey=${apiKey}`;
           const questionsEndpoint = `/api/questions?apiKey=${apiKey}`;
           const welcomeStepEndpoint = `/api/welcomestep?apiKey=${apiKey}`;
           
-          const [agencyResponse, questionsResponse, welcomeStepResponse] = await Promise.all([
+          // Prioritize welcome step loading
+          // Start fetching welcome step immediately and handle its response first
+          fetch(welcomeStepEndpoint)
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              }
+              console.error('Failed to fetch welcome step');
+              return null;
+            })
+            .then(welcomeStepData => {
+              if (welcomeStepData) {
+                setWelcomeStep(welcomeStepData);
+              }
+              setIsWelcomeStepLoaded(true);
+            })
+            .catch(err => {
+              console.error('Error fetching welcome step:', err);
+              setIsWelcomeStepLoaded(true);
+            });
+          
+          // Fetch agency and questions data in parallel
+          const [agencyResponse, questionsResponse] = await Promise.all([
             fetch(agencyEndpoint),
-            fetch(questionsEndpoint),
-            fetch(welcomeStepEndpoint)
+            fetch(questionsEndpoint)
           ]);
           
           // Handle agency data
@@ -56,15 +78,6 @@ export default function PlanformPage() {
             setAgency(agencyData);
           } else {
             throw new Error('Failed to fetch agency data');
-          }
-          
-          // Handle welcome step data
-          if (welcomeStepResponse.ok) {
-            const welcomeStepData = await welcomeStepResponse.json();
-            setWelcomeStep(welcomeStepData);
-          } else {
-            console.error('Failed to fetch welcome step');
-            // Don't throw error here to avoid blocking other parts from loading
           }
           
           // Handle questions data
@@ -582,7 +595,7 @@ export default function PlanformPage() {
   };
 
   // Show loading state while fetching questions
-  if (isLoadingQuestions) {
+  if (isLoadingQuestions && !isWelcomeStepLoaded) {
     return (
       <Card className="w-full border-0 shadow-none">
         <CardHeader className="px-4 sm:px-6">
@@ -593,6 +606,74 @@ export default function PlanformPage() {
             <p>Loading questionnaire...</p>
           </div>
         </CardContent>
+      </Card>
+    );
+  }
+
+  // Show welcome step as soon as it's loaded, even if other data is still loading
+  if (isWelcomeStepLoaded && currentStep === -1 && !error) {
+    return (
+      <Card className="w-full border-0 shadow-none" style={getCardStyle()}>
+        <CardHeader className="px-4 sm:px-6">
+          <CardTitle className="text-2xl text-center" style={getHeaderStyle()}>{welcomeStep?.title || 'Marketing Strategy Planner'}</CardTitle>
+          <p className="text-sm text-muted-foreground mt-1 text-center" style={getTextStyle()}>
+            {welcomeStep?.description || 'Answer a few questions about your business to get a personalized marketing strategy.'}
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-6 px-4 sm:px-6">
+          <div className="flex flex-col items-center space-y-6 py-4">
+            {agency?.logoUrl && (
+              <div className="w-48 h-48 flex items-center justify-center">
+                <img 
+                  src={agency.logoUrl} 
+                  alt={`${agency.name} logo`} 
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+            )}
+            <div className="text-center space-y-4">
+              <h3 className="text-xl font-semibold" style={getHeaderStyle()}>
+                {welcomeStep?.welcomeContent?.heading || (agency?.name ? `Welcome to ${agency.name}'s Marketing Planner` : 'Welcome to the Marketing Planner')}
+              </h3>
+              <div className="space-y-2 text-left" style={getTextStyle()}>
+                <p>{welcomeStep?.welcomeContent?.subheading || 'This short questionnaire will help us understand your business and create a personalized marketing strategy for you.'}</p>
+                {(welcomeStep?.welcomeContent?.bulletPoints && welcomeStep.welcomeContent.bulletPoints.length > 0) ? (
+                  <>
+                    <p>Here's what to expect:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      {welcomeStep.welcomeContent.bulletPoints.map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <p>Here's what to expect:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>{isLoadingQuestions ? "Several" : questions.length} simple questions about your business</li>
+                      <li>Takes about 3-5 minutes to complete</li>
+                      <li>Get instant recommendations based on your answers</li>
+                    </ul>
+                  </>
+                )}
+                <p className="mt-4">{welcomeStep?.welcomeContent?.footerText || 'Your responses will help us tailor our recommendations specifically to your business needs.'}</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-between border-t pt-4 px-4 sm:px-6">
+          <div></div> {/* Empty div to maintain space for the back button */}
+          <Button
+            onClick={handleStartQuestionnaire}
+            disabled={isLoadingQuestions} // Disable until all questions are loaded
+            style={getButtonStyle()}
+          >
+            {isLoadingQuestions ? 
+              'Loading questions...' : 
+              (welcomeStep?.welcomeContent?.buttonText || 'Get Your Plan')} 
+            {!isLoadingQuestions && <ChevronRight className="ml-2 h-4 w-4" />}
+          </Button>
+        </CardFooter>
       </Card>
     );
   }
