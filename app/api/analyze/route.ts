@@ -10,49 +10,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '@/lib/db/queries';
 import { existsSync } from 'fs';
 import { eq } from 'drizzle-orm';
+import redis from '@/lib/redis';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Rate limiting configuration
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
-const RATE_LIMIT_MAX = 10; // Maximum 10 requests per hour
-
-// Simple in-memory store for rate limiting
-// Note: This will reset on server restart and doesn't work across multiple instances
-// For production, use Redis or another persistent store
-type RateLimitStore = {
-  [key: string]: {
-    count: number;
-    resetAt: number;
-  }
-};
-
-const rateLimitStore: RateLimitStore = {};
-
-// Rate limit function
-function checkRateLimit(identifier: string): { allowed: boolean; resetAt: number; current: number; limit: number } {
-  const now = Date.now();
-  
-  // Initialize or reset expired entries
-  if (!rateLimitStore[identifier] || now > rateLimitStore[identifier].resetAt) {
-    rateLimitStore[identifier] = {
-      count: 0,
-      resetAt: now + RATE_LIMIT_WINDOW
-    };
-  }
-  
-  // Increment count
-  rateLimitStore[identifier].count += 1;
-  
-  return {
-    allowed: rateLimitStore[identifier].count <= RATE_LIMIT_MAX,
-    resetAt: rateLimitStore[identifier].resetAt,
-    current: rateLimitStore[identifier].count,
-    limit: RATE_LIMIT_MAX
-  };
-}
+const RATE_LIMIT_WINDOW = 60 * 60; // 1 hour in seconds
+const RATE_LIMIT_MAX = 10;
 
 // Maximum number of screenshots to keep
 const MAX_SCREENSHOTS = 10;
@@ -164,6 +130,28 @@ async function findChromeExecutable(): Promise<string | null> {
   return null;
 }
 
+async function checkRateLimit(identifier: string): Promise<{ allowed: boolean; resetAt: number; current: number; limit: number }> {
+  const key = `rate_limit:${identifier}`;
+  
+  // Upstash Redis uses different methods for atomic operations
+  const current = await redis.incr(key);
+  
+  if (current === 1) {
+    // Set expiry using expire command
+    await redis.expire(key, RATE_LIMIT_WINDOW);
+  }
+  
+  // Get TTL with ttl command
+  const ttl = await redis.ttl(key);
+  
+  return {
+    allowed: current <= RATE_LIMIT_MAX,
+    resetAt: Date.now() + (ttl as number) * 1000,
+    current: current as number,
+    limit: RATE_LIMIT_MAX,
+  };
+}
+
 export async function POST(request: Request) {
   try {
     // Parse the request body
@@ -176,8 +164,8 @@ export async function POST(request: Request) {
     // Create an identifier for rate limiting (use API key, user ID, or IP)
     const identifier = apiKey || (user?.id?.toString() || '') || request.headers.get('x-forwarded-for') || 'anonymous';
     
-    // Check rate limit
-    const rateLimit = checkRateLimit(identifier);
+    // Check rate limit (now async)
+    const rateLimit = await checkRateLimit(identifier);
     
     // If rate limit exceeded, return 429 Too Many Requests
     if (!rateLimit.allowed) {
