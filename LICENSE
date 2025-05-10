@@ -1,3 +1,9 @@
+# License Notice
+
+This project is based on a template originally licensed under the MIT License (see below). All new contributions and modifications made by Matthew Karlson are licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0) license. See the end of this file for details.
+
+---
+
 MIT License
 
 Copyright (c) 2025 Vercel
@@ -19,3 +25,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+# Additional License for New Contributions
+
+All new code, modifications, and contributions made by Matthew Karlson after the original template are licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0).
+
+You may not use the new contributions for commercial purposes, nor may you distribute modified versions of them. For more information, see:
+https://creativecommons.org/licenses/by-nc-nd/4.0/
+
+Attribution: Matthew Karlson
