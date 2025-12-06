@@ -47,7 +47,7 @@
     "jose": "^6.0.10",
     "lodash": "^4.17.21",
     "lucide-react": "^0.487.0",
-    "next": "15.3.0-canary.31",
+    "next": "15.3.6",
     "nodemailer": "^6.10.1",
     "openai": "^4.94.0",
     "pg": "^8.14.1",
@@ -77,5 +77,6 @@
     "depcheck": "^1.4.7",
     "drizzle-kit": "^0.30.6",
     "tsx": "^4.19.3"
-  }
+  },
+  "packageManager": "pnpm@10.8.1+sha1.a4eff733d0c4ccc179997f0ef4986f6e92427781"
 }
